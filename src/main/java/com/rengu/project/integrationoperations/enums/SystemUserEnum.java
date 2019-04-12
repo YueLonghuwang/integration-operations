@@ -8,8 +8,8 @@ package com.rengu.project.integrationoperations.enums;
 public enum SystemUserEnum {
     // 初始管理员用户
     ADMIN("admin", "admin", SystemRoleEnum.ADMIN, SystemRoleEnum.USER),
-    USER1("user1", "user1", SystemRoleEnum.ADMIN, SystemRoleEnum.USER),
-    USER2("user2", "user2", SystemRoleEnum.ADMIN, SystemRoleEnum.USER);
+    USER1("user1", "user1", SystemRoleEnum.USER, SystemRoleEnum.USER),
+    USER2("user2", "user2", SystemRoleEnum.USER, SystemRoleEnum.USER);
     private String username;
     private String password;
     private SystemRoleEnum[] systemRoleEnums;

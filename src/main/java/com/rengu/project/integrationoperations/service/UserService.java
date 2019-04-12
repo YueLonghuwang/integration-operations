@@ -9,20 +9,31 @@ import com.rengu.project.integrationoperations.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 /**
- *
  * @author hanchangming
  * @date 2019-03-21
  */
@@ -33,15 +44,24 @@ import java.util.*;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
+    @Lazy
     @Autowired
-    public UserService(UserRepository userRepository) {
+    private final SessionRegistry sessionRegistry;
+    @Autowired
+    public UserService(UserRepository userRepository, SessionRegistry sessionRegistry) {
         this.userRepository = userRepository;
+        this.sessionRegistry = sessionRegistry;
     }
 
     //  按用户名加载用户
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return getUserByUsername(username);
+    }
+
+    // 根据用户查询用户名
+    @Cacheable(value = "User_Cache", key = "#username")
+    public UserEntity getUserByUsername(String username) {
         Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
         if (!userEntityOptional.isPresent()) {
             System.out.println(username);
@@ -76,9 +96,9 @@ public class UserService implements UserDetailsService {
     // 根据ID删除用户
     public void deleteUserById(String userId) {
         UserEntity userEntity = getUserById(userId);
-        if (userEntity.isDefaultUser()) {
-            throw new SystemException(SystemStatusCodeEnum.DEFAULT_USER_MODIFY_FORBID);
-        }
+//        if (userEntity.isDefaultUser()) {
+//            throw new SystemException(SystemStatusCodeEnum.DEFAULT_USER_MODIFY_FORBID);
+//        }
         userRepository.delete(userEntity);
     }
 
@@ -90,7 +110,6 @@ public class UserService implements UserDetailsService {
         userEntity.getRoles().remove(roleEntity);
         return userRepository.save(userEntity);
     }
-
     // 根据id修改用户信息
     public UserEntity updateUserById(String userId, UserEntity userArgs) {
         UserEntity userEntity = getUserById(userId);
@@ -127,5 +146,33 @@ public class UserService implements UserDetailsService {
 
     public Page<UserEntity> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
+    }
+
+    //  用户登出
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+            String username = "admin";
+            removeSession(username);
+        }
+        return "SUCCESS";
+    }
+
+    private void removeSession(String username) {
+        for (Object userDetail : sessionRegistry.getAllPrincipals()) {
+            String userName = ((org.springframework.security.core.userdetails.User) userDetail).getUsername();
+            System.out.println(userName);
+            if (userName.equals(username)) {
+                removeSession(userDetail);
+            }
+        }
+    }
+
+    private void removeSession(Object principal) {
+        List<SessionInformation> sessionInformations = sessionRegistry.getAllSessions(principal, false);
+        for (SessionInformation sessionInformation : sessionInformations) {
+            sessionInformation.expireNow();
+        }
     }
 }

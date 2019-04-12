@@ -1,6 +1,5 @@
 package com.rengu.project.integrationoperations.controller;
 
-
 import com.rengu.project.integrationoperations.entity.ResultEntity;
 import com.rengu.project.integrationoperations.entity.RoleEntity;
 import com.rengu.project.integrationoperations.entity.UserEntity;
@@ -18,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 /**
  *
  * @author hanchangming
@@ -90,5 +91,10 @@ public class UserController {
     @GetMapping
     public ResultEntity getUsers(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, userService.getUsers(pageable));
+    }
+
+    @GetMapping(value = "/logout")
+    public ResultEntity logoutPage(HttpServletRequest request, HttpServletResponse response) {
+        return new ResultEntity(SystemStatusCodeEnum.LOGOUT_SUCCESS, userService.logoutPage(request, response));//You can redirect wherever you want, but generally it's a good practice to show login screen again.
     }
 }

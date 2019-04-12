@@ -33,8 +33,9 @@ public enum SystemStatusCodeEnum {
     // 禁止修改默认角色
     DEFAULT_USER_MODIFY_FORBID(204, BackEndFrameworkApplicationMessage.DEFAULT_USER_MODIFY_FORBID),
     // 用户Id不存在
-    USER_ID_NOT_FOUND(205, BackEndFrameworkApplicationMessage.USER_ID_NOT_FOUND);
-
+    USER_ID_NOT_FOUND(205, BackEndFrameworkApplicationMessage.USER_ID_NOT_FOUND),
+    //  登出成功
+    LOGOUT_SUCCESS(206, BackEndFrameworkApplicationMessage.LOGOUT_SUCCESS);
     private int code;
     private String message;
 

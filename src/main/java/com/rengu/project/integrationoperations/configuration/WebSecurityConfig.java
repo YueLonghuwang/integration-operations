@@ -2,12 +2,10 @@ package com.rengu.project.integrationoperations.configuration;
 
 import com.rengu.project.integrationoperations.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -35,11 +33,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final MyAuthenticationSuccessHandler authenticationSuccessHandler;
     private final MyAuthenticationFailHandler authenticationFailHandler;
 
-    private final UserService userService;
+    @Lazy
+    @Autowired
+    private UserService userService;
     SessionRegistry sessionRegistry;
 
-    public WebSecurityConfig(UserService userService, MyAuthenticationFailHandler authenticationFailHandler, MyAuthenticationSuccessHandler authenticationSuccessHandler) {
-        this.userService = userService;
+    public WebSecurityConfig(MyAuthenticationFailHandler authenticationFailHandler, MyAuthenticationSuccessHandler authenticationSuccessHandler) {
+//        this.userService = userService;
         this.authenticationFailHandler = authenticationFailHandler;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
@@ -73,18 +73,29 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+        http.cors().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and().authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .antMatchers("/v2/api-docs/**").permitAll()
                 .anyRequest().authenticated()
+                .antMatchers("/users/**").permitAll()
                 //  前端访问的登录地址
+//                .requestMatchers().antMatchers(HttpMethod.OPTIONS, "/**")
                 .and().formLogin().loginProcessingUrl("/user/login")
                 .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailHandler);
-                http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry);
-                http.httpBasic();
+                .failureHandler(authenticationFailHandler)
+                .and().csrf().disable();
+        http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry);
+        http.csrf().disable();
+        http.httpBasic();
+        http.logout()
+                .deleteCookies("JSESSIONID");
+//                // 触发注销操作的URL
+//                .logoutUrl("/logout")
+//                //  注销成功后跳转的URL
+////                .logoutSuccessUrl("/login.html")
+//                //  指定是否在注销时让JSESSIONID无效
+//
+//                .invalidateHttpSession(true);
     }
-
 
 }

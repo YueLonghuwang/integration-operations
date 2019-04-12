@@ -26,4 +26,6 @@ public class BackEndFrameworkApplicationMessage {
     public static final String DEFAULT_USER_MODIFY_FORBID = "禁止修改（删除）默认用户";
 
     public static final String USER_ID_NOT_FOUND = "该用户Id不存在";
+
+    public static final String LOGOUT_SUCCESS = "退出成功";
 }

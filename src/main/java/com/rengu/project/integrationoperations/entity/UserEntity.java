@@ -41,7 +41,8 @@ public class UserEntity implements UserDetails {
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
     private boolean defaultUser = false;
-
+    private String tel;
+    private String realName;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<RoleEntity> roles;
