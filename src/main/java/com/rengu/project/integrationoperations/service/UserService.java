@@ -2,7 +2,6 @@ package com.rengu.project.integrationoperations.service;
 
 import com.rengu.project.integrationoperations.entity.RoleEntity;
 import com.rengu.project.integrationoperations.entity.UserEntity;
-import com.rengu.project.integrationoperations.enums.SystemRoleEnum;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
 import com.rengu.project.integrationoperations.repository.UserRepository;
@@ -13,21 +12,15 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +49,7 @@ public class UserService implements UserDetailsService {
     //  按用户名加载用户
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity userEntity = new UserEntity();
         return getUserByUsername(username);
     }
 
@@ -103,19 +97,30 @@ public class UserService implements UserDetailsService {
     }
 
     public UserEntity removeRolesById(String userId, RoleEntity roleEntity) {
-        if (roleEntity.getName().equals(SystemRoleEnum.USER.getName())) {
+//        if (roleEntity.getName().equals(SystemRoleEnum.USER.getName())) {
+//            throw new SystemException(SystemStatusCodeEnum.DEFAULT_ROLE_MODIFY_FORBID);
+//        }
+        if (!hasRole(userId)) {
             throw new SystemException(SystemStatusCodeEnum.DEFAULT_ROLE_MODIFY_FORBID);
         }
         UserEntity userEntity = getUserById(userId);
         userEntity.getRoles().remove(roleEntity);
         return userRepository.save(userEntity);
     }
+
+    public boolean hasRole(String userId) {
+        Optional<UserEntity> userEntity = userRepository.findById(userId);
+        if (!userEntity.isPresent()) {
+            throw new SystemException(SystemStatusCodeEnum.USER_ID_NOT_FOUND);
+        }
+        return userEntity.get().getRoles().size() != 2;
+    }
     // 根据id修改用户信息
     public UserEntity updateUserById(String userId, UserEntity userArgs) {
         UserEntity userEntity = getUserById(userId);
-        if (userEntity.isDefaultUser()) {
-            throw new SystemException(SystemStatusCodeEnum.DEFAULT_USER_MODIFY_FORBID);
-        }
+//        if (userEntity.isDefaultUser()) {
+//            throw new SystemException(SystemStatusCodeEnum.DEFAULT_USER_MODIFY_FORBID);
+//        }
         if (!userArgs.getUsername().equals(userEntity.getUsername()) && hasUserByUsername(userArgs.getUsername())) {
             throw new SystemException(SystemStatusCodeEnum.USER_USERNAME_EXISTED);
         }
@@ -123,6 +128,8 @@ public class UserService implements UserDetailsService {
         return userRepository.save(userEntity);
     }
 
+
+    //  用户密码修改
     public UserEntity updateUserPasswordById(String userId, String password) {
         UserEntity userEntity = getUserById(userId);
         userEntity.setPassword(new BCryptPasswordEncoder().encode(password));
@@ -144,35 +151,55 @@ public class UserService implements UserDetailsService {
         return userEntityOptional.get();
     }
 
+    //  根据id查询用户是否存在
+    public boolean hasUserById(String userId) {
+        if (userId.isEmpty()) {
+            throw new SystemException(SystemStatusCodeEnum.USER_ID_NOT_FOUND);
+        }
+        return userRepository.existsById(userId);
+    }
     public Page<UserEntity> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
 
     //  用户登出
-    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-            String username = "admin";
-            removeSession(username);
+//    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth != null) {
+//            new SecurityContextLogoutHandler().logout(request, response, auth);
+//            String username = "admin";
+//            removeSession(username);
+//        }
+//        return "SUCCESS";
+//    }
+//
+//    private void removeSession(String username) {
+//        System.out.println(sessionRegistry.getAllPrincipals().size());
+//        for (Object userDetail : sessionRegistry.getAllPrincipals()) {
+//            String userName = ((org.springframework.security.core.userdetails.User) userDetail).getUsername();
+//            System.out.println(userName);
+//            if (userName.equals(username)) {
+//                removeSession(userDetail);
+//            }
+//        }
+//    }
+//
+//    private void removeSession(Object principal) {
+//        List<SessionInformation> sessionInformations = sessionRegistry.getAllSessions(principal, false);
+//        for (SessionInformation sessionInformation : sessionInformations) {
+//            sessionInformation.expireNow();
+//        }
+//    }
+
+    //  根据用户名修改密码
+    public UserEntity updateUserPasswordByUserName(String username, String password) {
+        if (!hasUserByUsername(username)) {
+            throw new SystemException(SystemStatusCodeEnum.USER_NAME_NOT_FOUND);
         }
-        return "SUCCESS";
+        UserEntity userEntity = getUserByUsername(username);
+        userEntity.setPassword(new BCryptPasswordEncoder().encode(password));
+        return userRepository.save(userEntity);
     }
 
-    private void removeSession(String username) {
-        for (Object userDetail : sessionRegistry.getAllPrincipals()) {
-            String userName = ((org.springframework.security.core.userdetails.User) userDetail).getUsername();
-            System.out.println(userName);
-            if (userName.equals(username)) {
-                removeSession(userDetail);
-            }
-        }
-    }
 
-    private void removeSession(Object principal) {
-        List<SessionInformation> sessionInformations = sessionRegistry.getAllSessions(principal, false);
-        for (SessionInformation sessionInformation : sessionInformations) {
-            sessionInformation.expireNow();
-        }
-    }
 }

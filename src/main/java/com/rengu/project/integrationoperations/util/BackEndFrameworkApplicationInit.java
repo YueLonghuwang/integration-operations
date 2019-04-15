@@ -67,34 +67,5 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
             userService.saveUsers(userEntityList);
             log.info("系统成功初始化" + userEntityList.size() + "个用户");
         }
-        // 建立系统角色
-//        List<RoleEntity> roleEntityList = new ArrayList<>();
-//        for (SystemRoleEnum systemRoleEnum : SystemRoleEnum.values()) {
-//            if (!roleService.hasRoleByName(systemRoleEnum.getName())) {
-//                RoleEntity roleEntity = new RoleEntity(systemRoleEnum);
-//                roleEntityList.add(roleEntity);
-//            }
-//        }
-//        if (!roleEntityList.isEmpty()) {
-//            roleService.saveRoles(roleEntityList);
-//            log.info("系统成功初始化" + roleEntityList.size() + "个角色。");
-//        }
-//        // 建立系统用户
-//        List<UserEntity> userEntityList = new ArrayList<>();
-//        for (SystemUserEnum systemUserEnum : SystemUserEnum.values()) {
-//            if (!userService.hasUserByUsername(systemUserEnum.getUsername())) {
-//                UserEntity userEntity = new UserEntity(systemUserEnum);
-//                Set<RoleEntity> roleEntitySet = new HashSet<>();
-//                for (SystemRoleEnum systemRoleEnum : systemUserEnum.getSystemRoleEnums()) {
-//                    roleEntitySet.add(roleService.getRoleByName(systemRoleEnum.getName()));
-//                }
-//                userEntity.setRoles(roleEntitySet);
-//                userEntityList.add(userEntity);
-//            }
-//        }
-//        if (!userEntityList.isEmpty()) {
-//            userService.saveUsers(userEntityList);
-//            log.info("系统成功初始化" + userEntityList.size() + "个用户。");
-//        }
     }
 }

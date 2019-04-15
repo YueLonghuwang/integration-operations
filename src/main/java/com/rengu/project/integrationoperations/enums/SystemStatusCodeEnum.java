@@ -28,12 +28,14 @@ public enum SystemStatusCodeEnum {
     USER_USERNAME_EXISTED(201, BackEndFrameworkApplicationMessage.USER_USERNAME_EXISTED),
     // 用户名已存在
     USER_USERNAME_NOT_BLANK(202, BackEndFrameworkApplicationMessage.USER_USERNAME_NOT_BLANK),
-    // 用户名已存在
+    // 用户密码已存在
     USER_PASSWORD_NOT_BLANK(203, BackEndFrameworkApplicationMessage.USER_PASSWORD_NOT_BLANK),
-    // 禁止修改默认角色
+    // 禁止修改默认用户
     DEFAULT_USER_MODIFY_FORBID(204, BackEndFrameworkApplicationMessage.DEFAULT_USER_MODIFY_FORBID),
     // 用户Id不存在
     USER_ID_NOT_FOUND(205, BackEndFrameworkApplicationMessage.USER_ID_NOT_FOUND),
+    // 用户名不存在
+    USER_NAME_NOT_FOUND(205, BackEndFrameworkApplicationMessage.USER_ID_NOT_FOUND),
     //  登出成功
     LOGOUT_SUCCESS(206, BackEndFrameworkApplicationMessage.LOGOUT_SUCCESS);
     private int code;
