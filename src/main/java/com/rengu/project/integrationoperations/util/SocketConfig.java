@@ -18,7 +18,7 @@ public class SocketConfig {
             m = i * 2 + 1;
             n = m + 1;
             int intVal = Integer.decode("0x" + hex.substring(i * 2, m) + hex.substring(m, n));
-            ret[i] = Byte.valueOf((byte) intVal);
+            ret[i] = (byte) intVal;
         }
         return ret;
 

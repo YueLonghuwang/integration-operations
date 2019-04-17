@@ -150,15 +150,22 @@ public class DeploymentService {
             byteBuffer.putShort(Short.parseShort(extensionControlCMD.getFilterMinimumFrequency()));
             byteBuffer.putShort(Short.parseShort(extensionControlCMD.getShieldingMaximumFrequency()));
             byteBuffer.putShort(Short.parseShort(extensionControlCMD.getShieldingMinimumFrequency()));
-
-            /*
-              todo
-              位移的运算，拿到值后进行位移的运算
-              拿到二进制的值，用什么装起来，
-             */
+            //  默认值更新标记
+            if (extensionControlCMD.getDefalutUpdate().equals("0")) {
+                byteBuffer.put((byte) 0);
+            } else if (extensionControlCMD.getDefalutUpdate().equals("1")) {
+                byteBuffer.put((byte) 1);
+            }
+            short backupsShort = 0;
+            byteBuffer.putShort(backupsShort);
+            byteBuffer.put(backups);
+            byteBuffer.putShort(backupsShort);
             //  包尾
             getPackageTheTail(byteBuffer);
-            byteBuffer.put(SocketConfig.hexToByte(SocketConfig.end));
+            if (byteBuffer.hasArray()) {
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(byteBuffer.array());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,7 +181,7 @@ public class DeploymentService {
 
     //  分机控制字
     private void extensionControl(String eccs, ByteBuffer byteBuffer) {
-        //  截取分机控制字中的数据》再将二进制文件转换成十进制
+        //  截取分机控制字中的数据》再将二进制转换成十进制
         StringBuilder stringBuilders = new StringBuilder();
         stringBuilders.append(eccs);
         String ecc = stringBuilders.reverse().toString();
