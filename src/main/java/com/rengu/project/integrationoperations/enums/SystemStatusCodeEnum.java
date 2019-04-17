@@ -37,7 +37,14 @@ public enum SystemStatusCodeEnum {
     // 用户名不存在
     USER_NAME_NOT_FOUND(205, BackEndFrameworkApplicationMessage.USER_ID_NOT_FOUND),
     //  登出成功
-    LOGOUT_SUCCESS(206, BackEndFrameworkApplicationMessage.LOGOUT_SUCCESS);
+    LOGOUT_SUCCESS(206, BackEndFrameworkApplicationMessage.LOGOUT_SUCCESS),
+
+
+    //  分机控制指令
+    ExtensionControlCharacter_ERROR(301, BackEndFrameworkApplicationMessage.ExtensionControlCharacter_ERROR),
+    SOCKET_CONNENT_ERROR(302, BackEndFrameworkApplicationMessage.SOCKET_CONNENT_ERROR),
+    SOCKET_FINALLY_ERROR(303, BackEndFrameworkApplicationMessage.SOCKET_FINALLY_ERROR),
+    EXCEED_THE_LIMIT(304, BackEndFrameworkApplicationMessage.EXCEED_THE_LIMIT);
     private int code;
     private String message;
 

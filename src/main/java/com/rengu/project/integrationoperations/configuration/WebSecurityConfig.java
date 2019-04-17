@@ -79,7 +79,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
     protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeRequests().antMatchers("/users/changePassword");
         http.cors().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and().authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
