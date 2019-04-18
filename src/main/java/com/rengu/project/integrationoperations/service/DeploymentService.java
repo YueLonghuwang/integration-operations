@@ -24,7 +24,7 @@ public class DeploymentService {
     private byte backups = 0;
 
     //  发送时间
-    public String sendSystemTiming(String time, String host) {
+    public void sendSystemTiming(String time, String host) {
         try {
             socket = new Socket(host, SocketConfig.port);
             ByteBuffer byteBuffer = ByteBuffer.allocate(12);
@@ -45,6 +45,10 @@ public class DeploymentService {
             for (byte byteM : byteMS) {
                 byteBuffer.put(byteM);
             }
+            if (byteMS.length == 0) {
+                short s = 0;
+                byteBuffer.putShort(s);
+            }
             byte day = Byte.parseByte(time.substring(9, 11));
             byteBuffer.put(day);
             byte month = Byte.parseByte(time.substring(12, 14));
@@ -56,17 +60,15 @@ public class DeploymentService {
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(byteBuffer.array());
             outputStream.close();
-            return "SUCCESS";
         } catch (IOException e) {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
         } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    socket = null;
-                }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
         }
     }
 
@@ -274,7 +276,6 @@ public class DeploymentService {
             StringBuilder minute = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(6, 8))));
             StringBuilder second = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(8, 10))));
             //  拼接秒数
-            System.out.println(second.length());
             int seconds = second.length();
             for (int i = 0; i < 11 - seconds; i++) {
                 second.insert(0, "0");
