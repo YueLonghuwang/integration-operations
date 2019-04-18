@@ -2,8 +2,6 @@ package com.rengu.project.integrationoperations.entity;
 
 import lombok.Data;
 
-import java.util.Map;
-
 /**
  * @Author: yaojiahao
  * @Date: 2019/4/16 12:54
@@ -19,12 +17,12 @@ public class SystemControlCMD {
     private String chooseBandwidth;  // 带宽选择
     private String chooseAntenna1;  //  天线一选择
     private String chooseAntenna2;  //  天线二选择
-    private Map attenuationRF1;  // 射频一衰减
-    private Map attenuationRF2;  // 射频二衰减
+    private String attenuationRF1;  // 射频一衰减
+    private String attenuationRF2;  // 射频二衰减
     private String balancedAttenuationRF1;  // 射频一长电缆均衡衰减控制
     private String balancedAttenuationRF2;  // 射频二长电缆均衡衰减控制
-    private Map attenuationMF1;  // 中频一衰减
-    private Map attenuationMF2;  //  中频二衰减
+    private String attenuationMF1;  // 中频一衰减
+    private String attenuationMF2;  //  中频二衰减
     private String attenuationControlWay;  // 衰减码控制方式
     private String selfInspectionAttenuation;  // 自检源衰减
     private String guidanceSwitch;  // 脉内引导批次号开关

@@ -1,12 +1,15 @@
 package com.rengu.project.integrationoperations.controller;
 
+import com.rengu.project.integrationoperations.entity.ExtensionControlCMD;
 import com.rengu.project.integrationoperations.entity.ResultEntity;
+import com.rengu.project.integrationoperations.entity.SystemControlCMD;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.service.DeploymentService;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -23,16 +26,23 @@ public class DeploymentController {
         this.deploymentService = deploymentService;
     }
 
-    //  根据ID进行websocket通信，发送指令
-    @GetMapping("/{equipmentId}/communication")
-    public ResultEntity sendMessage(@PathVariable(value = "equipmentId") String equipmentId, String message) {
-        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, deploymentService.sendMessage(equipmentId, message));
+    public static void main(String[] args) {
+
     }
 
-    // 接收指令
-    @GetMapping("/receive/communication")
-    public ResultEntity receiveMessage() {
-        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, deploymentService.receiveMessage());
+    @GetMapping("/sendSystemTiming/communication")
+    public ResultEntity sendMessage(@NonNull String time, @NonNull String host) {
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, deploymentService.sendSystemTiming(time, host));
     }
 
+    @PostMapping("/sendExtensionControlCMD/communication")
+    public ResultEntity sendMessage(ExtensionControlCMD extensionControlCMD, String host) {
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, deploymentService.sendExtensionControlCMD(extensionControlCMD, host));
+    }
+
+    @PostMapping("/sendSystemConrolCMD/communication")
+    public ResultEntity sendMessage(SystemControlCMD systemControlCMD, String host) {
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, deploymentService.sendSystemControlCMD(systemControlCMD, host));
+
+    }
 }

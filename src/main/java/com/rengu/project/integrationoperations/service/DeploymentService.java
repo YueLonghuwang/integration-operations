@@ -1,11 +1,10 @@
 package com.rengu.project.integrationoperations.service;
 
 import com.rengu.project.integrationoperations.entity.ExtensionControlCMD;
+import com.rengu.project.integrationoperations.entity.SystemControlCMD;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
-import com.rengu.project.integrationoperations.util.JavaClientUtil;
 import com.rengu.project.integrationoperations.util.SocketConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,67 +20,11 @@ import java.util.Date;
  */
 @Service
 public class DeploymentService {
-    private final UserService userService;
-    private final JavaClientUtil javaClientUtil;
-    //  public static final int port = 8090;
-//              包头
-//  public static final short header = 6863;
-//              包尾
-//  public static final String host = "localhost";
-    Socket socket = null;
+    private Socket socket = null;
     private byte backups = 0;
 
-    @Autowired
-    public DeploymentService(UserService userService, JavaClientUtil javaClientUtil) {
-        this.userService = userService;
-        this.javaClientUtil = javaClientUtil;
-    }
-
-    //  系统校时 包头 1 1010 1100 1111 包尾 1111 1100 0001 1101
-    //  发送系统校时指令
-//    public int getUnsignedByte(short data) {      //将data字节型数据转换为0~65535 (0xFFFF 即 WORD)。
-//        return data & 0x0FFFF;
-//    }
-
-    public void sendSystemTimings(String time, String host) throws IOException {
-//        getUnsignedByte((short) 0xFC1D);
-        if (time.isEmpty()) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:SSS:dd:MM:yyyy");
-            time = simpleDateFormat.format(new Date());
-        }
-        Socket socket = new Socket("198.168.2.5", 6001);
-        //  包头
-//        Integer.toBinaryString(header);
-//        Integer.toBinaryString(end);
-        socket.getOutputStream();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
-//        byteBuffer.putInt(header);
-        OutputStream outputStream = socket.getOutputStream();
-        outputStream.write(byteBuffer.array());
-        outputStream.flush();
-        //  ByteBuffer byteBuffer=ByteBuffer.wrap();
-        //  包尾
-        Integer.toBinaryString(64541);
-        socket.getOutputStream();
-
-    }
-    //  系统控制指令
-
-
-    // 发送信息至后端
-    public String sendMessage(String equipmentId, String message) {
-//        Socket socket = new Socket();
-        return "SUCCESS";
-    }
-
-    // 接收信息至前端
-    public String receiveMessage() {
-        javaClientUtil.receiveMessage();
-        return "SUCCESS";
-    }
-
     //  发送时间
-    public void sendSystemTiming(String time, String host) {
+    public String sendSystemTiming(String time, String host) {
         try {
             socket = new Socket(host, SocketConfig.port);
             ByteBuffer byteBuffer = ByteBuffer.allocate(12);
@@ -113,6 +56,7 @@ public class DeploymentService {
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(byteBuffer.array());
             outputStream.close();
+            return "SUCCESS";
         } catch (IOException e) {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
         } finally {
@@ -121,14 +65,13 @@ public class DeploymentService {
                     socket.close();
                 } catch (IOException e) {
                     socket = null;
-                    throw new SystemException(SystemStatusCodeEnum.SOCKET_FINALLY_ERROR);
                 }
             }
         }
     }
 
     //  分机控制指令
-    public void sendExtensionControlCMD(ExtensionControlCMD extensionControlCMD, String host) {
+    public String sendExtensionControlCMD(ExtensionControlCMD extensionControlCMD, String host) throws SystemException {
         try {
             socket = new Socket(host, SocketConfig.port);
             ByteBuffer byteBuffer = ByteBuffer.allocate(32);
@@ -162,24 +105,28 @@ public class DeploymentService {
             byteBuffer.putShort(backupsShort);
             //  包尾
             getPackageTheTail(byteBuffer);
+            OutputStream outputStream = null;
             if (byteBuffer.hasArray()) {
-                OutputStream outputStream = socket.getOutputStream();
+                outputStream = socket.getOutputStream();
                 outputStream.write(byteBuffer.array());
             }
+            assert outputStream != null;
+            outputStream.close();
+            return "SUCCESS";
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    socket = null;
+                }
+            }
         }
     }
 
-    //  封装包尾信息
-    private void getPackageTheTail(ByteBuffer byteBuffer) {
-        byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
-        for (byte aByte : bytes) {
-            byteBuffer.put(aByte);
-        }
-    }
-
-    //  分机控制字
+    //  分机控制字(解析String为bit)
     private void extensionControl(String eccs, ByteBuffer byteBuffer) {
         //  截取分机控制字中的数据》再将二进制转换成十进制
         StringBuilder stringBuilders = new StringBuilder();
@@ -256,4 +203,140 @@ public class DeploymentService {
         byteBuffer.put(bytes[0]);
         byteBuffer.put(bytes[1]);
     }
+
+    //  发送系统控制指令
+    public String sendSystemControlCMD(SystemControlCMD systemControlCMD, String host) {
+        try {
+            socket = new Socket(host, SocketConfig.port);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(48);
+            byteBuffer.putShort(SocketConfig.header);
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkCycle()));
+            byteBuffer.putShort(Short.parseShort(systemControlCMD.getWorkCycleAmount()));
+            byteBuffer.putShort(Short.parseShort(systemControlCMD.getBeginFrequency()));
+            byteBuffer.putShort(Short.parseShort(systemControlCMD.getEndFrequency()));
+            byteBuffer.putShort(Short.parseShort(systemControlCMD.getSteppedFrequency()));
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getSteppedFrequency()));
+            short shorts = 0;
+            byteBuffer.putShort(shorts);
+            byteBuffer.put(backups);
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getChooseAntenna1()));
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getChooseAntenna2()));
+            byteBuffer.putShort(shorts);
+            //  射频一衰减
+            StringBuilder stringBuilder = new StringBuilder();
+            String attenuationRF1 = stringBuilder.reverse().append(systemControlCMD.getAttenuationRF1()).toString();
+            byte bytes = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF1));
+            byteBuffer.put(bytes);
+            //  射频一长电缆均衡衰减控制
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getBalancedAttenuationRF1()));
+//            第二种方法
+//            StringBuilder stringBuilders = new StringBuilder();
+//            String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getBalancedAttenuationRF1()).toString();
+//            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
+//            byteBuffer.put(bytesAttenuationRF1);
+            byteBuffer.putShort(shorts);
+            //  射频二控制衰减
+            StringBuilder stringBuilder2 = new StringBuilder();
+            String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationRF2()).toString();
+            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
+            byteBuffer.put(byteAttenuationRF2);
+            //  射频二长电缆均衡衰减控制
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getBalancedAttenuationRF2()));
+//            第二种方法
+//            StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
+//            String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getBalancedAttenuationRF2()).toString();
+//            byte bytesAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
+//            byteBuffer.put(bytesAttenuationRF2);
+            byteBuffer.putShort(shorts);
+            //  中频一衰减
+            byte bytesAttenuationMF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getAttenuationMF1()));
+            byteBuffer.put(bytesAttenuationMF1);
+            byteBuffer.putShort(shorts);
+            byteBuffer.put(backups);
+            //  中频二衰减
+            byte bytesAttenuationMF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getAttenuationMF2()));
+            byteBuffer.put(bytesAttenuationMF2);
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getAttenuationControlWay()));
+            byteBuffer.putShort(shorts);
+            //  自检源衰减
+            byteBuffer.put(backups);
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getGuidanceSwitch()));
+            //  脉内引导批次开关
+            byteBuffer.put(backups);
+            //  故障检测门限
+            byteBuffer.put(backups);
+            //  定时时间码
+            String time = systemControlCMD.getTimingCode();
+            //  转换2进制
+            StringBuilder month = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(0, 2))));
+            StringBuilder day = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(2, 4))));
+            StringBuilder hour = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(4, 6))));
+            StringBuilder minute = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(6, 8))));
+            StringBuilder second = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(8, 10))));
+            //  拼接秒数
+            System.out.println(second.length());
+            int seconds = second.length();
+            for (int i = 0; i < 11 - seconds; i++) {
+                second.insert(0, "0");
+            }
+            //  拼接分钟
+            int minutes = minute.length();
+            for (int i = 0; i < 6 - minutes; i++) {
+                minute.insert(0, "0");
+            }
+            //  拼接时钟
+            int hours = hour.length();
+            for (int i = 0; i < 5 - hours; i++) {
+                hour.insert(0, "0");
+            }
+            //  拼接天数
+            int days = day.length();
+            for (int i = 0; i < 5 - days; i++) {
+                day.insert(0, "0");
+            }
+            //  拼接月份
+            int months = month.length();
+            for (int i = 0; i < 4 - months; i++) {
+                month.insert(0, "0");
+            }
+            String thisTime = month.toString() + day.toString() + hour.toString() + minute.toString() + second.toString();
+            byte[] bytes1 = new byte[4];
+            bytes1[0] = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(thisTime.substring(0, 8)));
+            bytes1[1] = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(thisTime.substring(8, 16)));
+            bytes1[2] = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(thisTime.substring(16, 24)));
+            bytes1[3] = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(thisTime.substring(24)));
+            for (byte b : bytes1) {
+                byteBuffer.put(b);
+            }
+            //  单次执行指令集所需时间
+            byteBuffer.putShort(shorts);
+            getPackageTheTail(byteBuffer);
+            OutputStream outputStream = socket.getOutputStream();
+            if (byteBuffer.hasArray()) {
+                outputStream.write(byteBuffer.array());
+            }
+            outputStream.close();
+            return "SUCCESS";
+        } catch (IOException e) {
+            throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    socket = null;
+                }
+            }
+        }
+    }
+
+    //  封装包尾信息
+    private void getPackageTheTail(ByteBuffer byteBuffer) {
+        byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
+        for (byte aByte : bytes) {
+            byteBuffer.put(aByte);
+        }
+    }
+
+
 }
