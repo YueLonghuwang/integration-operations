@@ -18,7 +18,6 @@ import javax.validation.constraints.NotBlank;
 import java.util.*;
 
 /**
- *
  * @author hanchangming
  * @date 2019-03-19
  */
@@ -61,6 +60,7 @@ public class UserEntity implements UserDetails {
         }
         return grantedAuthorities;
     }
+
     @Override
     public String toString() {
         return this.username;

@@ -1,6 +1,7 @@
 package com.rengu.project.integrationoperations.service;
 
 import com.rengu.project.integrationoperations.entity.ExtensionControlCMD;
+import com.rengu.project.integrationoperations.entity.LabelDataFormat;
 import com.rengu.project.integrationoperations.entity.SystemControlCMD;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
@@ -230,25 +231,24 @@ public class DeploymentService {
             byte bytes = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF1));
             byteBuffer.put(bytes);
             //  射频一长电缆均衡衰减控制
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getBalancedAttenuationRF1()));
-//            第二种方法
-//            StringBuilder stringBuilders = new StringBuilder();
+            StringBuilder stringBuilders = new StringBuilder();
+            //  反转数组的原因是因为二级制从第0位开始是从右边开始的，而传过来的值第0位在最左边，所以需要反转
 //            String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getBalancedAttenuationRF1()).toString();
 //            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
-//            byteBuffer.put(bytesAttenuationRF1);
+            byte bytesAttenuationRF1=(byte)SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF1()));
+            byteBuffer.put(bytesAttenuationRF1);
             byteBuffer.putShort(shorts);
             //  射频二控制衰减
             StringBuilder stringBuilder2 = new StringBuilder();
-            String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationRF2()).toString();
-            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
+//            String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationRF2()).toString();
+//            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
+            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF2()));
             byteBuffer.put(byteAttenuationRF2);
             //  射频二长电缆均衡衰减控制
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getBalancedAttenuationRF2()));
-//            第二种方法
-//            StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
-//            String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getBalancedAttenuationRF2()).toString();
-//            byte bytesAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
-//            byteBuffer.put(bytesAttenuationRF2);
+            StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
+            String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getBalancedAttenuationRF2()).toString();
+            byte bytesAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
+            byteBuffer.put(bytesAttenuationRF2);
             byteBuffer.putShort(shorts);
             //  中频一衰减
             byte bytesAttenuationMF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getAttenuationMF1()));
@@ -331,6 +331,67 @@ public class DeploymentService {
         }
     }
 
+    // 标签包数据格式
+    public void labelDataFormat(LabelDataFormat labelDataFormat,String host){
+        try {
+            socket = new Socket(host, SocketConfig.port);
+            // 图三与图四对接不上，猜测是少了 分机4故障状态 所以字节长度调节为546
+            ByteBuffer byteBuffer = ByteBuffer.allocate(546);
+            byteBuffer.putShort(SocketConfig.header);
+            // 表13网络接口数据类型定义
+            short s=0;
+            byteBuffer.putShort(s);
+            // 系统控制信息
+
+            //  GPS数据
+            long longs=0;
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            byteBuffer.putLong(longs);
+            //  数据信息
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //  系统控制信息
+    public void systemControlCmd(ByteBuffer byteBuffer){
+        short header=21496;
+        byteBuffer.putShort(header);
+        //  信息包序号
+
+        //  时间码
+//         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss:dd:MM:yyyy");
+//         String   time = simpleDateFormat.format(new Date());
+//        byte hour = Byte.parseByte(time.substring(0, 2));
+//        byteBuffer.put(hour);
+//        byte minute = Byte.parseByte(time.substring(3, 5));
+//        byteBuffer.put(minute);
+        //  秒>毫秒>int>16进制
+//        String millisecond = Integer.toHexString(Integer.parseInt(time.substring(6, 8)) * 200);
+//        byte[] byteMS = SocketConfig.hexToByte(millisecond);
+//        for (byte byteM : byteMS) {
+//            byteBuffer.put(byteM);
+//        }
+//        if (byteMS.length == 0) {
+//            short s = 0;
+//            byteBuffer.putShort(s);
+//        }
+//        byte day = Byte.parseByte(time.substring(9, 11));
+//        byteBuffer.put(day);
+//        byte month = Byte.parseByte(time.substring(12, 14));
+//        byteBuffer.put(month);
+//        short year = Short.parseShort(time.substring(15));
+//        byteBuffer.putShort(year);
+         //  工作方式
+
+    }
     //  封装包尾信息
     private void getPackageTheTail(ByteBuffer byteBuffer) {
         byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
@@ -338,6 +399,9 @@ public class DeploymentService {
             byteBuffer.put(aByte);
         }
     }
+
+
+
 
 
 }

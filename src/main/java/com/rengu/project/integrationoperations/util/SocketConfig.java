@@ -1,5 +1,7 @@
 package com.rengu.project.integrationoperations.util;
 
+import java.util.*;
+
 /**
  * @Author: yaojiahao
  * @Date: 2019/4/16 18:58
@@ -39,5 +41,22 @@ public class SocketConfig {
             }
         }
         return decimal;
+    }
+    public static void main(String [] args){
+        Set<String> set=new HashSet<>();
+        set.add("192.168.1.101");
+        set.add("192.168.1.102");
+        set.add("192.168.1.103");
+        Set<String> set1 = new HashSet<>(set);
+        List<String> list=new ArrayList<>();
+        list.add("192.168.1.101");
+        list.add("192.168.1.104");
+        list.add("192.168.1.103");
+        set.addAll(list);
+        for (String s : set) {
+            System.out.println(s);
+        }
+        System.out.println(set1.size());
+        System.out.println(set.size());
     }
 }

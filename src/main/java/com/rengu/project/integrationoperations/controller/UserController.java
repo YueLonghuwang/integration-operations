@@ -96,9 +96,4 @@ public class UserController {
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, userService.getUsers(pageable));
     }
 
-    //  用户注销
-//    @GetMapping(value = "/logout")
-//    public ResultEntity logoutPage( HttpServletRequest request, HttpServletResponse response) {
-//        return new ResultEntity(SystemStatusCodeEnum.LOGOUT_SUCCESS, userService.logoutPage(request, response));//You can redirect wherever you want, but generally it's a good practice to show login screen again.
-//    }
 }

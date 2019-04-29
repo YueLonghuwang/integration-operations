@@ -11,6 +11,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author: yaojiahao
@@ -18,17 +21,18 @@ import java.nio.charset.StandardCharsets;
  */
 @Component
 public class JavaClientUtil {
-    public static final int port = 8090;
-    public static final String host = "localhost";
-    @Autowired
-    private final WebSocketUtil webSocketUtil;
+    private static final int port = 8090;
+    private static final String host = "localhost";
 
+    private final WebSocketUtil webSocketUtil;
+    @Autowired
     public JavaClientUtil(WebSocketUtil webSocketUtil) {
         this.webSocketUtil = webSocketUtil;
     }
 
     //  接收消息 使用websocket推送至前端
     public String[] receiveMessage() {
+        List<String> list=new ArrayList<>();
         try {
             //创建一个ServerSocket，这里可以指定连接请求的队列长度
             //new ServerSocket(port,3);意味着当队列中有3个连接请求是，如果Client再请求连接，就会被Server拒绝
@@ -36,11 +40,15 @@ public class JavaClientUtil {
             while (true) {
                 //从请求队列中取出一个连接
                 Socket client = serverSocket.accept();
+                list.add(client.getInetAddress().getHostAddress());
                 // 处理这次连接
                 new HandlerThread(client);
             }
         } catch (Exception e) {
             System.out.println("服务器异常: " + e.getMessage());
+        }
+        for(String a:list){
+            System.out.println(a);
         }
         return null;
     }
@@ -60,7 +68,7 @@ public class JavaClientUtil {
             if (byteBuffer.hasArray()) {
                 bytes = byteBuffer.array();
             }
-            out.print(bytes);
+            out.print(Arrays.toString(bytes));
             out.close();
         } catch (IOException e) {
             System.out.println("客户端异常:" + e.getMessage());
@@ -79,7 +87,7 @@ public class JavaClientUtil {
     private class HandlerThread implements Runnable {
         private Socket socket;
 
-        public HandlerThread(Socket client) {
+        HandlerThread(Socket client) {
             socket = client;
             new Thread(this).start();
         }
