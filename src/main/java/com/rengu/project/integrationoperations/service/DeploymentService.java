@@ -235,7 +235,7 @@ public class DeploymentService {
             //  反转数组的原因是因为二级制从第0位开始是从右边开始的，而传过来的值第0位在最左边，所以需要反转
 //            String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getBalancedAttenuationRF1()).toString();
 //            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
-            byte bytesAttenuationRF1=(byte)SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF1()));
+            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF1()));
             byteBuffer.put(bytesAttenuationRF1);
             byteBuffer.putShort(shorts);
             //  射频二控制衰减
@@ -332,19 +332,19 @@ public class DeploymentService {
     }
 
     // 标签包数据格式
-    public void labelDataFormat(LabelDataFormat labelDataFormat,String host){
+    public void labelDataFormat(LabelDataFormat labelDataFormat, String host) {
         try {
             socket = new Socket(host, SocketConfig.port);
             // 图三与图四对接不上，猜测是少了 分机4故障状态 所以字节长度调节为546
             ByteBuffer byteBuffer = ByteBuffer.allocate(546);
             byteBuffer.putShort(SocketConfig.header);
             // 表13网络接口数据类型定义
-            short s=0;
+            short s = 0;
             byteBuffer.putShort(s);
             // 系统控制信息
 
             //  GPS数据
-            long longs=0;
+            long longs = 0;
             byteBuffer.putLong(longs);
             byteBuffer.putLong(longs);
             byteBuffer.putLong(longs);
@@ -361,8 +361,8 @@ public class DeploymentService {
     }
 
     //  系统控制信息
-    public void systemControlCmd(ByteBuffer byteBuffer){
-        short header=21496;
+    public void systemControlCmd(ByteBuffer byteBuffer) {
+        short header = 21496;
         byteBuffer.putShort(header);
         //  信息包序号
 
@@ -389,9 +389,10 @@ public class DeploymentService {
 //        byteBuffer.put(month);
 //        short year = Short.parseShort(time.substring(15));
 //        byteBuffer.putShort(year);
-         //  工作方式
+        //  工作方式
 
     }
+
     //  封装包尾信息
     private void getPackageTheTail(ByteBuffer byteBuffer) {
         byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
@@ -399,9 +400,6 @@ public class DeploymentService {
             byteBuffer.put(aByte);
         }
     }
-
-
-
 
 
 }
