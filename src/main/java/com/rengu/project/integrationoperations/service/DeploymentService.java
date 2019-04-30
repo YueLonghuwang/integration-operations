@@ -24,6 +24,11 @@ public class DeploymentService {
     private Socket socket = null;
     private byte backups = 0;
 
+    //  系统控制指令帧格式说明
+    private void sendSystemControlCmdFormat(ByteBuffer byteBuffer) {
+//        int frame = ‭1437226410‬;
+    }
+
     //  发送时间
     public void sendSystemTiming(String time, String host) {
         try {
@@ -361,38 +366,37 @@ public class DeploymentService {
     }
 
     //  系统控制信息
-    public void systemControlCmd(ByteBuffer byteBuffer) {
+   /* public void systemControlCmd(ByteBuffer byteBuffer) {
         short header = 21496;
         byteBuffer.putShort(header);
         //  信息包序号
 
         //  时间码
-//         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss:dd:MM:yyyy");
-//         String   time = simpleDateFormat.format(new Date());
-//        byte hour = Byte.parseByte(time.substring(0, 2));
-//        byteBuffer.put(hour);
-//        byte minute = Byte.parseByte(time.substring(3, 5));
-//        byteBuffer.put(minute);
-        //  秒>毫秒>int>16进制
-//        String millisecond = Integer.toHexString(Integer.parseInt(time.substring(6, 8)) * 200);
-//        byte[] byteMS = SocketConfig.hexToByte(millisecond);
-//        for (byte byteM : byteMS) {
-//            byteBuffer.put(byteM);
-//        }
-//        if (byteMS.length == 0) {
-//            short s = 0;
-//            byteBuffer.putShort(s);
-//        }
-//        byte day = Byte.parseByte(time.substring(9, 11));
-//        byteBuffer.put(day);
-//        byte month = Byte.parseByte(time.substring(12, 14));
-//        byteBuffer.put(month);
-//        short year = Short.parseShort(time.substring(15));
-//        byteBuffer.putShort(year);
+         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss:dd:MM:yyyy");
+         String   time = simpleDateFormat.format(new Date());
+        byte hour = Byte.parseByte(time.substring(0, 2));
+        byteBuffer.put(hour);
+        byte minute = Byte.parseByte(time.substring(3, 5));
+        byteBuffer.put(minute);
+//          秒>毫秒>int>16进制
+        String millisecond = Integer.toHexString(Integer.parseInt(time.substring(6, 8)) * 200);
+        byte[] byteMS = SocketConfig.hexToByte(millisecond);
+        for (byte byteM : byteMS) {
+            byteBuffer.put(byteM);
+        }
+        if (byteMS.length == 0) {
+            short s = 0;
+            byteBuffer.putShort(s);
+        }
+        byte day = Byte.parseByte(time.substring(9, 11));
+        byteBuffer.put(day);
+        byte month = Byte.parseByte(time.substring(12, 14));
+        byteBuffer.put(month);
+        short year = Short.parseShort(time.substring(15));
+        byteBuffer.putShort(year);
         //  工作方式
 
-    }
-
+    }*/
     //  封装包尾信息
     private void getPackageTheTail(ByteBuffer byteBuffer) {
         byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
