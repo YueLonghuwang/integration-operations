@@ -4,10 +4,10 @@ import com.rengu.project.integrationoperations.entity.AllHost;
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,12 +27,8 @@ import java.util.Set;
 @Slf4j
 @Component
 public class TCPThread {
-    private final HostRepository hostRepository;
-
     @Autowired
-    public TCPThread(HostRepository hostRepository) {
-        this.hostRepository = hostRepository;
-    }
+    private HostRepository hostRepository;
 
     // 接收Socket
     @Async
@@ -73,21 +69,15 @@ public class TCPThread {
     //  拿到所有的host
     private void allHost(Set<String> set) {
         List<AllHost> list = hostRepository.findAll();
-        //  如果数据库的ip地址有三个，并且当前ip有修改，那么修改当前IP,并且存入数据库
+        //  如果数据库的ip地址有三个，并且当前ip有修改，那么修改当前IP
         Set<String> set1 = new HashSet<>(set);
+
         if (list.size() == 3) {
-            for (AllHost allHost : list) {
+            for(AllHost allHost:list){
                 set.add(allHost.getHost());
             }
-            if (set.size() > 3) {
-                for (AllHost allHost : list) {
-                    hostRepository.deleteById(allHost.getId());
-                }
-                for (String s : set1) {
-                    AllHost allHost = new AllHost();
-                    allHost.setHost(s);
-                    hostRepository.save(allHost);
-                }
+            if(set.size()>3){
+
             }
         } else {
             for (String host : set) {
@@ -104,7 +94,7 @@ public class TCPThread {
         InputStream inputStream = socket.getInputStream();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, byteArrayOutputStream);
-        reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray());
+        reciveAndConvert(byteArrayOutputStream.toByteArray());
     }
 
     //  接收铁塔雷达报文
@@ -113,20 +103,14 @@ public class TCPThread {
         InputStream inputStream = socket.getInputStream();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, byteArrayOutputStream);
-        reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray());
+        reciveAndConvert(byteArrayOutputStream.toByteArray());
     }
 
-    private void reciveAndConvertIronFriendOrFoe(byte[] bytes) {
+    private void reciveAndConvert(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(600);
         byteBuffer.put(bytes);
         // 判断包
         int header = SocketConfig.BinaryToDecimal(byteBuffer.getShort());
-    }
 
-    private void reciveAndConvertIronRadar(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(500);
-        byteBuffer.put(bytes);
-        // 判断包
-        int header = SocketConfig.BinaryToDecimal(byteBuffer.getShort());
     }
 }
