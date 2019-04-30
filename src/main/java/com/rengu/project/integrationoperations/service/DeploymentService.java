@@ -1,11 +1,13 @@
 package com.rengu.project.integrationoperations.service;
 
+import com.rengu.project.integrationoperations.entity.CMDSerialNumber;
 import com.rengu.project.integrationoperations.entity.ExtensionControlCMD;
-import com.rengu.project.integrationoperations.entity.LabelDataFormat;
 import com.rengu.project.integrationoperations.entity.SystemControlCMD;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
+import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: yaojiahao
@@ -23,17 +26,37 @@ import java.util.Date;
 public class DeploymentService {
     private Socket socket = null;
     private byte backups = 0;
+    private final CMDSerialNumberRepository cmdSerialNumberRepository;
+    private final String frameEnd = "AA55AA55";
+    private short shorts = 0;
 
-    //  系统控制指令帧格式说明
+    @Autowired
+    public DeploymentService(CMDSerialNumberRepository cmdSerialNumberRepository) {
+        this.cmdSerialNumberRepository = cmdSerialNumberRepository;
+    }
+
+    //  系统控制指令帧格式说明（头部固定信息）
     private void sendSystemControlCmdFormat(ByteBuffer byteBuffer) {
-//        int frame = ‭1437226410‬;
+        String frameHeader = "55AA55AA";
+        byte[] bytes = SocketConfig.hexToByte(frameHeader);
+        byteBuffer.put(bytes);
+        byteBuffer.putShort(shorts);
+        byteBuffer.putShort(shorts);
     }
 
     //  发送时间
     public void sendSystemTiming(String time, String host) {
         try {
             socket = new Socket(host, SocketConfig.port);
-            ByteBuffer byteBuffer = ByteBuffer.allocate(12);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(40);
+            sendSystemControlCmdFormat(byteBuffer);
+            //  todo 指令编号 存在一个问题，编号的递增是如何，每一次发送指令+1
+            byteBuffer.putInt(addSerialNum());
+            //  byteBuffer.putShort(s);
+            byteBuffer.putInt(40);
+            //  指令类型
+            byteBuffer.putShort((short) 1);
+            byteBuffer.putShort(shorts);
             //  包头
             byteBuffer.putShort(SocketConfig.header);
             //  解时间
@@ -48,12 +71,9 @@ public class DeploymentService {
             //  秒>毫秒>int>16进制
             String millisecond = Integer.toHexString(Integer.parseInt(time.substring(6, 8)) * 1000);
             byte[] byteMS = SocketConfig.hexToByte(millisecond);
-            for (byte byteM : byteMS) {
-                byteBuffer.put(byteM);
-            }
+            byteBuffer.put(byteMS);
             if (byteMS.length == 0) {
-                short s = 0;
-                byteBuffer.putShort(s);
+                byteBuffer.putShort(shorts);
             }
             byte day = Byte.parseByte(time.substring(9, 11));
             byteBuffer.put(day);
@@ -63,6 +83,9 @@ public class DeploymentService {
             byteBuffer.putShort(year);
             //  包尾
             getPackageTheTail(byteBuffer);
+            byteBuffer.putInt(32);
+            byte[] bytes = SocketConfig.hexToByte(frameEnd);
+            byteBuffer.put(bytes);
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(byteBuffer.array());
             outputStream.close();
@@ -82,8 +105,14 @@ public class DeploymentService {
     public String sendExtensionControlCMD(ExtensionControlCMD extensionControlCMD, String host) throws SystemException {
         try {
             socket = new Socket(host, SocketConfig.port);
-            ByteBuffer byteBuffer = ByteBuffer.allocate(32);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(60);
             //  包头
+            sendSystemControlCmdFormat(byteBuffer);
+            //  todo 指令编号 存在一个问题，编号的递增是如何，每一次发送指令+1
+            byteBuffer.putInt(addSerialNum());
+            byteBuffer.putInt(60);
+            byteBuffer.putShort((short) 6);
+            byteBuffer.putShort(shorts);
             byteBuffer.putShort(SocketConfig.header);
             byte pulse = Byte.parseByte(extensionControlCMD.getPulse());
             byteBuffer.put(pulse);
@@ -107,12 +136,15 @@ public class DeploymentService {
             } else if (extensionControlCMD.getDefalutUpdate().equals("1")) {
                 byteBuffer.put((byte) 1);
             }
-            short backupsShort = 0;
-            byteBuffer.putShort(backupsShort);
+
+            byteBuffer.putShort(shorts);
             byteBuffer.put(backups);
-            byteBuffer.putShort(backupsShort);
+            byteBuffer.putShort(shorts);
             //  包尾
             getPackageTheTail(byteBuffer);
+            byteBuffer.putInt(52);
+            //  帧尾
+            byteBuffer.put(SocketConfig.hexToByte(frameEnd));
             OutputStream outputStream = null;
             if (byteBuffer.hasArray()) {
                 outputStream = socket.getOutputStream();
@@ -216,7 +248,12 @@ public class DeploymentService {
     public String sendSystemControlCMD(SystemControlCMD systemControlCMD, String host) {
         try {
             socket = new Socket(host, SocketConfig.port);
-            ByteBuffer byteBuffer = ByteBuffer.allocate(48);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(76);
+            sendSystemControlCmdFormat(byteBuffer);
+            byteBuffer.putInt(addSerialNum());
+            byteBuffer.putInt(76);
+            byteBuffer.putShort((short) 3);
+            byteBuffer.putShort(shorts);
             byteBuffer.putShort(SocketConfig.header);
             byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkCycle()));
             byteBuffer.putShort(Short.parseShort(systemControlCMD.getWorkCycleAmount()));
@@ -224,7 +261,6 @@ public class DeploymentService {
             byteBuffer.putShort(Short.parseShort(systemControlCMD.getEndFrequency()));
             byteBuffer.putShort(Short.parseShort(systemControlCMD.getSteppedFrequency()));
             byteBuffer.put(Byte.parseByte(systemControlCMD.getSteppedFrequency()));
-            short shorts = 0;
             byteBuffer.putShort(shorts);
             byteBuffer.put(backups);
             byteBuffer.put(Byte.parseByte(systemControlCMD.getChooseAntenna1()));
@@ -236,7 +272,7 @@ public class DeploymentService {
             byte bytes = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF1));
             byteBuffer.put(bytes);
             //  射频一长电缆均衡衰减控制
-            StringBuilder stringBuilders = new StringBuilder();
+//            StringBuilder stringBuilders = new StringBuilder();
             //  反转数组的原因是因为二级制从第0位开始是从右边开始的，而传过来的值第0位在最左边，所以需要反转
 //            String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getBalancedAttenuationRF1()).toString();
 //            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
@@ -244,7 +280,7 @@ public class DeploymentService {
             byteBuffer.put(bytesAttenuationRF1);
             byteBuffer.putShort(shorts);
             //  射频二控制衰减
-            StringBuilder stringBuilder2 = new StringBuilder();
+//            StringBuilder stringBuilder2 = new StringBuilder();
 //            String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationRF2()).toString();
 //            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
             byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF2()));
@@ -317,6 +353,8 @@ public class DeploymentService {
             //  单次执行指令集所需时间
             byteBuffer.putShort(shorts);
             getPackageTheTail(byteBuffer);
+            byteBuffer.putInt(68);
+            byteBuffer.put(SocketConfig.hexToByte(frameEnd));
             OutputStream outputStream = socket.getOutputStream();
             if (byteBuffer.hasArray()) {
                 outputStream.write(byteBuffer.array());
@@ -336,74 +374,24 @@ public class DeploymentService {
         }
     }
 
-    // 标签包数据格式
-    public void labelDataFormat(LabelDataFormat labelDataFormat, String host) {
-        try {
-            socket = new Socket(host, SocketConfig.port);
-            // 图三与图四对接不上，猜测是少了 分机4故障状态 所以字节长度调节为546
-            ByteBuffer byteBuffer = ByteBuffer.allocate(546);
-            byteBuffer.putShort(SocketConfig.header);
-            // 表13网络接口数据类型定义
-            short s = 0;
-            byteBuffer.putShort(s);
-            // 系统控制信息
-
-            //  GPS数据
-            long longs = 0;
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            byteBuffer.putLong(longs);
-            //  数据信息
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //  系统控制信息
-   /* public void systemControlCmd(ByteBuffer byteBuffer) {
-        short header = 21496;
-        byteBuffer.putShort(header);
-        //  信息包序号
-
-        //  时间码
-         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss:dd:MM:yyyy");
-         String   time = simpleDateFormat.format(new Date());
-        byte hour = Byte.parseByte(time.substring(0, 2));
-        byteBuffer.put(hour);
-        byte minute = Byte.parseByte(time.substring(3, 5));
-        byteBuffer.put(minute);
-//          秒>毫秒>int>16进制
-        String millisecond = Integer.toHexString(Integer.parseInt(time.substring(6, 8)) * 200);
-        byte[] byteMS = SocketConfig.hexToByte(millisecond);
-        for (byte byteM : byteMS) {
-            byteBuffer.put(byteM);
-        }
-        if (byteMS.length == 0) {
-            short s = 0;
-            byteBuffer.putShort(s);
-        }
-        byte day = Byte.parseByte(time.substring(9, 11));
-        byteBuffer.put(day);
-        byte month = Byte.parseByte(time.substring(12, 14));
-        byteBuffer.put(month);
-        short year = Short.parseShort(time.substring(15));
-        byteBuffer.putShort(year);
-        //  工作方式
-
-    }*/
     //  封装包尾信息
     private void getPackageTheTail(ByteBuffer byteBuffer) {
         byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
-        for (byte aByte : bytes) {
-            byteBuffer.put(aByte);
-        }
+        byteBuffer.put(bytes);
     }
 
-
+    // 查询当前编号,并且+1
+    private int addSerialNum() {
+        List<CMDSerialNumber> list = cmdSerialNumberRepository.findAll();
+        int a = 0;
+        if (list.size() == 1) {
+            for (CMDSerialNumber cmdSerialNumber : list) {
+                assert cmdSerialNumber != null;
+                a = cmdSerialNumber.getSerialNumber() + 1;
+                cmdSerialNumber.setSerialNumber(a);
+                cmdSerialNumberRepository.save(cmdSerialNumber);
+            }
+        }
+        return a;
+    }
 }

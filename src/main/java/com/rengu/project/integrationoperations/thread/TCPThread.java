@@ -43,7 +43,7 @@ public class TCPThread {
             ServerSocket serverSocket = new ServerSocket(ironFriendOrFoePort);
             while (true) {
                 Socket client = serverSocket.accept();
-                scoketIronFriendOrFoeHandler(client);
+                socketIronFriendOrFoeHandler(client);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class TCPThread {
                 if (setHost.size() == 3) {
                     allHost(setHost);
                 }
-                scoketIronRadarHandler(client);
+                socketIronRadarHandler(client);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,30 +100,30 @@ public class TCPThread {
 
     //  接收铁塔敌我报文
     @Async
-    public void scoketIronFriendOrFoeHandler(Socket socket) throws IOException {
+    public void socketIronFriendOrFoeHandler(Socket socket) throws IOException {
         InputStream inputStream = socket.getInputStream();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, byteArrayOutputStream);
-        reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray());
+        receiveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray());
     }
 
     //  接收铁塔雷达报文
     @Async
-    public void scoketIronRadarHandler(Socket socket) throws IOException {
+    public void socketIronRadarHandler(Socket socket) throws IOException {
         InputStream inputStream = socket.getInputStream();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, byteArrayOutputStream);
-        reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray());
+        receiveAndConvertIronRadar(byteArrayOutputStream.toByteArray());
     }
 
-    private void reciveAndConvertIronFriendOrFoe(byte[] bytes) {
+    private void receiveAndConvertIronFriendOrFoe(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(600);
         byteBuffer.put(bytes);
         // 判断包
         int header = SocketConfig.BinaryToDecimal(byteBuffer.getShort());
     }
 
-    private void reciveAndConvertIronRadar(byte[] bytes) {
+    private void receiveAndConvertIronRadar(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
         byteBuffer.put(bytes);
         // 判断包

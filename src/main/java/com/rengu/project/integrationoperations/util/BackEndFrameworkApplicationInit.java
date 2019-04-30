@@ -1,9 +1,11 @@
 package com.rengu.project.integrationoperations.util;
 
+import com.rengu.project.integrationoperations.entity.CMDSerialNumber;
 import com.rengu.project.integrationoperations.entity.RoleEntity;
 import com.rengu.project.integrationoperations.entity.UserEntity;
 import com.rengu.project.integrationoperations.enums.SystemRoleEnum;
 import com.rengu.project.integrationoperations.enums.SystemUserEnum;
+import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
 import com.rengu.project.integrationoperations.service.RoleService;
 import com.rengu.project.integrationoperations.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +31,13 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
 
     private final RoleService roleService;
     private final UserService userService;
+    private final CMDSerialNumberRepository cmdSerialNumberRepository;
 
     @Autowired
-    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService) {
+    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService, CMDSerialNumberRepository cmdSerialNumberRepository) {
         this.roleService = roleService;
         this.userService = userService;
+        this.cmdSerialNumberRepository = cmdSerialNumberRepository;
     }
 
     @Override
@@ -62,6 +66,12 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
                 userEntity.setRoles(roleEntitySet);
                 userEntityList.add(userEntity);
             }
+        }
+        //  初始化编号
+        if(cmdSerialNumberRepository.findAll().size()==0){
+            CMDSerialNumber cmdSerialNumber=new CMDSerialNumber();
+            cmdSerialNumber.setSerialNumber(0);
+            cmdSerialNumberRepository.save(cmdSerialNumber);
         }
         if (!userEntityList.isEmpty()) {
             userService.saveUsers(userEntityList);
