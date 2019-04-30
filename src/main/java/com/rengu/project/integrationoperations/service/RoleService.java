@@ -81,6 +81,7 @@ public class RoleService {
         if (!roleEntityOptional.isPresent()) {
             throw new SystemException(SystemStatusCodeEnum.ROLE_NAME_NOT_FOUND);
         }
+        system.out.println("RoleService");
         return roleEntityOptional.get();
     }
 
