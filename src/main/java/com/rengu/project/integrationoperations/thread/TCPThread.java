@@ -116,6 +116,7 @@ public class TCPThread {
         reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray());
     }
 
+    //  接收铁塔敌我报文
     private void reciveAndConvertIronFriendOrFoe(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(600);
         byteBuffer.put(bytes);
@@ -123,6 +124,7 @@ public class TCPThread {
         int header = SocketConfig.BinaryToDecimal(byteBuffer.getShort());
     }
 
+    //  接收铁塔雷达报文
     private void reciveAndConvertIronRadar(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
         byteBuffer.put(bytes);
