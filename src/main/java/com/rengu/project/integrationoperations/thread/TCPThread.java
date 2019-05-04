@@ -1,6 +1,7 @@
 package com.rengu.project.integrationoperations.thread;
 
 import com.rengu.project.integrationoperations.entity.AllHost;
+import com.rengu.project.integrationoperations.entity.LabelDataFormat;
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -116,19 +117,50 @@ public class TCPThread {
         reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray());
     }
 
-    //  接收铁塔敌我报文
     private void reciveAndConvertIronFriendOrFoe(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(600);
         byteBuffer.put(bytes);
         // 判断包
-        int header = SocketConfig.BinaryToDecimal(byteBuffer.getShort());
+        short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort());
+        short dataType = byteBuffer.getShort(3);
+        int dataLength = byteBuffer.getInt(5);
+        byte[] systemBytes = new byte[64];
+        byteBuffer.get(systemBytes, 9, 64);
+        byte[] dataGPS = new byte[64];
+        byteBuffer.get(dataGPS, 73, 64);
+        LabelDataFormat labelDataFormat = new LabelDataFormat();
+        labelDataFormat.setSendNodeNum(byteBuffer.get(137));
+        labelDataFormat.setReceiveNodeNum(byteBuffer.get(138));
+        labelDataFormat.setReceiveCmdCount(byteBuffer.getShort(139));
+        labelDataFormat.setReceiveCmdState(byteBuffer.getShort(141));
+        labelDataFormat.setEquipmentSerialNum(byteBuffer.getShort(143));
+        labelDataFormat.setFrontEndWorkT(byteBuffer.getShort(145));
+        labelDataFormat.setSynthesizeOneWorkT(byteBuffer.getShort(147));
+        labelDataFormat.setSynthesizeTwoWorkT(byteBuffer.getShort(149));
+        labelDataFormat.setExtensionTwoWorkT(byteBuffer.getShort(151));
+        labelDataFormat.setExtensionThreeWorkT(byteBuffer.getShort(153));
+        labelDataFormat.setExtensionFourWorkT(byteBuffer.getShort(155));
+        labelDataFormat.setExtensionFiveWorkT(byteBuffer.getShort(157));
+        labelDataFormat.setExtensionSixWorkT(byteBuffer.getShort(159));
+        labelDataFormat.setOverallPulseUploadingNum1030(byteBuffer.getInt(161));
+        labelDataFormat.setFriendOrFoeRecognitionNum1030(byteBuffer.getInt(165));
+        labelDataFormat.setMFNum1030(byteBuffer.getInt(169));
+        labelDataFormat.setOverallPulseNum1090(byteBuffer.getInt(173));
+        labelDataFormat.setFriendOrFoeRecognitionNum1090(byteBuffer.getInt(177));
+        labelDataFormat.setMFNum1090(byteBuffer.getInt(181));
+        labelDataFormat.setOverallPulseNum740(byteBuffer.getInt(185));
+        labelDataFormat.setFriendOrFoeRecognitionNum1464(byteBuffer.getInt(189));
+        labelDataFormat.setMFNum1464(byteBuffer.getInt(193));
+        labelDataFormat.setFriendOrFoeRecognitionNum1532(byteBuffer.getInt(197));
+        labelDataFormat.setMFNum1532(byteBuffer.getInt(201));
+        labelDataFormat.setOverallPulseNum1464(byteBuffer.getInt(205));
     }
 
-    //  接收铁塔雷达报文
     private void reciveAndConvertIronRadar(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
         byteBuffer.put(bytes);
         // 判断包
-        int header = SocketConfig.BinaryToDecimal(byteBuffer.getShort());
+
     }
+
 }
