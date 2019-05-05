@@ -117,6 +117,7 @@ public class TCPThread {
         reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray());
     }
 
+    //  接收铁塔敌我报文
     private void reciveAndConvertIronFriendOrFoe(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(600);
         byteBuffer.put(bytes);
@@ -154,6 +155,81 @@ public class TCPThread {
         labelDataFormat.setFriendOrFoeRecognitionNum1532(byteBuffer.getInt(197));
         labelDataFormat.setMFNum1532(byteBuffer.getInt(201));
         labelDataFormat.setOverallPulseNum1464(byteBuffer.getInt(205));
+        labelDataFormat.setOverallPulseNum1532(byteBuffer.getInt(209));
+        labelDataFormat.setMFM51030(byteBuffer.getInt(213));
+        labelDataFormat.setMFM1090(byteBuffer.getInt(217));
+        // 分机计数  传过来的时候
+        /*
+         *   尾 》》》头
+         *   截取5个字节
+         *   再转换成2进制
+         *   在循环的时候把从最后一个字节向前遍历 头 》》》尾
+         * */
+        byte[] extensionCount = new byte[5];
+        byteBuffer.get(extensionCount, 221, 5);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : bytes) {
+            String tString = Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
+            stringBuilder.append(tString);
+        }
+        String extensionCounts = stringBuilder.toString();
+        labelDataFormat.setMainControlFPGA1(extensionCounts.substring(0, 2));
+        labelDataFormat.setMainControlFPGA2(extensionCounts.substring(2, 4));
+        labelDataFormat.setMainControlDSP(extensionCounts.substring(4, 6));
+        labelDataFormat.setDetectionOneFPGA1(extensionCounts.substring(6, 8));
+        labelDataFormat.setDetectionOneFPGA2(extensionCounts.substring(8, 10));
+        labelDataFormat.setDetectionOneDSP(extensionCounts.substring(10, 12));
+        labelDataFormat.setDetectionTwoFPGA1(extensionCounts.substring(12, 14));
+        labelDataFormat.setDetectionTwoFPGA2(extensionCounts.substring(14, 16));
+        labelDataFormat.setDetectionTwoDSP(extensionCounts.substring(16, 18));
+        labelDataFormat.setDetectionThreeFPGA1(extensionCounts.substring(18, 20));
+        labelDataFormat.setDetectionThreeFPGA2(extensionCounts.substring(20, 22));
+        labelDataFormat.setDetectionThreeDSP(extensionCounts.substring(22, 24));
+        labelDataFormat.setDetectionFourFPGA1(extensionCounts.substring(24, 26));
+        labelDataFormat.setDetectionFourFPGA2(extensionCounts.substring(26, 28));
+        labelDataFormat.setNoteTheNumber(extensionCounts.substring(37, 38));
+        labelDataFormat.setExternalSecPulseAbnormalSign(extensionCounts.substring(38, 39));
+        labelDataFormat.setPulsePosition(extensionCounts.substring(39));
+        //  主控故障状态
+        byte mainControlState = byteBuffer.get(229);
+        String mainControlStates = Integer.toBinaryString((mainControlState & 0xFF) + 0x100).substring(1);
+        labelDataFormat.setSignalDetection2(mainControlStates.substring(0, 1));
+        labelDataFormat.setSignalDetection1(mainControlStates.substring(1, 2));
+        labelDataFormat.setDDR2_2(mainControlStates.substring(2, 3));
+        labelDataFormat.setDDR2_1(mainControlStates.substring(3, 4));
+        labelDataFormat.setDDR3_2(mainControlStates.substring(4, 5));
+        labelDataFormat.setDDR3_1(mainControlStates.substring(5));
+        // 分机故障状态
+        labelDataFormat.setExtensionMalfunctionState1(byteBuffer.get(230));
+        labelDataFormat.setExtensionMalfunctionState2(byteBuffer.get(231));
+//        labelDataFormat.setExtensionMalfunctionState3(byteBuffer.get(232));
+        labelDataFormat.setExtensionMalfunctionState4(byteBuffer.get(233));
+        labelDataFormat.setMainControlIP(byteBuffer.getInt(246));
+        labelDataFormat.setGPRSOneIP(byteBuffer.getInt(250));
+        labelDataFormat.setMainControlDSPPort(byteBuffer.getShort(262));
+        labelDataFormat.setGPRSOneDSPPort(byteBuffer.getShort(264));
+        byte[] bytes1 = new byte[6];
+        byteBuffer.get(bytes1, 268, 6);
+        labelDataFormat.setMainControlHost(bytes1);
+        byte[] bytes2 = new byte[6];
+        byteBuffer.get(bytes2,274,6);
+        labelDataFormat.setGPRSOneMACHost(bytes2);
+        labelDataFormat.setMainControlGateway(byteBuffer.getInt(292));
+        labelDataFormat.setGPRSOneGateway(byteBuffer.getInt(296));
+        labelDataFormat.setMainControlUpperIP(byteBuffer.getInt(308));
+        labelDataFormat.setGPRSOneUpperIP(byteBuffer.getInt(312));
+        labelDataFormat.setInteriorStateIP(byteBuffer.getInt(324));
+        labelDataFormat.setUpperSysControlCMDPort(byteBuffer.getShort(328));
+        labelDataFormat.setInteriorCMDPort(byteBuffer.getShort(332));
+        labelDataFormat.setGPRSReconsitutionIP(byteBuffer.getInt(334));
+        labelDataFormat.setGPRSReconsitutionPort(byteBuffer.getShort(338));
+        labelDataFormat.setDSPInteriorCMDPort(byteBuffer.getShort(340));
+        byte[] bytes3 = new byte[14];
+        byteBuffer.get(bytes3,344,14);
+        labelDataFormat.setFPGAReconsitutionState(bytes3);
+        labelDataFormat.setDSPReconsitutionState(byteBuffer.getInt(358));
+        labelDataFormat.setDSPReconsitutionIdentification(byteBuffer.getInt(362));
+//        labelDataFormat.setIPReconsitutionIdentification();
     }
 
     private void reciveAndConvertIronRadar(byte[] bytes) {
