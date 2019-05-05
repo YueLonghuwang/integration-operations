@@ -209,27 +209,35 @@ public class TCPThread {
         labelDataFormat.setMainControlDSPPort(byteBuffer.getShort(262));
         labelDataFormat.setGPRSOneDSPPort(byteBuffer.getShort(264));
         byte[] bytes1 = new byte[6];
-        byteBuffer.get(bytes1, 268, 6);
+        byteBuffer.get(bytes1, 270, 6);
         labelDataFormat.setMainControlHost(bytes1);
         byte[] bytes2 = new byte[6];
-        byteBuffer.get(bytes2,274,6);
+        byteBuffer.get(bytes2, 276, 6);
         labelDataFormat.setGPRSOneMACHost(bytes2);
-        labelDataFormat.setMainControlGateway(byteBuffer.getInt(292));
-        labelDataFormat.setGPRSOneGateway(byteBuffer.getInt(296));
-        labelDataFormat.setMainControlUpperIP(byteBuffer.getInt(308));
-        labelDataFormat.setGPRSOneUpperIP(byteBuffer.getInt(312));
-        labelDataFormat.setInteriorStateIP(byteBuffer.getInt(324));
-        labelDataFormat.setUpperSysControlCMDPort(byteBuffer.getShort(328));
+        labelDataFormat.setMainControlGateway(byteBuffer.getInt(294));
+        labelDataFormat.setGPRSOneGateway(byteBuffer.getInt(298));
+        labelDataFormat.setMainControlUpperIP(byteBuffer.getInt(310));
+        labelDataFormat.setGPRSOneUpperIP(byteBuffer.getInt(314));
+        labelDataFormat.setInteriorStateIP(byteBuffer.getInt(326));
+        labelDataFormat.setUpperSysControlCMDPort(byteBuffer.getShort(330));
         labelDataFormat.setInteriorCMDPort(byteBuffer.getShort(332));
         labelDataFormat.setGPRSReconsitutionIP(byteBuffer.getInt(334));
         labelDataFormat.setGPRSReconsitutionPort(byteBuffer.getShort(338));
         labelDataFormat.setDSPInteriorCMDPort(byteBuffer.getShort(340));
         byte[] bytes3 = new byte[14];
-        byteBuffer.get(bytes3,344,14);
+        byteBuffer.get(bytes3, 344, 14);
         labelDataFormat.setFPGAReconsitutionState(bytes3);
         labelDataFormat.setDSPReconsitutionState(byteBuffer.getInt(358));
         labelDataFormat.setDSPReconsitutionIdentification(byteBuffer.getInt(362));
-//        labelDataFormat.setIPReconsitutionIdentification();
+        labelDataFormat.setIPReconsitutionIdentification(byteBuffer.getInt(366));
+        byte[] bytes4 = new byte[32];
+        byteBuffer.get(bytes4, 382, 32);
+        labelDataFormat.setFrontEndState(bytes4);
+        byte[] bytes5 = new byte[128];
+        byteBuffer.get(bytes5, 414, 128);
+        labelDataFormat.setKeyStateInfo(bytes5);
+        byte[] bytes6 = SocketConfig.hexToByte(SocketConfig.end);
+        int end = byteBuffer.getInt(542);
     }
 
     private void reciveAndConvertIronRadar(byte[] bytes) {
