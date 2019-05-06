@@ -1,11 +1,13 @@
 package com.rengu.project.integrationoperations.service;
 
+import com.rengu.project.integrationoperations.entity.AllHost;
 import com.rengu.project.integrationoperations.entity.CMDSerialNumber;
 import com.rengu.project.integrationoperations.entity.ExtensionControlCMD;
 import com.rengu.project.integrationoperations.entity.SystemControlCMD;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
 import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
+import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,10 +31,13 @@ public class DeploymentService {
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private final String frameEnd = "AA55AA55";
     private short shorts = 0;
+    private final HostRepository hostRepository;
+
 
     @Autowired
-    public DeploymentService(CMDSerialNumberRepository cmdSerialNumberRepository) {
+    public DeploymentService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
+        this.hostRepository = hostRepository;
     }
 
     //  系统控制指令帧格式说明（头部固定信息）
@@ -97,7 +102,6 @@ public class DeploymentService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -371,6 +375,30 @@ public class DeploymentService {
                     socket = null;
                 }
             }
+        }
+    }
+
+    //  群发系统控制指令
+    public void sendAllSystemControlCMD(SystemControlCMD systemControlCMD){
+            List<AllHost> list=hostRepository.findAll();
+            for(AllHost allHost:list){
+                sendSystemControlCMD(systemControlCMD,allHost.getHost());
+            }
+    }
+
+    //  群发分机控制指令
+    public void sendAllExtensionControl(ExtensionControlCMD extensionControlCMD){
+        List<AllHost> list=hostRepository.findAll();
+        for(AllHost allHost:list){
+            sendExtensionControlCMD(extensionControlCMD,allHost.getHost());
+        }
+    }
+
+    //  群发系统校时
+    public void sendAllSendSystemTiming(String time){
+        List<AllHost> list=hostRepository.findAll();
+        for(AllHost allHost:list){
+            sendSystemTiming(time,allHost.getHost());
         }
     }
 

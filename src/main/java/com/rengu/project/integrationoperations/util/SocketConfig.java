@@ -46,21 +46,21 @@ public class SocketConfig {
     }
 
     public static void main(String[] args) {
-//        Set<String> set=new HashSet<>();
-//        set.add("192.168.1.101");
-//        set.add("192.168.1.102");
-//        set.add("192.168.1.103");
-//        Set<String> set1 = new HashSet<>(set);
-//        List<String> list=new ArrayList<>();
-//        list.add("192.168.1.101");
-//        list.add("192.168.1.104");
-//        list.add("192.168.1.103");
-//        set.addAll(list);
-//        for (String s : set) {
-//            System.out.println(s);
-//        }
-//        System.out.println(set1.size());
-//        System.out.println(set.size());
+   /*     Set<String> set=new HashSet<>();
+        set.add("192.168.1.101");
+        set.add("192.168.1.102");
+        set.add("192.168.1.103");
+        Set<String> set1 = new HashSet<>(set);
+        List<String> list=new ArrayList<>();
+        list.add("192.168.1.101");
+        list.add("192.168.1.104");
+        list.add("192.168.1.103");
+        set.addAll(list);
+        for (String s : set) {
+            System.out.println(s);
+        }
+        System.out.println(set1.size());
+        System.out.println(set.size());
         byte[] bytes = new byte[5];
         bytes[0] = 5;
         bytes[1] = 5;
@@ -71,13 +71,13 @@ public class SocketConfig {
         byteBuffer.put(bytes);
         byte b=byteBuffer.get(1);
         System.out.println(Integer.toBinaryString((b & 0xFF) + 0x100).substring(1));
-//        StringBuilder stringBuilder=new StringBuilder();
-//        for (int i=bytes.length-1;i>=0;i--) {
-//            String tString = Integer.toBinaryString((bytes[i] & 0xFF) + 0x100).substring(1);
-//            stringBuilder.append(tString);
-//        }
-//        System.out.println(stringBuilder.toString().substring(38,39));
-//        System.out.println(stringBuilder.toString());
+        StringBuilder stringBuilder=new StringBuilder();
+        for (int i=bytes.length-1;i>=0;i--) {
+            String tString = Integer.toBinaryString((bytes[i] & 0xFF) + 0x100).substring(1);
+            stringBuilder.append(tString);
+        }
+        System.out.println(stringBuilder.toString().substring(38,39));
+        System.out.println(stringBuilder.toString());*/
     }
 
     public static String binary(byte[] bytes, int radix) {
