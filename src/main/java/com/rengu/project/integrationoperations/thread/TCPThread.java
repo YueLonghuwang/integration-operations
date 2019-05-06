@@ -212,7 +212,7 @@ public class TCPThread {
         byteBuffer.get(bytes1, 268, 6);
         labelDataFormat.setMainControlHost(bytes1);
         byte[] bytes2 = new byte[6];
-        byteBuffer.get(bytes2,274,6);
+        byteBuffer.get(bytes2, 274, 6);
         labelDataFormat.setGPRSOneMACHost(bytes2);
         labelDataFormat.setMainControlGateway(byteBuffer.getInt(292));
         labelDataFormat.setGPRSOneGateway(byteBuffer.getInt(296));
@@ -225,7 +225,7 @@ public class TCPThread {
         labelDataFormat.setGPRSReconsitutionPort(byteBuffer.getShort(338));
         labelDataFormat.setDSPInteriorCMDPort(byteBuffer.getShort(340));
         byte[] bytes3 = new byte[14];
-        byteBuffer.get(bytes3,344,14);
+        byteBuffer.get(bytes3, 344, 14);
         labelDataFormat.setFPGAReconsitutionState(bytes3);
         labelDataFormat.setDSPReconsitutionState(byteBuffer.getInt(358));
         labelDataFormat.setDSPReconsitutionIdentification(byteBuffer.getInt(362));
