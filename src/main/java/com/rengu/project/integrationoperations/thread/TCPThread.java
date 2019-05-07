@@ -229,13 +229,13 @@ public class TCPThread {
         byteBuffer.get(bytes3, 344, 14);
         labelDataFormat.setFPGAReconsitutionState(bytes3);
         labelDataFormat.setDSPReconsitutionState(byteBuffer.getInt(358));
-        labelDataFormat.setDSPReconsitutionIdentification(byteBuffer.getInt(362));
-        labelDataFormat.setIPReconsitutionIdentification(byteBuffer.getInt(366));
+        labelDataFormat.setDSPReconsitutionIdentification(byteBuffer.getInt(366));
+        labelDataFormat.setIPReconsitutionIdentification(byteBuffer.getInt(370));
         byte[] bytes4 = new byte[32];
-        byteBuffer.get(bytes4, 382, 32);
+        byteBuffer.get(bytes4, 386, 32);
         labelDataFormat.setFrontEndState(bytes4);
         byte[] bytes5 = new byte[128];
-        byteBuffer.get(bytes5, 414, 128);
+        byteBuffer.get(bytes5, 418, 128);
         labelDataFormat.setKeyStateInfo(bytes5);
         byte[] bytes6 = SocketConfig.hexToByte(SocketConfig.end);
         int end = byteBuffer.getInt(542);

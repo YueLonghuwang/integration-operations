@@ -17,7 +17,7 @@ public class SystemControlCMD {
     private String chooseBandwidth;  // 带宽选择
     private String chooseAntenna1;  //  天线一选择
     private String chooseAntenna2;  //  天线二选择
-    private String attenuationRF1;  // 射频一衰减
+    private String attenuationRF1;  // 射频一衰减GuidanceSwitch
     private String attenuationRF2;  // 射频二衰减
     private String balancedAttenuationRF1;  // 射频一长电缆均衡衰减控制
     private String balancedAttenuationRF2;  // 射频二长电缆均衡衰减控制

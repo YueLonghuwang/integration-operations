@@ -11,7 +11,7 @@ import java.util.*;
 public class SocketConfig {
     public static final int port = 8009;
     public static final short header = 6863;
-    public static final String end = "FC1D";
+    public static final String end = "1DFC";
 
     //  十六进制转换成byte[]
     public static byte[] hexToByte(String hex) {
@@ -78,6 +78,8 @@ public class SocketConfig {
         }
         System.out.println(stringBuilder.toString().substring(38,39));
         System.out.println(stringBuilder.toString());*/
+        byte b= (byte) (254&0xff);
+        System.out.println(b);
     }
 
     public static String binary(byte[] bytes, int radix) {
