@@ -78,8 +78,9 @@ public class SocketConfig {
         }
         System.out.println(stringBuilder.toString().substring(38,39));
         System.out.println(stringBuilder.toString());*/
-        byte b= (byte) (254&0xff);
-        System.out.println(b);
+//        byte b= (byte) (254&0xff);
+//        System.out.println(b);
+        //  输出测试
     }
 
     public static String binary(byte[] bytes, int radix) {

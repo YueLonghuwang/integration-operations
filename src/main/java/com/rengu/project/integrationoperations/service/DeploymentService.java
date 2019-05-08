@@ -153,6 +153,7 @@ public class DeploymentService {
             getPackageTheTail(byteBuffer);
             int a = getByteCount(byteBuffer);
             byteBuffer.putInt(a);
+
             //  帧尾
             getBigPackageTheTail(byteBuffer);
             OutputStream outputStream = null;
@@ -446,7 +447,7 @@ public class DeploymentService {
         for (byte a : b) {
             String s = Integer.toBinaryString((a & 0xFF) + 0x100).substring(1);
             c += BinaryToDecimal(Integer.parseInt(s));
-            System.out.println(c);
+
         }
         return c;
     }

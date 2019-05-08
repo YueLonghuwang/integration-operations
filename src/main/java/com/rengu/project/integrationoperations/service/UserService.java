@@ -162,35 +162,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll(pageable);
     }
 
-    //  用户登出
-//    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        if (auth != null) {
-//            new SecurityContextLogoutHandler().logout(request, response, auth);
-//            String username = "admin";
-//            removeSession(username);
-//        }
-//        return "SUCCESS";
-//    }
-//
-//    private void removeSession(String username) {
-//        System.out.println(sessionRegistry.getAllPrincipals().size());
-//        for (Object userDetail : sessionRegistry.getAllPrincipals()) {
-//            String userName = ((org.springframework.security.core.userdetails.User) userDetail).getUsername();
-//            System.out.println(userName);
-//            if (userName.equals(username)) {
-//                removeSession(userDetail);
-//            }
-//        }
-//    }
-//
-//    private void removeSession(Object principal) {
-//        List<SessionInformation> sessionInformations = sessionRegistry.getAllSessions(principal, false);
-//        for (SessionInformation sessionInformation : sessionInformations) {
-//            sessionInformation.expireNow();
-//        }
-//    }
-
     //  根据用户名修改密码
     public UserEntity updateUserPasswordByUserName(String username, String password) {
         if (!hasUserByUsername(username)) {

@@ -8,10 +8,12 @@ import com.rengu.project.integrationoperations.enums.SystemUserEnum;
 import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
 import com.rengu.project.integrationoperations.service.RoleService;
 import com.rengu.project.integrationoperations.service.UserService;
+import com.rengu.project.integrationoperations.thread.TCPThread;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -26,23 +28,26 @@ import java.util.Set;
  */
 
 @Slf4j
+@Order(value = -1)
 @Component
 public class BackEndFrameworkApplicationInit implements ApplicationRunner {
 
     private final RoleService roleService;
     private final UserService userService;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
-
+    private final TCPThread tcpThread;
     @Autowired
-    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService, CMDSerialNumberRepository cmdSerialNumberRepository) {
+    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService, CMDSerialNumberRepository cmdSerialNumberRepository, TCPThread tcpThread) {
         this.roleService = roleService;
         this.userService = userService;
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
+        this.tcpThread = tcpThread;
     }
 
     @Override
     public void run(ApplicationArguments args) {
         // 建立系统角色
+
         List<RoleEntity> roleEntityList = new ArrayList<>();
         for (SystemRoleEnum systemRoleEnum : SystemRoleEnum.values()) {
             if (!roleService.hasRoleByName(systemRoleEnum.getName())) {
@@ -77,5 +82,6 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
             userService.saveUsers(userEntityList);
             log.info("系统成功初始化" + userEntityList.size() + "个用户");
         }
+        tcpThread.TCPIronRadarReceiver();
     }
 }

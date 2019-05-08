@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -245,6 +246,7 @@ public class TCPThread {
     private void reciveAndConvertIronRadar(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
         byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
         // 判断包
         short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort());
         short dataType = byteBuffer.getShort(3);
@@ -298,6 +300,8 @@ public class TCPThread {
         byteBuffer.get(bytes7, 343, 128);
         labelPackageInfo.setStandbyApplication(bytes7);
         byte[] bytes8 = SocketConfig.hexToByte(SocketConfig.end);
+        System.out.println(Integer.toHexString(header)+" "+Integer.toHexString(dataType)+" "+Integer.toHexString(dataLength)
+        +" ");
     }
 
     // 解析系统控制信息
