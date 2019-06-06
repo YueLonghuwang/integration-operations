@@ -2,7 +2,9 @@ package com.rengu.project.integrationoperations.thread;
 
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.repository.HostRepository;
+import com.rengu.project.integrationoperations.service.DeploymentService;
 import com.rengu.project.integrationoperations.util.SocketConfig;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,28 @@ import java.util.Set;
 @Slf4j
 @Component
 public class TCPThread {
+    //  接收报文
+    @Autowired
+    private  DeploymentService deploymentService;
 
+
+
+
+    @Async
+    public  void receiveScoketHandler(Socket socket) throws IOException {
+        @Cleanup InputStream inputStream = socket.getInputStream();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        log.info("-------接收报文-----");
+        byte[] bytes = new byte[1024];
+        inputStream.read(bytes);
+//        IOUtils.copy(inputStream, byteArrayOutputStream);
+        String host = socket.getInetAddress().getHostAddress();
+        if (byteArrayOutputStream.toByteArray().length > 600) {
+            deploymentService.reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
+        } else if (byteArrayOutputStream.toByteArray().length > 400) {
+            deploymentService.reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
+        }
+    }
 //    //  接收铁塔敌我报文
 //    @Async
 //    public void scoketIronFriendOrFoeHandler(Socket socket) throws IOException {

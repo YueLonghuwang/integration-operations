@@ -5,9 +5,10 @@ import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
 import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
 import com.rengu.project.integrationoperations.repository.HostRepository;
+import com.rengu.project.integrationoperations.thread.TCPThread;
 import com.rengu.project.integrationoperations.util.SocketConfig;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.Host;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -40,7 +41,7 @@ public class DeploymentService {
     private short shorts = 0;
     private final HostRepository hostRepository;
     private Map<String, Object> map = new ConcurrentHashMap<>();
-
+    private Set<String> set = new HashSet<>();
     @Autowired
     public DeploymentService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
@@ -51,21 +52,18 @@ public class DeploymentService {
     @Async
     public void monitoringTCP() {
         int portTCP = 5889;
-        Set<String> setHost = new HashSet<>();
         log.info("监听TCP端口: " + portTCP);
         try {
             ServerSocket serverSocket = new ServerSocket(portTCP);
             while (true) {
-                receiveScoketHandler(serverSocket.accept());
                 Socket socket = serverSocket.accept();
                 String host = socket.getInetAddress().getHostAddress();
                 // 存放Socket
                 map.put(host, socket);
-                setHost.add(serverSocket.accept().getInetAddress().getHostAddress());
-                if (setHost.size() == 3) {
-                    log.info("当前连接数: " + setHost.size());
-                    allHost(setHost);
-                }
+                allHost(host);
+                TCPThread tcpThread=new TCPThread();
+                tcpThread.receiveScoketHandler(socket);
+                log.info("haha");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -492,7 +490,13 @@ public class DeploymentService {
 
 
     // 储存或更新当前连接服务端的IP地址
-    private void allHost(Set<String> set) {
+//    @Async
+    public void allHost(String hosts) {
+        set.add(hosts);
+        log.info("当前连接数: " + set.size());
+        AllHost allHosts=new AllHost();
+        allHosts.setHost(hosts);
+        hostRepository.save(allHosts);
         List<AllHost> list = hostRepository.findAll();
         //  如果数据库的ip地址有三个，并且当前ip有修改，那么修改当前IP,并且存入数据库
         Set<String> set1 = new HashSet<>(set);
@@ -520,23 +524,11 @@ public class DeploymentService {
         }
     }
 
-    //  接收报文
-    @Async
-    public void receiveScoketHandler(Socket socket) throws IOException {
-        InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        }
-    }
+
 
     //  解析铁塔敌我报文
     @Async
-    void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
+    public  void   reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(650);
         byteBuffer.put(bytes);
         // 判断包
@@ -664,7 +656,7 @@ public class DeploymentService {
 
     //  解析铁塔雷达报文
     @Async
-    void reciveAndConvertIronRadar(byte[] bytes, String host) {
+    public void reciveAndConvertIronRadar(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
         byteBuffer.put(bytes);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
