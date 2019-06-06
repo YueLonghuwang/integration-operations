@@ -37,19 +37,15 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    @Lazy
+
     @Autowired
-    private final SessionRegistry sessionRegistry;
-    @Autowired
-    public UserService(UserRepository userRepository, SessionRegistry sessionRegistry) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.sessionRegistry = sessionRegistry;
     }
 
     //  按用户名加载用户
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = new UserEntity();
         return getUserByUsername(username);
     }
 
@@ -73,8 +69,8 @@ public class UserService implements UserDetailsService {
     }
 
     // 保存多个用户
-    public List<UserEntity> saveUsers(List<UserEntity> userEntityList) {
-        return userRepository.saveAll(userEntityList);
+    public void saveUsers(List<UserEntity> userEntityList) {
+        userRepository.saveAll(userEntityList);
     }
 
     // 保存用户
@@ -108,13 +104,14 @@ public class UserService implements UserDetailsService {
         return userRepository.save(userEntity);
     }
 
-    public boolean hasRole(String userId) {
+    private boolean hasRole(String userId) {
         Optional<UserEntity> userEntity = userRepository.findById(userId);
         if (!userEntity.isPresent()) {
             throw new SystemException(SystemStatusCodeEnum.USER_ID_NOT_FOUND);
         }
         return userEntity.get().getRoles().size() != 2;
     }
+
     // 根据id修改用户信息
     public UserEntity updateUserById(String userId, UserEntity userArgs) {
         UserEntity userEntity = getUserById(userId);
@@ -158,6 +155,7 @@ public class UserService implements UserDetailsService {
         }
         return userRepository.existsById(userId);
     }
+
     public Page<UserEntity> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
@@ -171,6 +169,4 @@ public class UserService implements UserDetailsService {
         userEntity.setPassword(new BCryptPasswordEncoder().encode(password));
         return userRepository.save(userEntity);
     }
-
-
 }

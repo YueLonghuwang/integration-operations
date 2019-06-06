@@ -21,9 +21,11 @@ import java.util.Map;
 @Slf4j
 public class MyAuthenticationFailHandler implements AuthenticationFailureHandler {
 
+    private final ObjectMapper objectMapper;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    public MyAuthenticationFailHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {

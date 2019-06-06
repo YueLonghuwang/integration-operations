@@ -3,6 +3,7 @@ package com.rengu.project.integrationoperations.util;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author: yaojiahao
@@ -46,6 +47,40 @@ public class SocketConfig {
     }
 
     public static void main(String[] args) {
+//        Scanner scanner = new Scanner(System.in);
+//        String a = scanner.next();
+//        switch (a) {
+//            case "start":
+//                System.out.println("开始了");
+//                break;
+//            case "hao":
+//            case "jia":
+//                System.out.println("haoJiaHao");
+//                break;
+//            case "stop":
+//                System.out.println("暂停");
+//                break;
+//
+//            default:
+        Map map = new ConcurrentHashMap();
+        for (int i=0;i<10;i++){
+            System.out.println(i);
+            map.put("5","66");
+            map.put("9","100");
+        }
+        if(map.get("5")!=null){
+            System.out.println("1322");
+        }
+        System.out.println(map.get("5")+""+map.get("9"));
+  /*      String a="0110110111";
+
+       int c= BinaryToDecimal(Integer.parseInt(a));
+       System.out.println(c);
+       ByteBuffer byteBuffer=ByteBuffer.allocate(20);
+       byte b=20;
+       byteBuffer.put(b);
+       byte d=byteBuffer.get(0);
+       System.out.println(d);*/
    /*     Set<String> set=new HashSet<>();
         set.add("192.168.1.101");
         set.add("192.168.1.102");

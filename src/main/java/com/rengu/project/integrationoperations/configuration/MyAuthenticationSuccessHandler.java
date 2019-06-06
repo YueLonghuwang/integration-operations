@@ -25,12 +25,15 @@ import java.util.Map;
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Lazy
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public MyAuthenticationSuccessHandler(ObjectMapper objectMapper, UserService userService) {
+        this.objectMapper = objectMapper;
+        this.userService = userService;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -42,7 +45,6 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         map.put("msg", "登录成功");
         map.put("token", userEntity.getId());
         map.put("role", userEntity.getRoles().size());
-
         map.put("username", request.getParameter("username"));
         map.put("password", request.getParameter("password"));
         response.setContentType("application/json;charset=UTF-8");

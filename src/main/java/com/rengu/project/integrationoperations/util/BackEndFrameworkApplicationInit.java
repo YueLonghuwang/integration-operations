@@ -6,6 +6,7 @@ import com.rengu.project.integrationoperations.entity.UserEntity;
 import com.rengu.project.integrationoperations.enums.SystemRoleEnum;
 import com.rengu.project.integrationoperations.enums.SystemUserEnum;
 import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
+import com.rengu.project.integrationoperations.service.DeploymentService;
 import com.rengu.project.integrationoperations.service.RoleService;
 import com.rengu.project.integrationoperations.service.UserService;
 import com.rengu.project.integrationoperations.thread.TCPThread;
@@ -34,14 +35,14 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
 
     private final RoleService roleService;
     private final UserService userService;
+    private final DeploymentService deploymentService;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
-    private final TCPThread tcpThread;
     @Autowired
-    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService, CMDSerialNumberRepository cmdSerialNumberRepository, TCPThread tcpThread) {
+    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService, DeploymentService deploymentService, CMDSerialNumberRepository cmdSerialNumberRepository) {
         this.roleService = roleService;
         this.userService = userService;
+        this.deploymentService = deploymentService;
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
-        this.tcpThread = tcpThread;
     }
 
     @Override
@@ -82,6 +83,6 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
             userService.saveUsers(userEntityList);
             log.info("系统成功初始化" + userEntityList.size() + "个用户");
         }
-        tcpThread.TCPIronRadarReceiver();
+        deploymentService.monitoringTCP();
     }
 }
