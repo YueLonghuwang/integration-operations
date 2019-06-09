@@ -18,13 +18,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryToDecimal;
 
@@ -40,35 +38,14 @@ public class DeploymentService {
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private short shorts = 0;
     private final HostRepository hostRepository;
-    private Map<String, Object> map = new ConcurrentHashMap<>();
     private Set<String> set = new HashSet<>();
+
     @Autowired
     public DeploymentService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
         this.hostRepository = hostRepository;
     }
 
-    // 监听TCP
-    @Async
-    public void monitoringTCP() {
-        int portTCP = 5889;
-        log.info("监听TCP端口: " + portTCP);
-        try {
-            ServerSocket serverSocket = new ServerSocket(portTCP);
-            while (true) {
-                Socket socket = serverSocket.accept();
-                String host = socket.getInetAddress().getHostAddress();
-                // 存放Socket
-                map.put(host, socket);
-                allHost(host);
-                TCPThread tcpThread=new TCPThread();
-                tcpThread.receiveScoketHandler(socket);
-                log.info("haha");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     //  系统控制指令帧格式说明（头部固定信息）
     private void sendSystemControlCmdFormat(ByteBuffer byteBuffer) {
@@ -123,8 +100,8 @@ public class DeploymentService {
 
             getBigPackageTheTail(byteBuffer);
             OutputStream outputStream = null;
-            if (map.get(host) != null) {
-                Socket socket = (Socket) map.get(host);
+            if (TCPThread.map.get(host) != null) {
+                Socket socket = (Socket) TCPThread.map.get(host);
                 outputStream = socket.getOutputStream();
             }
             assert outputStream != null;
@@ -189,8 +166,8 @@ public class DeploymentService {
             //  帧尾
             getBigPackageTheTail(byteBuffer);
             OutputStream outputStream = null;
-            if (map.get(host) != null) {
-                Socket socket = (Socket) map.get(host);
+            if (TCPThread.map.get(host) != null) {
+                Socket socket = (Socket) TCPThread.map.get(host);
                 outputStream = socket.getOutputStream();
             }
             assert outputStream != null;
@@ -403,8 +380,8 @@ public class DeploymentService {
             byteBuffer.putInt(a);
             getBigPackageTheTail(byteBuffer);
             OutputStream outputStream = null;
-            if (map.get(host) != null) {
-                Socket socket = (Socket) map.get(host);
+            if (TCPThread.map.get(host) != null) {
+                Socket socket = (Socket) TCPThread.map.get(host);
                 outputStream = socket.getOutputStream();
             }
             assert outputStream != null;
@@ -490,13 +467,14 @@ public class DeploymentService {
 
 
     // 储存或更新当前连接服务端的IP地址
-//    @Async
     public void allHost(String hosts) {
-        set.add(hosts);
+        if (!hasHostIP(hosts)) {
+            set.add(hosts);
+            AllHost allHosts = new AllHost();
+            allHosts.setHost(hosts);
+            hostRepository.save(allHosts);
+        }
         log.info("当前连接数: " + set.size());
-        AllHost allHosts=new AllHost();
-        allHosts.setHost(hosts);
-        hostRepository.save(allHosts);
         List<AllHost> list = hostRepository.findAll();
         //  如果数据库的ip地址有三个，并且当前ip有修改，那么修改当前IP,并且存入数据库
         Set<String> set1 = new HashSet<>(set);
@@ -515,20 +493,28 @@ public class DeploymentService {
                     hostRepository.save(allHost);
                 }
             }
-        } else {
-            for (String host : set) {
-                AllHost allHost = new AllHost();
-                allHost.setHost(host);
-                hostRepository.save(allHost);
-            }
         }
     }
 
-
+    @Async
+    public void receiveScoketHandler(Socket socket) throws IOException {
+        @Cleanup InputStream inputStream = socket.getInputStream();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        log.info("-------接收报文-----");
+//        byte[] bytes = new byte[1024];
+//        inputStream.read(bytes);
+        IOUtils.copy(inputStream, byteArrayOutputStream);
+        String host = socket.getInetAddress().getHostAddress();
+        if (byteArrayOutputStream.toByteArray().length > 600) {
+            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
+        } else if (byteArrayOutputStream.toByteArray().length > 400) {
+            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
+        }
+    }
 
     //  解析铁塔敌我报文
     @Async
-    public  void   reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
+    public void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(650);
         byteBuffer.put(bytes);
         // 判断包
@@ -759,4 +745,9 @@ public class DeploymentService {
         return systemControlBroadcastCMD;
     }
 
+    // 查询该IP是否存在
+    private boolean hasHostIP(String host) {
+        Optional<AllHost> allHost = hostRepository.findByHost(host);
+        return allHost.isPresent();
+    }
 }

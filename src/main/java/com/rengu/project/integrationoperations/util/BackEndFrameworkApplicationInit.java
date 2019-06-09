@@ -32,13 +32,14 @@ import java.util.Set;
 @Order(value = -1)
 @Component
 public class BackEndFrameworkApplicationInit implements ApplicationRunner {
-
+    private final TCPThread tcpThread;
     private final RoleService roleService;
     private final UserService userService;
     private final DeploymentService deploymentService;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     @Autowired
-    public BackEndFrameworkApplicationInit(RoleService roleService, UserService userService, DeploymentService deploymentService, CMDSerialNumberRepository cmdSerialNumberRepository) {
+    public BackEndFrameworkApplicationInit(TCPThread tcpThread, RoleService roleService, UserService userService, DeploymentService deploymentService, CMDSerialNumberRepository cmdSerialNumberRepository) {
+        this.tcpThread = tcpThread;
         this.roleService = roleService;
         this.userService = userService;
         this.deploymentService = deploymentService;
@@ -83,6 +84,6 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
             userService.saveUsers(userEntityList);
             log.info("系统成功初始化" + userEntityList.size() + "个用户");
         }
-        deploymentService.monitoringTCP();
+        tcpThread.monitoringTCP();
     }
 }

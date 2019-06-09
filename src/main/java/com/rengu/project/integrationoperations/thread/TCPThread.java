@@ -1,27 +1,15 @@
 package com.rengu.project.integrationoperations.thread;
 
-import com.rengu.project.integrationoperations.entity.*;
-import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.service.DeploymentService;
-import com.rengu.project.integrationoperations.util.SocketConfig;
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author yaojiahao
@@ -31,26 +19,31 @@ import java.util.Set;
 @Slf4j
 @Component
 public class TCPThread {
+    public static final Map<String, Object> map = new ConcurrentHashMap<>();
     //  接收报文
-    @Autowired
-    private  DeploymentService deploymentService;
+    private final DeploymentService deploymentService;
 
+    public TCPThread(DeploymentService deploymentService) {
+        this.deploymentService = deploymentService;
+    }
 
-
-
+    // 监听TCP
     @Async
-    public  void receiveScoketHandler(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-        byte[] bytes = new byte[1024];
-        inputStream.read(bytes);
-//        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            deploymentService.reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            deploymentService.reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
+    public void monitoringTCP() {
+        int portTCP = 5889;
+        log.info("监听TCP端口: " + portTCP);
+        try {
+            ServerSocket serverSocket = new ServerSocket(portTCP);
+            while (true) {
+                Socket socket = serverSocket.accept();
+                String host = socket.getInetAddress().getHostAddress();
+                // 存放Socket
+                map.put(host, socket);
+                deploymentService.receiveScoketHandler(socket);
+                deploymentService.allHost(host);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 //    //  接收铁塔敌我报文
