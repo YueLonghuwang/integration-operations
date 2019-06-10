@@ -25,12 +25,15 @@ import java.util.Map;
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Lazy
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public MyAuthenticationSuccessHandler(ObjectMapper objectMapper, UserService userService) {
+        this.objectMapper = objectMapper;
+        this.userService = userService;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -40,14 +43,10 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         Map<String, Object> map = new HashMap<>();
         map.put("code", "0");
         map.put("msg", "登录成功");
-        map.put("token", userEntity);
+        map.put("token", userEntity.getId());
+        map.put("role", userEntity.getRoles().size());
         map.put("username", request.getParameter("username"));
         map.put("password", request.getParameter("password"));
-        userEntity.getRoles();
-//        Cookie cookie=new Cookie("username",request.getParameter("username"));
-//        response.addCookie(cookie);
-//        Cookie cookie1=new Cookie("password",new BCryptPasswordEncoder().encode(request.getParameter("password")));
-//        response.addCookie(cookie1);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(map));
     }

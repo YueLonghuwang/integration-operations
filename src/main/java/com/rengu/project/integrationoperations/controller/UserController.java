@@ -17,8 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 /**
  *
  * @author hanchangming
@@ -72,6 +70,11 @@ public class UserController {
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, userService.updateUserPasswordById(userId, password));
     }
 
+    //  根据用户名修改密码
+    @PatchMapping(value = "/changePassword")
+    public ResultEntity updateUserPasswordByUserName(@NonNull String username, @NonNull String password) {
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, userService.updateUserPasswordByUserName(username, password));
+    }
     //  通过管理员更新用户信息
     @PreAuthorize(value = "hasRole('admin')")
     @PatchMapping(value = "/{userId}/roles/{roleId}")
@@ -93,8 +96,4 @@ public class UserController {
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, userService.getUsers(pageable));
     }
 
-    @GetMapping(value = "/logout")
-    public ResultEntity logoutPage(HttpServletRequest request, HttpServletResponse response) {
-        return new ResultEntity(SystemStatusCodeEnum.LOGOUT_SUCCESS, userService.logoutPage(request, response));//You can redirect wherever you want, but generally it's a good practice to show login screen again.
-    }
 }

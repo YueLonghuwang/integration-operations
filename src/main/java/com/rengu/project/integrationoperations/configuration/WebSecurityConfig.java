@@ -2,6 +2,7 @@ package com.rengu.project.integrationoperations.configuration;
 
 import com.rengu.project.integrationoperations.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -18,6 +19,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsUtils;
 
 /**
@@ -71,31 +73,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return sessionRegistry;
     }
 
-    @Override
+    //  退出登录以后清除当前session
+    @Bean
+    public ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
+        return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
+    }
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and().authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .anyRequest().authenticated()
                 .antMatchers("/users/**").permitAll()
-                //  前端访问的登录地址
-//                .requestMatchers().antMatchers(HttpMethod.OPTIONS, "/**")
+                .anyRequest().authenticated()
                 .and().formLogin().loginProcessingUrl("/user/login")
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailHandler)
                 .and().csrf().disable();
         http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry);
-        http.csrf().disable();
         http.httpBasic();
-        http.logout()
-                .deleteCookies("JSESSIONID");
-//                // 触发注销操作的URL
-//                .logoutUrl("/logout")
-//                //  注销成功后跳转的URL
-////                .logoutSuccessUrl("/login.html")
-//                //  指定是否在注销时让JSESSIONID无效
-//
-//                .invalidateHttpSession(true);
+        http.logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true);
     }
 
 }

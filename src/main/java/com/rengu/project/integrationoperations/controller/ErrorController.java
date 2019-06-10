@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 /**
  *
@@ -31,6 +32,6 @@ public class ErrorController {
     @ExceptionHandler(value = BindException.class)
     public ResultEntity bindExceptionHandler(HttpServletResponse httpServletResponse, BindException e) {
         httpServletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return new ResultEntity(SystemStatusCodeEnum.getSystemStatusCodeEnum(e.getBindingResult().getFieldError().getDefaultMessage()), e.getMessage());
+        return new ResultEntity(Objects.requireNonNull(SystemStatusCodeEnum.getSystemStatusCodeEnum(e.getBindingResult().getFieldError().getDefaultMessage())), e.getMessage());
     }
 }

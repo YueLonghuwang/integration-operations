@@ -28,4 +28,11 @@ public class BackEndFrameworkApplicationMessage {
     public static final String USER_ID_NOT_FOUND = "该用户Id不存在";
 
     public static final String LOGOUT_SUCCESS = "退出成功";
+
+    //  分机控制指令
+    public static final String ExtensionControlCharacter_ERROR = "分机控制字选择错误";
+    public static final String SOCKET_CONNENT_ERROR = "客户端连接异常";
+    public static final String SOCKET_FINALLY_ERROR = "客户端结束异常";
+    public static final String EXCEED_THE_LIMIT = "超出上限";
+
 }
