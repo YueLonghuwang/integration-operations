@@ -17,17 +17,17 @@ public class SystemControlCMD {
     private String chooseBandwidth;  // 带宽选择
     private String chooseAntenna1;  //  天线一选择
     private String chooseAntenna2;  //  天线二选择
-    private String attenuationRF1;  // 射频一衰减GuidanceSwitch
-    private String attenuationRF2;  // 射频二衰减
-    private String balancedAttenuationRF1;  // 射频一长电缆均衡衰减控制
-    private String balancedAttenuationRF2;  // 射频二长电缆均衡衰减控制
-    private String attenuationMF1;  // 中频一衰减
-    private String attenuationMF2;  //  中频二衰减
-    private String attenuationControlWay;  // 衰减码控制方式
+//    private String attenuationRF1;  // 射频一衰减GuidanceSwitch
+//    private String attenuationRF2;  // 射频二衰减
+//    private String balancedAttenuationRF1;  // 射频一长电缆均衡衰减控制
+//    private String balancedAttenuationRF2;  // 射频二长电缆均衡衰减控制
+//    private String attenuationMF1;  // 中频一衰减
+//    private String attenuationMF2;  //  中频二衰减
+//    private String attenuationControlWay;  // 衰减码控制方式
     private String selfInspectionAttenuation;  // 自检源衰减
     private String guidanceSwitch;  // 脉内引导批次号开关
     private String guidance;  //  脉内引导批次
     private String faultDetect; //  故障检测门限
-    private String timingCode;  // 定时时间码
-    private String onceExecuteCMDTimeNeeded;  // 单次执行指令集所需时间
+//    private String timingCode;  // 定时时间码
+//    private String onceExecuteCMDTimeNeeded;  // 单次执行指令集所需时间
 }

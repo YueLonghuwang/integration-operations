@@ -3,19 +3,18 @@ package com.rengu.project.integrationoperations.thread;
 import com.rengu.project.integrationoperations.entity.AllHost;
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.service.DeploymentService;
+import com.rengu.project.integrationoperations.service.ReceiveInformationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,10 +28,12 @@ public class TCPThread {
     public static final Map<String, Object> map = new ConcurrentHashMap<>();
     //  接收报文
     private final DeploymentService deploymentService;
+    private final ReceiveInformationService receiveInformationService;
     private final HostRepository hostRepository;
 
-    public TCPThread(DeploymentService deploymentService, HostRepository hostRepository) {
+    public TCPThread(DeploymentService deploymentService, ReceiveInformationService receiveInformationService, HostRepository hostRepository) {
         this.deploymentService = deploymentService;
+        this.receiveInformationService = receiveInformationService;
         this.hostRepository = hostRepository;
     }
 
@@ -40,25 +41,28 @@ public class TCPThread {
     @Async
     public void monitoringTCP() {
         int portTCP = 5889;
+        Set set = new HashSet();
         log.info("监听TCP端口: " + portTCP);
         try {
             ServerSocket serverSocket = new ServerSocket(portTCP);
             while (true) {
                 Socket socket = serverSocket.accept();
                 String host = socket.getInetAddress().getHostAddress();
+                set.add(host);
+                log.info("当前连接数: " + set.size());
                 // 存放Socket
                 map.put(host, socket);
+                receiveInformationService.allHost(host);
                 List<AllHost> listAllhost = hostRepository.findAll();
                 for (AllHost allHost : listAllhost) {
                     if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                        deploymentService.receiveSocketHandler1(socket);
+                        receiveInformationService.receiveSocketHandler1(socket);
                     } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
-                        deploymentService.receiveSocketHandler2(socket);
+                        receiveInformationService.receiveSocketHandler2(socket);
                     } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
-                        deploymentService.receiveSocketHandler3(socket);
+                        receiveInformationService.receiveSocketHandler3(socket);
                     }
                 }
-                deploymentService.allHost(host);
             }
         } catch (IOException e) {
             e.printStackTrace();

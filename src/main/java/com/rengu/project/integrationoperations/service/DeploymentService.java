@@ -7,15 +7,11 @@ import com.rengu.project.integrationoperations.repository.CMDSerialNumberReposit
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.thread.TCPThread;
 import com.rengu.project.integrationoperations.util.SocketConfig;
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -32,7 +28,6 @@ import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryTo
 @Service
 @Slf4j
 public class DeploymentService {
-    private Socket socket = null;
     private byte backups = 0;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private short shorts = 0;
@@ -48,11 +43,9 @@ public class DeploymentService {
 
     //  系统控制指令帧格式说明（头部固定信息）
     private void sendSystemControlCmdFormat(ByteBuffer byteBuffer) {
-        String frameHeader = "55AA55AA";
-        byte[] bytes = SocketConfig.hexToByte(frameHeader);
-        byteBuffer.putInt(1437226410);
-        byteBuffer.putShort(shorts);
-        byteBuffer.putShort(shorts);
+        // 报文头 7E9118E7
+        byteBuffer.putInt(2122389735);
+        // 当前包数据长度
     }
 
     //  发送时间
@@ -61,11 +54,26 @@ public class DeploymentService {
             ByteBuffer byteBuffer = ByteBuffer.allocate(40);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             sendSystemControlCmdFormat(byteBuffer);
-            byteBuffer.putInt(addSerialNum());
+            byteBuffer.putInt(1); // 当前包数据长度
+            byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
+            byteBuffer.putShort(shorts);  // 源地址(设备ID号)
+            byteBuffer.put(backups); // 域ID(预留)
+            byteBuffer.put(backups); // 主题ID(预留)
+            byteBuffer.putShort(shorts);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
+            byteBuffer.putLong(1);  // 发报日期时间
+            byteBuffer.putInt(1);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
+            byteBuffer.putInt(1);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
+            byteBuffer.putInt(1);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
+            byteBuffer.putInt(1);  // 数据总长度
+            byteBuffer.putShort(shorts); // 版本号
+            byteBuffer.putInt(0); // 保留字段
+            byteBuffer.putShort(shorts); // 保留字段
+
+            /* byteBuffer.putInt(addSerialNum());
             byteBuffer.putInt(40);
             //  指令类型
             byteBuffer.putShort((short) 1);
-            byteBuffer.putShort((short) 1);
+            byteBuffer.putShort((short) 1);*/
             //  包头
             byteBuffer.putShort(SocketConfig.header);
             //  解时间
@@ -93,42 +101,46 @@ public class DeploymentService {
             byteBuffer.putShort(year);
             //  包尾
             getPackageTheTail(byteBuffer);
-            int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);
-            //  帧尾
 
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+
+            /*int a = getByteCount(byteBuffer);
+            byteBuffer.putInt(a);*/
+            //  帧尾
             getBigPackageTheTail(byteBuffer);
             OutputStream outputStream = null;
+            Socket socket = (Socket) TCPThread.map.get(host);
             if (TCPThread.map.get(host) != null) {
-                Socket socket = (Socket) TCPThread.map.get(host);
                 outputStream = socket.getOutputStream();
             }
             assert outputStream != null;
             outputStream.write(byteBuffer.array());
-            outputStream.close();
         } catch (IOException e) {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     //  分机控制指令
     public String sendExtensionControlCMD(ExtensionControlCMD extensionControlCMD, String host) throws SystemException {
         try {
-            socket = new Socket(host, SocketConfig.port);
             ByteBuffer byteBuffer = ByteBuffer.allocate(60);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             //  包头
             sendSystemControlCmdFormat(byteBuffer);
-            byteBuffer.putInt(addSerialNum());
-            byteBuffer.putInt(60);
-            byteBuffer.putShort((short) 6);
-            byteBuffer.putShort((short) 1);
+            byteBuffer.putInt(1); // 当前包数据长度
+            byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
+            byteBuffer.putShort(shorts);  // 源地址(设备ID号)
+            byteBuffer.put(backups); // 域ID(预留)
+            byteBuffer.put(backups); // 主题ID(预留)
+            byteBuffer.putShort(shorts);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
+            byteBuffer.putLong(2);  // 发报日期时间
+            byteBuffer.putInt(2);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
+            byteBuffer.putInt(2);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
+            byteBuffer.putInt(2);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
+            byteBuffer.putInt(2);  // 数据总长度
+            byteBuffer.putShort(shorts); // 版本号
+            byteBuffer.putInt(0); // 保留字段
+            byteBuffer.putShort(shorts); // 保留字段
             byteBuffer.putShort(SocketConfig.header);
             byte pulse = Byte.parseByte(extensionControlCMD.getPulse());
             byteBuffer.put(pulse);
@@ -159,30 +171,21 @@ public class DeploymentService {
             byteBuffer.putShort(shorts);
             //  包尾
             getPackageTheTail(byteBuffer);
-            int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);
 
-            //  帧尾
-            getBigPackageTheTail(byteBuffer);
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            /*int a = getByteCount(byteBuffer);
+            byteBuffer.putInt(a);*/
+            getBigPackageTheTail(byteBuffer);  //  帧尾
             OutputStream outputStream = null;
+            Socket socket = (Socket) TCPThread.map.get(host);
             if (TCPThread.map.get(host) != null) {
-                Socket socket = (Socket) TCPThread.map.get(host);
                 outputStream = socket.getOutputStream();
             }
             assert outputStream != null;
             outputStream.write(byteBuffer.array());
-            outputStream.close();
             return "SUCCESS";
         } catch (IOException e) {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    socket = null;
-                }
-            }
         }
     }
 
@@ -267,15 +270,27 @@ public class DeploymentService {
     //  发送系统控制指令
     public String sendSystemControlCMD(SystemControlCMD systemControlCMD, String host) {
         try {
-            socket = new Socket(host, SocketConfig.port);
             ByteBuffer byteBuffer = ByteBuffer.allocate(76);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            //  包头
             sendSystemControlCmdFormat(byteBuffer);
-            byteBuffer.putInt(addSerialNum());
-            byteBuffer.putInt(76);
-            byteBuffer.putShort((short) 3);
-            byteBuffer.putShort((short) 1);
+            byteBuffer.putInt(1); // 当前包数据长度
+            byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
+            byteBuffer.putShort(shorts);  // 源地址(设备ID号)
+            byteBuffer.put(backups); // 域ID(预留)
+            byteBuffer.put(backups); // 主题ID(预留)
+            byteBuffer.putShort(shorts);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
+            byteBuffer.putLong(3);  // 发报日期时间
+            byteBuffer.putInt(3);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
+            byteBuffer.putInt(3);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
+            byteBuffer.putInt(3);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
+            byteBuffer.putInt(3);  // 数据总长度
+            byteBuffer.putShort(shorts); // 版本号
+            byteBuffer.putInt(0); // 保留字段
+            byteBuffer.putShort(shorts); // 保留字段
             byteBuffer.putShort(SocketConfig.header);
+            systemControlCMD.getWorkPattern();
+            byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkPattern()));
             byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkCycle()));
             byteBuffer.putShort(Short.parseShort(systemControlCMD.getWorkCycleAmount()));
             byteBuffer.putShort(Short.parseShort(systemControlCMD.getBeginFrequency()));
@@ -287,40 +302,58 @@ public class DeploymentService {
             byteBuffer.put(Byte.parseByte(systemControlCMD.getChooseAntenna1()));
             byteBuffer.put(Byte.parseByte(systemControlCMD.getChooseAntenna2()));
             byteBuffer.putShort(shorts);
-            //  射频一衰减
-            StringBuilder stringBuilder = new StringBuilder();
+            //  射频一衰减(最新)
+           /* StringBuilder stringBuilder = new StringBuilder();
             String attenuationRF1 = stringBuilder.reverse().append(systemControlCMD.getAttenuationRF1()).toString();
-            byte bytes = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));
-            byteBuffer.put(bytes);
+            byte bytes = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));*/
+            byte b=0;
+            byteBuffer.put(b);
+
             //  射频一长电缆均衡衰减控制
 //            StringBuilder stringBuilders = new StringBuilder();
             //  反转数组的原因是因为二级制从第0位开始是从右边开始的，而传过来的值第0位在最左边，所以需要反转
 //            String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getBalancedAttenuationRF1()).toString();
 //            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
+
+            /*(最新)
             byte bytesAttenuationRF1 = (byte) BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF1()));
-            byteBuffer.put(bytesAttenuationRF1);
+            byteBuffer.put(bytesAttenuationRF1);*/
+            byteBuffer.put(b);
+
             byteBuffer.putShort(shorts);
             //  射频二控制衰减
 //            StringBuilder stringBuilder2 = new StringBuilder();
 //            String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationRF2()).toString();
 //            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
+
+            /*(最新)
             byte byteAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(systemControlCMD.getBalancedAttenuationRF2()));
-            byteBuffer.put(byteAttenuationRF2);
-            //  射频二长电缆均衡衰减控制
+            byteBuffer.put(byteAttenuationRF2);*/
+            byteBuffer.put(b);
+
+            /*射频二长电缆均衡衰减控制(最新)
             StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
             String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getBalancedAttenuationRF2()).toString();
             byte bytesAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
-            byteBuffer.put(bytesAttenuationRF2);
+            byteBuffer.put(bytesAttenuationRF2);*/
+            byteBuffer.put(b);
+
             byteBuffer.putShort(shorts);
-            //  中频一衰减
+           /* 中频一衰减(最新)
             byte bytesAttenuationMF1 = (byte) BinaryToDecimal(Integer.parseInt(systemControlCMD.getAttenuationMF1()));
-            byteBuffer.put(bytesAttenuationMF1);
+            byteBuffer.put(bytesAttenuationMF1);*/
+            byteBuffer.put(b);
+
             byteBuffer.putShort(shorts);
             byteBuffer.put(backups);
-            //  中频二衰减
+            /*中频二衰减(最新)
             byte bytesAttenuationMF2 = (byte) BinaryToDecimal(Integer.parseInt(systemControlCMD.getAttenuationMF2()));
-            byteBuffer.put(bytesAttenuationMF2);
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getAttenuationControlWay()));
+            byteBuffer.put(bytesAttenuationMF2);*/
+            byteBuffer.put(b);
+
+//            byteBuffer.put(Byte.parseByte(systemControlCMD.getAttenuationControlWay()));
+            byteBuffer.put(b);
+
             byteBuffer.putShort(shorts);
             //  自检源衰减
             byteBuffer.put(Byte.parseByte(systemControlCMD.getSelfInspectionAttenuation()));
@@ -330,8 +363,10 @@ public class DeploymentService {
             byteBuffer.put(Byte.parseByte(systemControlCMD.getGuidance()));
             //  故障检测门限
             byteBuffer.put(Byte.parseByte(systemControlCMD.getFaultDetect()));
+
             //  定时时间码
-            String time = systemControlCMD.getTimingCode();
+
+       /*     String time = systemControlCMD.getTimingCode();
             //  转换2进制
             StringBuilder month = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(0, 2))));
             StringBuilder day = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(2, 4))));
@@ -369,34 +404,29 @@ public class DeploymentService {
             bytes1[1] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(8, 16)));
             bytes1[2] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(16, 24)));
             bytes1[3] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(24)));
-            for (byte b : bytes1) {
-                byteBuffer.put(b);
-            }
+            for (byte c : bytes1) {
+                byteBuffer.put(c);
+            }*/
+            int d=0;
+            byteBuffer.putInt(d);
+
             //  单次执行指令集所需时间
             byteBuffer.putShort(shorts);
             getPackageTheTail(byteBuffer);
-            int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);
-            getBigPackageTheTail(byteBuffer);
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            /*int a = getByteCount(byteBuffer);
+            byteBuffer.putInt(a);*/
+            getBigPackageTheTail(byteBuffer);  //  帧尾
             OutputStream outputStream = null;
+            Socket socket = (Socket) TCPThread.map.get(host);
             if (TCPThread.map.get(host) != null) {
-                Socket socket = (Socket) TCPThread.map.get(host);
                 outputStream = socket.getOutputStream();
             }
             assert outputStream != null;
             outputStream.write(byteBuffer.array());
-            outputStream.close();
             return "SUCCESS";
         } catch (IOException e) {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    socket = null;
-                }
-            }
         }
     }
 
@@ -417,7 +447,7 @@ public class DeploymentService {
     }
 
     //  群发系统校时
-    public void sendAllSendSystemTiming(String time) {
+    public void sendAllSendSystemTiming(String time) throws IOException {
         List<AllHost> list = hostRepository.findAll();
         for (AllHost allHost : list) {
             sendSystemTiming(time, allHost.getHost());
@@ -432,9 +462,9 @@ public class DeploymentService {
 
     //  封装大包尾信息
     private void getBigPackageTheTail(ByteBuffer byteBuffer) {
-        String frameEnd = "55AA55AA";
-        byte[] bytes = SocketConfig.hexToByte(frameEnd);
-        byteBuffer.put(bytes);
+/*        String frameEnd = "55aa55aa";
+        byte[] bytes = SocketConfig.hexToByte(frameEnd);*/
+        byteBuffer.putInt(150536440);
     }
 
     // 查询当前编号,并且+1
@@ -465,322 +495,5 @@ public class DeploymentService {
     }
 
 
-    // 储存或更新当前连接服务端的IP地址
-    public void allHost(String hosts) {
-        List<AllHost> list = hostRepository.findAll();
-        if (!hasHostIP(hosts)) {
-            set.add(hosts);
-            AllHost allHosts = new AllHost();
-            allHosts.setHost(hosts);
-            allHosts.setNum(list.size()+1);
-            hostRepository.save(allHosts);
-        }
-        log.info("当前连接数: " + set.size());
-        //  如果数据库的ip地址有三个，并且当前ip有修改，那么修改当前IP,并且存入数据库
-        Set<String> set1 = new HashSet<>(set);
-        if (list.size() == 3) {
-            for (AllHost allHost : list) {
-                set.add(allHost.getHost());
-            }
-            // 如果存入的size大于3，那么代表有新的ip地址，因为set自动去重,所以存入新的IP地址
-            if (set.size() > 3) {
-                for (AllHost allHost : list) {
-                    hostRepository.deleteById(allHost.getId());
-                }
-                for (String s : set1) {
-                    AllHost allHost = new AllHost();
-                    allHost.setHost(s);
-                    hostRepository.save(allHost);
-                }
-            }
-        }
-    }
 
-
-    @Async
-    public void receiveSocketHandler1(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-        byte[] bytes = new byte[1024];
-        inputStream.read(bytes);
-//        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        }
-    }
-
-    @Async
-    public void receiveSocketHandler2(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-        byte[] bytes = new byte[1024];
-        inputStream.read(bytes);
-//        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        }
-    }
-
-    @Async
-    public void receiveSocketHandler3(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-        byte[] bytes = new byte[1024];
-        inputStream.read(bytes);
-//        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        }
-    }
-
-    //  解析铁塔敌我报文
-    @Async
-    public void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(650);
-        byteBuffer.put(bytes);
-        // 判断包
-        short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort());
-        short dataType = byteBuffer.getShort(3);
-        int dataLength = byteBuffer.getInt(5);
-        byte[] systemBytes = new byte[64];
-        byteBuffer.get(systemBytes, 9, 64);
-        systemControlBroadcastCMDs(systemBytes);
-        byte[] dataGPS = new byte[64];
-        byteBuffer.get(dataGPS, 73, 64);
-        LabelDataFormat labelDataFormat = new LabelDataFormat();
-        labelDataFormat.setSystemWorkState(byteBuffer.get(137));
-        labelDataFormat.setReceiveCmdCount(byteBuffer.get(138));
-        // 分机计数
-        byte[] extensionCountByte = new byte[6];
-        byteBuffer.get(extensionCountByte, 139, 6);
-        StringBuilder stringBuilder = getBit(extensionCountByte);
-        labelDataFormat.setExtensionCount(stringBuilder.toString());
-        labelDataFormat.setFrontEndWorkT(byteBuffer.getShort(145));
-        labelDataFormat.setMainWorkT(byteBuffer.getShort(147));
-        labelDataFormat.setDetectionWorkT(byteBuffer.getShort(149));
-        labelDataFormat.setExtensionTwoWorkT(byteBuffer.getShort(151));
-        labelDataFormat.setExtensionThreeWorkT(byteBuffer.getShort(153));
-        labelDataFormat.setExtensionFourWorkT(byteBuffer.getShort(155));
-        labelDataFormat.setExtensionFiveWorkT(byteBuffer.getShort(157));
-        labelDataFormat.setExtensionSixWorkT(byteBuffer.getShort(159));
-        labelDataFormat.setPDW740(byteBuffer.getInt(161));
-        labelDataFormat.setPDW837_5(byteBuffer.getInt(165));
-        labelDataFormat.setPDW1030(byteBuffer.getInt(169));
-        labelDataFormat.setPDW1059(byteBuffer.getInt(173));
-        labelDataFormat.setPDW1090(byteBuffer.getInt(177));
-        labelDataFormat.setPDW1464(byteBuffer.getInt(181));
-        labelDataFormat.setPDW1532(byteBuffer.getInt(185));
-        labelDataFormat.setIFF740(byteBuffer.getInt(189));
-        labelDataFormat.setIFF837_5(byteBuffer.getInt(193));
-        labelDataFormat.setIFF1030(byteBuffer.getInt(197));
-        labelDataFormat.setIFF1090(byteBuffer.getInt(201));
-        labelDataFormat.setIFF1464(byteBuffer.getInt(205));
-        labelDataFormat.setIFF1532(byteBuffer.getInt(209));
-        //  IF个数
-        byte[] ifCount = new byte[28];
-        byteBuffer.get(ifCount, 213, 28);
-        labelDataFormat.setIF(ifCount);
-        labelDataFormat.setM51030(byteBuffer.getInt(241));
-        labelDataFormat.setM51090(byteBuffer.getInt(245));
-        labelDataFormat.setM5MF1030(byteBuffer.getInt(249));
-        labelDataFormat.setM5MF1030S(byteBuffer.getInt(253));
-        //  电源状态
-        byte[] powerState = new byte[154];
-        byteBuffer.get(powerState, 257, 154);
-        labelDataFormat.setPowerState(powerState);
-        labelDataFormat.setMainFPGA1Versions(byteBuffer.get(411));
-        labelDataFormat.setMainFPGA2Versions(byteBuffer.get(412));
-        labelDataFormat.setMainDSPVersions(byteBuffer.get(413));
-        labelDataFormat.setDetectionTwoFPGA1(byteBuffer.get(414));
-        labelDataFormat.setDetectionTwoFPGA2(byteBuffer.get(415));
-        labelDataFormat.setDetectionTwoDSP(byteBuffer.get(416));
-        //  版本号
-        byte[] versions = new byte[16];
-        byteBuffer.get(versions, 417, 16);
-        labelDataFormat.setVersions(versions);
-        labelDataFormat.setMainIPAddress(byteBuffer.getInt(433));
-        labelDataFormat.setDetectionIPAddress(byteBuffer.getInt(437));
-        labelDataFormat.setGPRS2IPAddress(byteBuffer.getInt(441));
-        labelDataFormat.setGPRS3IPAddress(byteBuffer.getInt(445));
-        labelDataFormat.setUserCMDPort(byteBuffer.getShort(449));
-        labelDataFormat.setInteriorCMDPort(byteBuffer.getShort(451));
-        labelDataFormat.setBackup1(byteBuffer.getInt(453));
-        // 主控MAC地址
-        byte[] mainControlAddress = new byte[6];
-        byteBuffer.get(mainControlAddress, 457, 6);
-        labelDataFormat.setMainControlAddress(mainControlAddress);
-        // 检测MAC地址
-        byte[] detectionMACAddress = new byte[6];
-        byteBuffer.get(detectionMACAddress, 463, 6);
-        labelDataFormat.setDetectionMACAddress(detectionMACAddress);
-        // 数传2MAC地址
-        byte[] GPRSTwoMACAddress = new byte[6];
-        byteBuffer.get(GPRSTwoMACAddress, 469, 6);
-        labelDataFormat.setGPRSTwoMACAddress(GPRSTwoMACAddress);
-        // 数传3MAC地址
-        byte[] GPRSThreeMACAddress = new byte[6];
-        byteBuffer.get(GPRSThreeMACAddress, 475, 6);
-        labelDataFormat.setGPRSThreeMACAddress(GPRSThreeMACAddress);
-        // 备份
-        byte[] backup2 = new byte[16];
-        byteBuffer.get(backup2, 481, 16);
-        labelDataFormat.setBackup2(backup2);
-        labelDataFormat.setUpperIP(byteBuffer.getInt(497));
-        // 备份
-        byte[] backup3 = new byte[12];
-        byteBuffer.get(backup3, 501, 12);
-        labelDataFormat.setBackup3(backup3);
-        labelDataFormat.setTagPort(byteBuffer.getShort(513));
-        labelDataFormat.setDataPort1(byteBuffer.getShort(515));
-        labelDataFormat.setDataPort2(byteBuffer.getShort(517));
-        labelDataFormat.setDataPort3(byteBuffer.getShort(519));
-        labelDataFormat.setInteriorStateIP(byteBuffer.getInt(521));
-        labelDataFormat.setInteriorStatePortIP(byteBuffer.getShort(525));
-        labelDataFormat.setBackup4(byteBuffer.getShort(527));
-        //  MCU加载片区
-        byte[] mcuLoad = new byte[8];
-        byteBuffer.get(mcuLoad, 529, 8);
-        StringBuilder stringBuilders = getBit(mcuLoad);
-        labelDataFormat.setMCULoad(stringBuilders.toString());
-        //  备份
-        byte[] backup5 = new byte[64];
-        byteBuffer.get(backup5, 537, 64);
-        labelDataFormat.setBackup5(backup5);
-        int end = byteBuffer.getInt(601);
-    }
-
-    private StringBuilder getBit(byte[] mcuLoad) {
-        StringBuilder stringBuilders = new StringBuilder();
-        for (byte b : mcuLoad) {
-            String extensionCount = Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
-            stringBuilders.append(extensionCount.substring(6));
-            stringBuilders.append(extensionCount, 4, 6);
-            stringBuilders.append(extensionCount, 2, 4);
-            stringBuilders.append(extensionCount, 0, 2);
-        }
-        return stringBuilders;
-    }
-
-    //  解析铁塔雷达报文
-    @Async
-    public void reciveAndConvertIronRadar(byte[] bytes, String host) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(500);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
-        // 判断包
-        short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort());
-        short dataType = byteBuffer.getShort(3);
-        int dataLength = byteBuffer.getInt(7);
-        LabelPackageInfo labelPackageInfo = new LabelPackageInfo();
-        byte[] bytes1 = new byte[64];
-        byteBuffer.get(bytes1, 11, 64);
-        SystemControlBroadcastCMD systemControlBroadcastCMD = systemControlBroadcastCMDs(bytes1);
-        labelPackageInfo.setSystemControlBroadcastCMD(systemControlBroadcastCMD);
-        byte[] bytes2 = new byte[64];
-        byteBuffer.get(bytes2, 75, 64);
-        labelPackageInfo.setGPSData(bytes2);
-        labelPackageInfo.setSendNodeNum(byteBuffer.get(139));
-        labelPackageInfo.setReceiveNodeNum(byteBuffer.get(140));
-        labelPackageInfo.setFeedbackCmdSerialNum(byteBuffer.get(141));
-        byte[] bytes3 = new byte[2];
-        byteBuffer.get(bytes3, 143, 2);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte b : bytes3) {
-            String tString = Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
-            stringBuilder.append(tString);
-        }
-        labelPackageInfo.setReceiveCmdState(stringBuilder.toString());
-        labelPackageInfo.setWorkNum(byteBuffer.getShort(145));
-        labelPackageInfo.setFrontEndWorkT(byteBuffer.getShort(147));
-        labelPackageInfo.setExtensionWorkT(byteBuffer.getShort(149));
-        // 分机工作状态
-        byte[] bytes4 = new byte[8];
-        StringBuilder stringBuilders = new StringBuilder();
-        byteBuffer.get(bytes4, 151, 8);
-        for (byte b : bytes4) {
-            String tString = Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
-            stringBuilders.append(tString);
-        }
-        labelPackageInfo.setExtensionWorkState(stringBuilders.toString());
-        labelPackageInfo.setOverallPulseCount(byteBuffer.getInt(159));
-        labelPackageInfo.setRadiationSourcePacketStatistics(byteBuffer.getInt(163));
-        labelPackageInfo.setIfDataStatistics(byteBuffer.getInt(167));
-        labelPackageInfo.setEquipmentNum(byteBuffer.get(171));
-        labelPackageInfo.setLongCableBalancedAttenuationControlOne(byteBuffer.get(179));
-        labelPackageInfo.setLongCableBalancedAttenuationControlTwo(byteBuffer.get(180));
-        labelPackageInfo.setIFAttenuationOne(byteBuffer.get(181));
-        labelPackageInfo.setIFAttenuationTwo(byteBuffer.get(182));
-        byte[] bytes5 = new byte[32];
-        byteBuffer.get(bytes5, 183, 32);
-        labelPackageInfo.setFrontEndState(bytes5);
-        byte[] bytes6 = new byte[128];
-        byteBuffer.get(bytes6, 215, 128);
-        labelPackageInfo.setKeyState(bytes6);
-        byte[] bytes7 = new byte[128];
-        byteBuffer.get(bytes7, 343, 128);
-        labelPackageInfo.setStandbyApplication(bytes7);
-        byte[] bytes8 = SocketConfig.hexToByte(SocketConfig.end);
-    }
-
-    // 解析系统控制信息
-    private SystemControlBroadcastCMD systemControlBroadcastCMDs(byte[] bytes) {
-        SystemControlBroadcastCMD systemControlBroadcastCMD = new SystemControlBroadcastCMD();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(64);
-        byteBuffer.put(bytes);
-        short header = byteBuffer.getShort();
-        systemControlBroadcastCMD.setMessagePackageNum(byteBuffer.getShort(3));
-        byte[] bytes1 = new byte[8];
-        byteBuffer.get(bytes1, 5, 8);
-        String time = new String(bytes1);
-        systemControlBroadcastCMD.setTimeCode(time);
-        systemControlBroadcastCMD.setWorkWay(byteBuffer.get(13));
-        systemControlBroadcastCMD.setBandwidthChoose(byteBuffer.get(14));
-        systemControlBroadcastCMD.setWorkCycleNum(byteBuffer.get(15));
-        systemControlBroadcastCMD.setWorkCycleLength(byteBuffer.get(16));
-        systemControlBroadcastCMD.setCenterFrequency(byteBuffer.getShort(17));
-        systemControlBroadcastCMD.setDirectionFindingAntennaChoose(byteBuffer.get(19));
-        systemControlBroadcastCMD.setScoutAntennaChoose(byteBuffer.get(20));
-        systemControlBroadcastCMD.setPulseScreenMinimumFrequency(byteBuffer.get(27));
-        systemControlBroadcastCMD.setPulseScreenMaximumFrequency(byteBuffer.getShort(29));
-        systemControlBroadcastCMD.setPulseScreenMinimumRange(byteBuffer.get(31));
-        systemControlBroadcastCMD.setPulseScreenMaximumRange(byteBuffer.get(32));
-        systemControlBroadcastCMD.setPulseScreenMinimumPulseWidth(byteBuffer.getShort(33));
-        systemControlBroadcastCMD.setPulseScreenMaximumPulseWidth(byteBuffer.getShort(35));
-        byte[] bytes2 = new byte[16];
-        byteBuffer.get(bytes2, 37, 16);
-        systemControlBroadcastCMD.setRouteShield(bytes2);
-        systemControlBroadcastCMD.setWithinThePulseGuidanceSwitch(byteBuffer.get(53));
-        systemControlBroadcastCMD.setWithinThePulseGuidance(byteBuffer.get(54));
-        systemControlBroadcastCMD.setUploadFullPulseNum(byteBuffer.getShort(55));
-        byte[] bytes3 = new byte[2];
-        byteBuffer.get(bytes3, 57, 2);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte b : bytes3) {
-            String tString = Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
-            stringBuilder.append(tString);
-        }
-        systemControlBroadcastCMD.setExtensionControl(stringBuilder.toString());
-        String tString = Integer.toBinaryString((byteBuffer.get(59) & 0xFF) + 0x100).substring(1);
-        systemControlBroadcastCMD.setEquipmentSerialNum(tString);
-        systemControlBroadcastCMD.setDetectionThresholdAdjustment(byteBuffer.get(60));
-        return systemControlBroadcastCMD;
-    }
-
-    // 查询该IP是否存在
-    private boolean hasHostIP(String host) {
-        Optional<AllHost> allHost = hostRepository.findByHost(host);
-        return allHost.isPresent();
-    }
 }
