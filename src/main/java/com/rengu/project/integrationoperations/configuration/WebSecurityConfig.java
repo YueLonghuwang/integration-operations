@@ -90,7 +90,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable();
         http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry);
         http.httpBasic();
-        http.logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true);
     }
 
 }

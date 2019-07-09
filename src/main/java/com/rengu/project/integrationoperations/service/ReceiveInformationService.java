@@ -1,9 +1,6 @@
 package com.rengu.project.integrationoperations.service;
 
-import com.rengu.project.integrationoperations.entity.AllHost;
-import com.rengu.project.integrationoperations.entity.LabelDataFormat;
-import com.rengu.project.integrationoperations.entity.LabelPackageInfo;
-import com.rengu.project.integrationoperations.entity.SystemControlBroadcastCMD;
+import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import lombok.Cleanup;
@@ -67,38 +64,23 @@ public class ReceiveInformationService {
 
     // 解析报文固定信息
     @Async
-    public Map receiveFixedInformation(ByteBuffer byteBuffer) {
+    public Map<String, Number> receiveFixedInformation(ByteBuffer byteBuffer) {
         Map<String, Number> map = new HashMap<>();
         map.put("header", byteBuffer.getInt()); // 报文头
-        map.put("dataLength", byteBuffer.getInt(5)); // 当前包数据长度
-        map.put("targetHost", byteBuffer.getShort(9)); // 目的地址
-        map.put("sourceHost", byteBuffer.getShort(11)); // 源地址
-        map.put("regionID", byteBuffer.get(13)); // 域ID
-        map.put("themeID", byteBuffer.get(14)); // 主题ID
-        map.put("messageCategory", byteBuffer.getShort(15)); // 信息类别
-        map.put("transmitDate", byteBuffer.getLong(17)); // 发报日期时间
-        map.put("serialNumber", byteBuffer.getInt(25)); // 序列号
-        map.put("bagTotal", byteBuffer.getInt(29)); // 包总数
-        map.put("currentBagNo", byteBuffer.getInt(33)); // 当前包号
-        map.put("dataTotalLength", byteBuffer.getInt(37)); // 数据总长度
-        map.put("versionNumber", byteBuffer.getShort(41)); // 版本号
-        map.put("backups1", byteBuffer.getInt(43)); // 保留字段
-        map.put("backups2", byteBuffer.getShort(47)); // 保留字段
-        /*int header = byteBuffer.getInt();
-        int dataLength = byteBuffer.getInt(5);
-        short targetHost = byteBuffer.getShort(9);
-        short sourceHost = byteBuffer.getShort(11);
-        byte regionID = byteBuffer.get(13);
-        byte themeID = byteBuffer.get(14);
-        short messageCategory = byteBuffer.getShort(15);
-        long transmitDate = byteBuffer.getLong(17);
-        int serialNumber = byteBuffer.getInt(25);
-        int bagTotal = byteBuffer.getInt(29);
-        int currentBagNo = byteBuffer.getInt(33);
-        int dataTotalLength = byteBuffer.getInt(37);
-        short versionNumber = byteBuffer.getShort(41);
-        int backups1 = byteBuffer.getInt(43);
-        short backups2 = byteBuffer.getShort(47);*/
+        map.put("dataLength", byteBuffer.getInt(4)); // 当前包数据长度
+        map.put("targetHost", byteBuffer.getShort(8)); // 目的地址
+        map.put("sourceHost", byteBuffer.getShort(10)); // 源地址
+        map.put("regionID", byteBuffer.get(12)); // 域ID
+        map.put("themeID", byteBuffer.get(13)); // 主题ID
+        map.put("messageCategory", byteBuffer.getShort(14)); // 信息类别
+        map.put("transmitDate", byteBuffer.getLong(16)); // 发报日期时间
+        map.put("serialNumber", byteBuffer.getInt(24)); // 序列号
+        map.put("bagTotal", byteBuffer.getInt(28)); // 包总数
+        map.put("currentBagNo", byteBuffer.getInt(32)); // 当前包号
+        map.put("dataTotalLength", byteBuffer.getInt(36)); // 数据总长度
+        map.put("versionNumber", byteBuffer.getShort(40)); // 版本号
+        map.put("backups1", byteBuffer.getInt(42)); // 保留字段
+        map.put("backups2", byteBuffer.getShort(46)); // 保留字段
         return map;
     }
 
@@ -125,8 +107,6 @@ public class ReceiveInformationService {
         @Cleanup InputStream inputStream = socket.getInputStream();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         log.info("-------接收报文-----");
-        /* byte[] bytes = new byte[1024];
-        inputStream.read(bytes);*/
         IOUtils.copy(inputStream, byteArrayOutputStream);
         String host = socket.getInetAddress().getHostAddress();
         if (byteArrayOutputStream.toByteArray().length > 600) {
@@ -165,123 +145,129 @@ public class ReceiveInformationService {
         return stringBuilders;
     }
 
-    //  解析铁塔敌我报文
+
+    /**
+     * 解析铁塔敌我报文
+     */
     @Async
     public void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(650);
         byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
         // 判断包
         short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort());
-        short dataType = byteBuffer.getShort(3);
-        int dataLength = byteBuffer.getInt(5);
+        short dataType = byteBuffer.getShort(2);
+        int dataLength = byteBuffer.getInt(4);
         byte[] systemBytes = new byte[64];
-        byteBuffer.get(systemBytes, 9, 64);
+        byteBuffer.get(systemBytes, 8, 64);
         systemControlBroadcastCMDs(systemBytes);
         byte[] dataGPS = new byte[64];
-        byteBuffer.get(dataGPS, 73, 64);
+        byteBuffer.get(dataGPS, 72, 64);
         LabelDataFormat labelDataFormat = new LabelDataFormat();
-        labelDataFormat.setSystemWorkState(byteBuffer.get(137));
-        labelDataFormat.setReceiveCmdCount(byteBuffer.get(138));
+        labelDataFormat.setSystemWorkState(byteBuffer.get(136));
+        labelDataFormat.setReceiveCmdCount(byteBuffer.get(137));
         // 分机计数
         byte[] extensionCountByte = new byte[6];
-        byteBuffer.get(extensionCountByte, 139, 6);
+        byteBuffer.get(extensionCountByte, 138, 6);
         StringBuilder stringBuilder = getBit(extensionCountByte);
         labelDataFormat.setExtensionCount(stringBuilder.toString());
-        labelDataFormat.setFrontEndWorkT(byteBuffer.getShort(145));
-        labelDataFormat.setMainWorkT(byteBuffer.getShort(147));
-        labelDataFormat.setDetectionWorkT(byteBuffer.getShort(149));
-        labelDataFormat.setExtensionTwoWorkT(byteBuffer.getShort(151));
-        labelDataFormat.setExtensionThreeWorkT(byteBuffer.getShort(153));
-        labelDataFormat.setExtensionFourWorkT(byteBuffer.getShort(155));
-        labelDataFormat.setExtensionFiveWorkT(byteBuffer.getShort(157));
-        labelDataFormat.setExtensionSixWorkT(byteBuffer.getShort(159));
-        labelDataFormat.setPDW740(byteBuffer.getInt(161));
-        labelDataFormat.setPDW837_5(byteBuffer.getInt(165));
-        labelDataFormat.setPDW1030(byteBuffer.getInt(169));
-        labelDataFormat.setPDW1059(byteBuffer.getInt(173));
-        labelDataFormat.setPDW1090(byteBuffer.getInt(177));
-        labelDataFormat.setPDW1464(byteBuffer.getInt(181));
-        labelDataFormat.setPDW1532(byteBuffer.getInt(185));
-        labelDataFormat.setIFF740(byteBuffer.getInt(189));
-        labelDataFormat.setIFF837_5(byteBuffer.getInt(193));
-        labelDataFormat.setIFF1030(byteBuffer.getInt(197));
-        labelDataFormat.setIFF1090(byteBuffer.getInt(201));
-        labelDataFormat.setIFF1464(byteBuffer.getInt(205));
-        labelDataFormat.setIFF1532(byteBuffer.getInt(209));
+        labelDataFormat.setFrontEndWorkT(byteBuffer.getShort(144));
+        labelDataFormat.setMainWorkT(byteBuffer.getShort(146));
+        labelDataFormat.setDetectionWorkT(byteBuffer.getShort(148));
+        labelDataFormat.setExtensionTwoWorkT(byteBuffer.getShort(150));
+        labelDataFormat.setExtensionThreeWorkT(byteBuffer.getShort(152));
+        labelDataFormat.setExtensionFourWorkT(byteBuffer.getShort(154));
+        labelDataFormat.setExtensionFiveWorkT(byteBuffer.getShort(156));
+        labelDataFormat.setExtensionSixWorkT(byteBuffer.getShort(158));
+        labelDataFormat.setPDW740(byteBuffer.getInt(160));
+        labelDataFormat.setPDW837_5(byteBuffer.getInt(164));
+        labelDataFormat.setPDW1030(byteBuffer.getInt(168));
+        labelDataFormat.setPDW1059(byteBuffer.getInt(172));
+        labelDataFormat.setPDW1090(byteBuffer.getInt(176));
+        labelDataFormat.setPDW1464(byteBuffer.getInt(180));
+        labelDataFormat.setPDW1532(byteBuffer.getInt(184));
+        labelDataFormat.setIFF740(byteBuffer.getInt(188));
+        labelDataFormat.setIFF837_5(byteBuffer.getInt(192));
+        labelDataFormat.setIFF1030(byteBuffer.getInt(196));
+        labelDataFormat.setIFF1090(byteBuffer.getInt(200));
+        labelDataFormat.setIFF1464(byteBuffer.getInt(204));
+        labelDataFormat.setIFF1532(byteBuffer.getInt(208));
         //  IF个数
         byte[] ifCount = new byte[28];
-        byteBuffer.get(ifCount, 213, 28);
+        byteBuffer.get(ifCount, 212, 28);
         labelDataFormat.setIF(ifCount);
-        labelDataFormat.setM51030(byteBuffer.getInt(241));
-        labelDataFormat.setM51090(byteBuffer.getInt(245));
-        labelDataFormat.setM5MF1030(byteBuffer.getInt(249));
-        labelDataFormat.setM5MF1030S(byteBuffer.getInt(253));
+        labelDataFormat.setM51030(byteBuffer.getInt(240));
+        labelDataFormat.setM51090(byteBuffer.getInt(244));
+        labelDataFormat.setM5MF1030(byteBuffer.getInt(248));
+        labelDataFormat.setM5MF1030S(byteBuffer.getInt(252));
         //  电源状态
         byte[] powerState = new byte[154];
-        byteBuffer.get(powerState, 257, 154);
+        byteBuffer.get(powerState, 256, 154);
         labelDataFormat.setPowerState(powerState);
-        labelDataFormat.setMainFPGA1Versions(byteBuffer.get(411));
-        labelDataFormat.setMainFPGA2Versions(byteBuffer.get(412));
-        labelDataFormat.setMainDSPVersions(byteBuffer.get(413));
-        labelDataFormat.setDetectionTwoFPGA1(byteBuffer.get(414));
-        labelDataFormat.setDetectionTwoFPGA2(byteBuffer.get(415));
-        labelDataFormat.setDetectionTwoDSP(byteBuffer.get(416));
+        labelDataFormat.setMainFPGA1Versions(byteBuffer.get(410));
+        labelDataFormat.setMainFPGA2Versions(byteBuffer.get(411));
+        labelDataFormat.setMainDSPVersions(byteBuffer.get(412));
+        labelDataFormat.setDetectionTwoFPGA1(byteBuffer.get(413));
+        labelDataFormat.setDetectionTwoFPGA2(byteBuffer.get(414));
+        labelDataFormat.setDetectionTwoDSP(byteBuffer.get(415));
         //  版本号
         byte[] versions = new byte[16];
-        byteBuffer.get(versions, 417, 16);
+        byteBuffer.get(versions, 416, 16);
         labelDataFormat.setVersions(versions);
-        labelDataFormat.setMainIPAddress(byteBuffer.getInt(433));
-        labelDataFormat.setDetectionIPAddress(byteBuffer.getInt(437));
-        labelDataFormat.setGPRS2IPAddress(byteBuffer.getInt(441));
-        labelDataFormat.setGPRS3IPAddress(byteBuffer.getInt(445));
-        labelDataFormat.setUserCMDPort(byteBuffer.getShort(449));
-        labelDataFormat.setInteriorCMDPort(byteBuffer.getShort(451));
-        labelDataFormat.setBackup1(byteBuffer.getInt(453));
+        labelDataFormat.setMainIPAddress(byteBuffer.getInt(432));
+        labelDataFormat.setDetectionIPAddress(byteBuffer.getInt(436));
+        labelDataFormat.setGPRS2IPAddress(byteBuffer.getInt(440));
+        labelDataFormat.setGPRS3IPAddress(byteBuffer.getInt(444));
+        labelDataFormat.setUserCMDPort(byteBuffer.getShort(448));
+        labelDataFormat.setInteriorCMDPort(byteBuffer.getShort(450));
+        labelDataFormat.setBackup1(byteBuffer.getInt(452));
         // 主控MAC地址
         byte[] mainControlAddress = new byte[6];
-        byteBuffer.get(mainControlAddress, 457, 6);
+        byteBuffer.get(mainControlAddress, 456, 6);
         labelDataFormat.setMainControlAddress(mainControlAddress);
         // 检测MAC地址
         byte[] detectionMACAddress = new byte[6];
-        byteBuffer.get(detectionMACAddress, 463, 6);
+        byteBuffer.get(detectionMACAddress, 462, 6);
         labelDataFormat.setDetectionMACAddress(detectionMACAddress);
         // 数传2MAC地址
         byte[] GPRSTwoMACAddress = new byte[6];
-        byteBuffer.get(GPRSTwoMACAddress, 469, 6);
+        byteBuffer.get(GPRSTwoMACAddress, 468, 6);
         labelDataFormat.setGPRSTwoMACAddress(GPRSTwoMACAddress);
         // 数传3MAC地址
         byte[] GPRSThreeMACAddress = new byte[6];
-        byteBuffer.get(GPRSThreeMACAddress, 475, 6);
+        byteBuffer.get(GPRSThreeMACAddress, 474, 6);
         labelDataFormat.setGPRSThreeMACAddress(GPRSThreeMACAddress);
         // 备份
         byte[] backup2 = new byte[16];
-        byteBuffer.get(backup2, 481, 16);
+        byteBuffer.get(backup2, 480, 16);
         labelDataFormat.setBackup2(backup2);
-        labelDataFormat.setUpperIP(byteBuffer.getInt(497));
+        labelDataFormat.setUpperIP(byteBuffer.getInt(496));
         // 备份
         byte[] backup3 = new byte[12];
-        byteBuffer.get(backup3, 501, 12);
+        byteBuffer.get(backup3, 500, 12);
         labelDataFormat.setBackup3(backup3);
-        labelDataFormat.setTagPort(byteBuffer.getShort(513));
-        labelDataFormat.setDataPort1(byteBuffer.getShort(515));
-        labelDataFormat.setDataPort2(byteBuffer.getShort(517));
-        labelDataFormat.setDataPort3(byteBuffer.getShort(519));
-        labelDataFormat.setInteriorStateIP(byteBuffer.getInt(521));
-        labelDataFormat.setInteriorStatePortIP(byteBuffer.getShort(525));
-        labelDataFormat.setBackup4(byteBuffer.getShort(527));
+        labelDataFormat.setTagPort(byteBuffer.getShort(512));
+        labelDataFormat.setDataPort1(byteBuffer.getShort(514));
+        labelDataFormat.setDataPort2(byteBuffer.getShort(516));
+        labelDataFormat.setDataPort3(byteBuffer.getShort(518));
+        labelDataFormat.setInteriorStateIP(byteBuffer.getInt(520));
+        labelDataFormat.setInteriorStatePortIP(byteBuffer.getShort(524));
+        labelDataFormat.setBackup4(byteBuffer.getShort(526));
         //  MCU加载片区
         byte[] mcuLoad = new byte[8];
-        byteBuffer.get(mcuLoad, 529, 8);
+        byteBuffer.get(mcuLoad, 528, 8);
         StringBuilder stringBuilders = getBit(mcuLoad);
         labelDataFormat.setMCULoad(stringBuilders.toString());
         //  备份
         byte[] backup5 = new byte[64];
-        byteBuffer.get(backup5, 537, 64);
+        byteBuffer.get(backup5, 536, 64);
         labelDataFormat.setBackup5(backup5);
-        int end = byteBuffer.getInt(601);
+        int end = byteBuffer.getInt(600);
     }
 
-    //  解析铁塔雷达报文
+    /**
+     * 解析铁塔雷达报文
+     */
     @Async
     public void reciveAndConvertIronRadar(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
@@ -342,6 +328,158 @@ public class ReceiveInformationService {
         byte[] bytes8 = SocketConfig.hexToByte(SocketConfig.end);
     }
 
+
+    /**
+     * 3.4.6.2 心跳指令
+     */
+    @Async
+    public void receiveHeartbeatCMD(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(69);
+        byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        int messageLength = byteBuffer.getInt(48); // 信息长度
+        long taskFlowNo = byteBuffer.getLong(52); // 任务流水号
+        byte heartbeat = byteBuffer.get(60); // 心跳
+        int verify = byteBuffer.getInt(61); // 校验和
+        int messageEnd = byteBuffer.getInt(65); // 报文尾
+    }
+
+    /**
+     * 3.4.6.9 上传心跳信息
+     */
+    @Async
+    public void uploadHeartBeatMessage(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(72);
+        byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        int messageLength = byteBuffer.getInt(48);
+        long taskFlowNo = byteBuffer.getLong(52);
+        byte systemWorkStatus = byteBuffer.get(60);
+        Map map1 = workStatus(systemWorkStatus); // 解析系统工作状态
+        byte[] backups = new byte[3];
+        byteBuffer.get(backups, 61, 3);
+        int verify = byteBuffer.getInt(64); // 校验和
+        int messageEnd = byteBuffer.getInt(68); // 报文尾
+    }
+
+    /**
+     * 3.4.6.10 上报自检结果
+     */
+    @Async
+    public void uploadSelfInspectionResult(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(69);
+        byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        int messageLength = byteBuffer.getInt(48);
+        long taskFlowNo = byteBuffer.getLong(52);
+        byte systemWorkStatus = byteBuffer.get(60);
+        Map map1 = workStatus(systemWorkStatus); // 解析系统工作状态
+        int verify = byteBuffer.getInt(64); // 校验和
+        int messageEnd = byteBuffer.getInt(68); // 报文尾
+    }
+
+
+    /**
+     * 3.4.6.11 上报软件版本信息包
+     */
+    @Async
+    public void uploadSoftwareVersionMessage(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(326);
+        byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        int messageLength = byteBuffer.getInt(48);
+        long taskFlowNo = byteBuffer.getLong(52);
+        short cmd = byteBuffer.getShort(60);
+        // 软件版本信息表
+        byte[] softwareVersionMessage = new byte[256];
+        byteBuffer.get(softwareVersionMessage, 62, 256);
+        int verify = byteBuffer.getInt(64); // 校验和
+        int messageEnd = byteBuffer.getInt(68); // 报文尾
+    }
+
+    /**
+     * 3.4.6.12 上传设备网络参数信息包
+     */
+    @Async
+    public void uploadDeviceNetWorkParamMessage(byte[] bytes) {
+        DeviceNetWorkParam deviceNetWorkParam = new DeviceNetWorkParam();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(143);
+        byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        int messageLength = byteBuffer.getInt(48);
+        long taskFlowNo = byteBuffer.getLong(52);
+        short cmd = byteBuffer.getShort(60);
+        short networkID = byteBuffer.getShort(62); // 网络终端ID号
+        int networkIP1 = byteBuffer.getInt(64); // 网络IP地址1
+        byte[] bytes1 = new byte[6]; // 网络MAC地址1
+        byteBuffer.get(bytes1, 68, 6);
+        int networkMessage1 = byteBuffer.getInt(74); // 网络端口信息1
+        int networkIP2 = byteBuffer.getInt(78); // 网络IP地址2
+        byte[] bytes2 = new byte[6]; // 网络MAC地址2
+        byteBuffer.get(bytes1, 82, 6);
+        int networkMessage2 = byteBuffer.getInt(88); // 网络端口信息2
+        int networkIP3 = byteBuffer.getInt(92); // 网络IP地址3
+        byte[] bytes3 = new byte[6]; // 网络MAC地址3
+        byteBuffer.get(bytes1, 96, 6);
+        int networkMessage3 = byteBuffer.getInt(102); // 网络端口信息3
+        int networkIP4 = byteBuffer.getInt(106); // 网络IP地址4
+        byte[] bytes4 = new byte[6]; // 网络MAC地址4
+        byteBuffer.get(bytes1, 110, 6);
+        int networkMessage4 = byteBuffer.getInt(116); // 网络端口信息4
+
+        // 有重复 待定
+
+        // 结尾
+        int verify = byteBuffer.getInt(64); // 校验和
+        int messageEnd = byteBuffer.getInt(68); // 报文尾
+    }
+
+    /**
+     * 3.4.6.13上报雷达子系统工作状态信息包
+     */
+    @Async
+    public void uploadRadarSubSystemWorkStatusMessage(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(580);
+        byteBuffer.put(bytes);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        int messageLength = byteBuffer.getInt(48);
+        long taskFlowNo = byteBuffer.getLong(52);
+        // 雷达子系统状态信息
+        byte[] bytes1 = new byte[512];
+        byteBuffer.get(bytes1, 60, 512);
+    }
+
+
+    // 解析工作状态  3.4.6.10 上报自检结果   3.4.6.9 上传心跳信息 引用
+    private Map<String, String> workStatus(byte systemWorkStatus) {
+        // 解析系统工作状态
+        String s = Integer.toBinaryString((systemWorkStatus & 0xFF) + 0x100).substring(1);
+        String radarSubSystem = s.substring(7); // 雷达子系统
+        String friendOrFoe = s.substring(6, 7); // 敌我子系统
+        String twicePowerSupply = s.substring(5, 6); //二次电源设备
+        String other1 = s.substring(4, 5); // 其他设备1 bit3
+        String other2 = s.substring(3, 4); // 其他设备2 bit4
+        String other3 = s.substring(2, 3); // 其他设备3 bit5
+        String other4 = s.substring(1, 2); // 其他设备4 bit6
+        String other5 = s.substring(0, 1); // 其他设备5 bit7
+        Map<String, String> map = new HashMap<>();
+        map.put("radarSubSystem", radarSubSystem);
+        map.put("friendOrFoe", friendOrFoe);
+        map.put("twicePowerSupply", twicePowerSupply);
+        map.put("other1", other1);
+        map.put("other2", other2);
+        map.put("other3", other3);
+        map.put("other4", other4);
+        map.put("other5", other5);
+        return map;
+    }
+
     // 解析系统控制信息
     private SystemControlBroadcastCMD systemControlBroadcastCMDs(byte[] bytes) {
         SystemControlBroadcastCMD systemControlBroadcastCMD = new SystemControlBroadcastCMD();
@@ -392,47 +530,25 @@ public class ReceiveInformationService {
         return allHost.isPresent();
     }
 
-
     public List<AllHost> findAll() {
         List<AllHost> list = hostRepository.findAll();
         return list;
     }
 
-
-    /**
-     *                 3.4.6.2 心跳指令
-     *  ==============================================
-     */
-    @Async
-    public void receiveHeartbeatCMD(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(69);
-        byteBuffer.put(bytes);
-        Map map=receiveFixedInformation(byteBuffer);
-        int messageLength = byteBuffer.getInt(51); // 信息长度
-        long taskFlowNo = byteBuffer.getLong(55); // 任务流水号
-        byte heartbeat = byteBuffer.get(63); // 心跳
-        int verify = byteBuffer.getInt(64); // 校验和
-        int messageEnd = byteBuffer.getInt(68); // 报文尾
+    public static void main(String[] args) {
+     /*   byte b=5;
+        String s=Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
+        System.out.println(s.substring(6,7));
+        byte[] b1=new byte[5];
+        b1[0]=1;
+        b1[1]=2;
+        b1[2]=3;
+        b1[3]=4;
+        b1[4]=5;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(5);
+        byteBuffer.put(b1);
+        byte b2=byteBuffer.get(2);
+        System.out.println(b2 );
+        Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);*/
     }
-
-    /**
-     *                 3.4.6.9 上传心跳信息
-     *  ==============================================
-     */
-    @Async void uploadHeartBeatMessage(){
-        ByteBuffer byteBuffer = ByteBuffer.allocate(72);
-        byteBuffer.getInt(51);
-
-    }
-
-    /**
-     *                 3.4.6.10 上报自检结果
-     *  ==============================================
-     */
-
-    /**
-     *                 3.4.6.11 上报软件版本信息包
-     *  ==============================================
-     */
-
 }
