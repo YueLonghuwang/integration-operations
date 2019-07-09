@@ -48,6 +48,7 @@ public class DeploymentService {
         // 当前包数据长度
     }
 
+
     //  发送时间
     public void sendSystemTiming(String time, String host) {
         try {
@@ -430,6 +431,12 @@ public class DeploymentService {
         }
     }
 
+    /**
+     * 3.4.6.3 设备自检指令
+     */
+    public void sendDeviceCheckCMD(){
+
+    }
     //  群发系统控制指令
     public void sendAllSystemControlCMD(SystemControlCMD systemControlCMD) {
         List<AllHost> list = hostRepository.findAll();

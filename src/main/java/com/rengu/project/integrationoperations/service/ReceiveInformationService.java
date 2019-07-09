@@ -383,7 +383,7 @@ public class ReceiveInformationService {
 
 
     /**
-     * 3.4.6.11 上报软件版本信息包
+     * 3.4.6.11 上报软件版本信息包 (软件版本信息表256字节待定)
      */
     @Async
     public void uploadSoftwareVersionMessage(byte[] bytes) {
@@ -402,7 +402,7 @@ public class ReceiveInformationService {
     }
 
     /**
-     * 3.4.6.12 上传设备网络参数信息包
+     * 3.4.6.12 上传设备网络参数信息包 (有重复，待定)
      */
     @Async
     public void uploadDeviceNetWorkParamMessage(byte[] bytes) {
@@ -440,7 +440,7 @@ public class ReceiveInformationService {
     }
 
     /**
-     * 3.4.6.13上报雷达子系统工作状态信息包
+     * 3.4.6.13上报雷达子系统工作状态信息包 雷达子系统状态信息(512字节待完成)
      */
     @Async
     public void uploadRadarSubSystemWorkStatusMessage(byte[] bytes) {

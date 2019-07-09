@@ -3,7 +3,6 @@ package com.rengu.project.integrationoperations.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rengu.project.integrationoperations.enums.SystemUserEnum;
 import com.rengu.project.integrationoperations.util.BackEndFrameworkApplicationMessage;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +21,6 @@ import java.util.*;
  * @date 2019-03-19
  */
 
-@Data
 @NoArgsConstructor
 @Entity
 public class UserEntity implements UserDetails {
@@ -35,7 +33,111 @@ public class UserEntity implements UserDetails {
     private String username;
     @NotBlank(message = BackEndFrameworkApplicationMessage.USER_PASSWORD_NOT_BLANK)
     private String password;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
+
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setDefaultUser(boolean defaultUser) {
+        this.defaultUser = defaultUser;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
+    }
+
     private boolean accountNonExpired = true;
+
+    public String getId() {
+        return id;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isDefaultUser() {
+        return defaultUser;
+    }
+
+    public String getTel() {
+        return tel;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public Set<RoleEntity> getRoles() {
+        return roles;
+    }
+
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;

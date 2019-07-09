@@ -1,6 +1,5 @@
 package com.rengu.project.integrationoperations.entity;
 
-import lombok.Data;
 
 /**
  * author : yaojiahao
