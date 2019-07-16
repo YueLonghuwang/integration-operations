@@ -47,21 +47,6 @@ public class SocketConfig {
     }
 
     public static void main(String[] args) {
-//        Scanner scanner = new Scanner(System.in);
-//        String a = scanner.next();
-//        switch (a) {
-//            case "start":
-//                System.out.println("开始了");
-//                break;
-//            case "hao":
-//            case "jia":
-//                System.out.println("haoJiaHao");
-//                break;
-//            case "stop":
-//                System.out.println("暂停");
-//                break;
-//
-//            default:
         Map map = new ConcurrentHashMap();
         for (int i=0;i<10;i++){
             System.out.println(i);
@@ -72,50 +57,6 @@ public class SocketConfig {
             System.out.println("1322");
         }
         System.out.println(map.get("5")+""+map.get("9"));
-  /*      String a="0110110111";
-
-       int c= BinaryToDecimal(Integer.parseInt(a));
-       System.out.println(c);
-       ByteBuffer byteBuffer=ByteBuffer.allocate(20);
-       byte b=20;
-       byteBuffer.put(b);
-       byte d=byteBuffer.get(0);
-       System.out.println(d);*/
-   /*     Set<String> set=new HashSet<>();
-        set.add("192.168.1.101");
-        set.add("192.168.1.102");
-        set.add("192.168.1.103");
-        Set<String> set1 = new HashSet<>(set);
-        List<String> list=new ArrayList<>();
-        list.add("192.168.1.101");
-        list.add("192.168.1.104");
-        list.add("192.168.1.103");
-        set.addAll(list);
-        for (String s : set) {
-            System.out.println(s);
-        }
-        System.out.println(set1.size());
-        System.out.println(set.size());
-        byte[] bytes = new byte[5];
-        bytes[0] = 5;
-        bytes[1] = 5;
-        bytes[2] = 5;
-        bytes[3] = 5;
-        bytes[4] = 7;
-        ByteBuffer byteBuffer=ByteBuffer.allocate(5);
-        byteBuffer.put(bytes);
-        byte b=byteBuffer.get(1);
-        System.out.println(Integer.toBinaryString((b & 0xFF) + 0x100).substring(1));
-        StringBuilder stringBuilder=new StringBuilder();
-        for (int i=bytes.length-1;i>=0;i--) {
-            String tString = Integer.toBinaryString((bytes[i] & 0xFF) + 0x100).substring(1);
-            stringBuilder.append(tString);
-        }
-        System.out.println(stringBuilder.toString().substring(38,39));
-        System.out.println(stringBuilder.toString());*/
-//        byte b= (byte) (254&0xff);
-//        System.out.println(b);
-        //  输出测试
     }
 
     public static String binary(byte[] bytes, int radix) {

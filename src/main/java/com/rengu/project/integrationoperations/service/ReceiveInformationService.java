@@ -5,16 +5,16 @@ import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 
 /**
@@ -85,11 +85,53 @@ public class ReceiveInformationService {
     }
 
     @Async
-    public void receiveSocketHandler1(Socket socket) throws IOException {
+    public void receiveSocketHandler1(SocketChannel socket) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        socket.read(byteBuffer);
+        byteBuffer.flip();
+        while (byteBuffer.hasRemaining()){
+            System.err.println((char)byteBuffer.get());    //输出
+        }
+
+        // 为什么需要断开Socket才可以继续往下走
+   /*     @Cleanup InputStream inputStream = socket.getInputStream();
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        log.info("-------接收报文1-----");
+        String host = socket.getInetAddress().getHostAddress();*/
+//        IOUtils.copy(inputStream, byteArrayOutputStream);
+//        ByteArrayOutputStream byteArrayOutputStream = cloneInputStream(inputStream);
+//        System.out.println(byteArrayOutputStream.toByteArray().length);
+    }
+
+
+    @Async
+    public void sendMessage(InputStream inputStream, String host) throws IOException {
+
+    }
+
+    @Async
+    public void receiveSocketHandler2(Socket socket) throws IOException {
         @Cleanup InputStream inputStream = socket.getInputStream();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-        /*byte[] bytes = new byte[1024];
+        log.info("-------接收报文2-----");
+        IOUtils.copy(inputStream, byteArrayOutputStream);
+        String host = socket.getInetAddress().getHostAddress();
+        System.out.println(byteArrayOutputStream.toByteArray().length);
+        if (byteArrayOutputStream.toByteArray().length > 600) {
+            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
+        } else if (byteArrayOutputStream.toByteArray().length > 400) {
+            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
+        } else if (byteArrayOutputStream.toByteArray().length > 60) {
+            receiveHeartbeatCMD(byteArrayOutputStream.toByteArray(), host);
+        }
+    }
+
+    @Async
+    public void receiveSocketHandler3(Socket socket) throws IOException {
+        @Cleanup InputStream inputStream = socket.getInputStream();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        log.info("-------接收报文3----");
+         /* byte[] bytes = new byte[1024];
         inputStream.read(bytes);*/
         IOUtils.copy(inputStream, byteArrayOutputStream);
         String host = socket.getInetAddress().getHostAddress();
@@ -99,36 +141,7 @@ public class ReceiveInformationService {
             reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
         } else if (byteArrayOutputStream.toByteArray().length > 60) {
 
-        }
-    }
-
-    @Async
-    public void receiveSocketHandler2(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        }
-    }
-
-    @Async
-    public void receiveSocketHandler3(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文-----");
-         /* byte[] bytes = new byte[1024];
-        inputStream.read(bytes);*/
-        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
+            receiveHeartbeatCMD(byteArrayOutputStream.toByteArray(), host);
         }
     }
 
@@ -333,7 +346,7 @@ public class ReceiveInformationService {
      * 3.4.6.2 心跳指令
      */
     @Async
-    public void receiveHeartbeatCMD(byte[] bytes) {
+    public void receiveHeartbeatCMD(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(69);
         byteBuffer.put(bytes);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
@@ -343,6 +356,7 @@ public class ReceiveInformationService {
         byte heartbeat = byteBuffer.get(60); // 心跳
         int verify = byteBuffer.getInt(61); // 校验和
         int messageEnd = byteBuffer.getInt(65); // 报文尾
+        System.out.println(heartbeat);
     }
 
     /**
@@ -394,20 +408,22 @@ public class ReceiveInformationService {
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
         short cmd = byteBuffer.getShort(60);
-        // 软件版本信息表
-        byte[] softwareVersionMessage = new byte[256];
-        byteBuffer.get(softwareVersionMessage, 62, 256);
-        int verify = byteBuffer.getInt(64); // 校验和
-        int messageEnd = byteBuffer.getInt(68); // 报文尾
+        // 软件版本信息表 先显示前16个字节
+        byte[] bytes1 = new byte[16];
+        byteBuffer.get(bytes1, 62, 16);
+        /*byte[] softwareVersionMessage = new byte[256];
+        byteBuffer.get(softwareVersionMessage, 62, 256);*/
+        int verify = byteBuffer.getInt(318); // 校验和
+        int messageEnd = byteBuffer.getInt(322); // 报文尾
     }
 
     /**
-     * 3.4.6.12 上传设备网络参数信息包 (有重复，待定)
+     * 3.4.6.12 上传设备网络参数信息包
      */
     @Async
     public void uploadDeviceNetWorkParamMessage(byte[] bytes) {
         DeviceNetWorkParam deviceNetWorkParam = new DeviceNetWorkParam();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(143);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(156);
         byteBuffer.put(bytes);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
@@ -421,22 +437,27 @@ public class ReceiveInformationService {
         int networkMessage1 = byteBuffer.getInt(74); // 网络端口信息1
         int networkIP2 = byteBuffer.getInt(78); // 网络IP地址2
         byte[] bytes2 = new byte[6]; // 网络MAC地址2
-        byteBuffer.get(bytes1, 82, 6);
+        byteBuffer.get(bytes2, 82, 6);
         int networkMessage2 = byteBuffer.getInt(88); // 网络端口信息2
         int networkIP3 = byteBuffer.getInt(92); // 网络IP地址3
         byte[] bytes3 = new byte[6]; // 网络MAC地址3
-        byteBuffer.get(bytes1, 96, 6);
+        byteBuffer.get(bytes3, 96, 6);
         int networkMessage3 = byteBuffer.getInt(102); // 网络端口信息3
         int networkIP4 = byteBuffer.getInt(106); // 网络IP地址4
         byte[] bytes4 = new byte[6]; // 网络MAC地址4
-        byteBuffer.get(bytes1, 110, 6);
+        byteBuffer.get(bytes4, 110, 6);
         int networkMessage4 = byteBuffer.getInt(116); // 网络端口信息4
-
-        // 有重复 待定
-
+        int networkIP5 = byteBuffer.getInt(120); // 网络IP地址5
+        byte[] bytes5 = new byte[6]; // 网络MAC地址5
+        byteBuffer.get(bytes5, 124, 6);
+        int networkMessage5 = byteBuffer.getInt(130); // 网络端口信息5
+        int networkIP6 = byteBuffer.getInt(134); // 网络IP地址6
+        byte[] bytes6 = new byte[6]; // 网络MAC地址6
+        byteBuffer.get(bytes6, 138, 6);
+        int networkMessage6 = byteBuffer.getInt(144); // 网络端口信息6
         // 结尾
-        int verify = byteBuffer.getInt(64); // 校验和
-        int messageEnd = byteBuffer.getInt(68); // 报文尾
+        int verify = byteBuffer.getInt(148); // 校验和
+        int messageEnd = byteBuffer.getInt(152); // 报文尾
     }
 
     /**
@@ -451,8 +472,41 @@ public class ReceiveInformationService {
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
         // 雷达子系统状态信息
-        byte[] bytes1 = new byte[512];
-        byteBuffer.get(bytes1, 60, 512);
+        short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort(60));
+        Short dataType = byteBuffer.getShort(62); // 数据类型
+        int dataLength = byteBuffer.getInt(64); // 数据长度
+        byte[] bytes1 = new byte[64]; // 系统控制信息
+        byteBuffer.get(bytes, 68, 64);
+        byte[] bytes2 = new byte[64]; // GPS数据
+        byteBuffer.get(bytes2, 132, 64);
+        byte faNodeNo = byteBuffer.get(196); // 发方节点号
+        byte shouNodeNo = byteBuffer.get(197); // 收方节点号
+        short feedbackNo = byteBuffer.getShort(198); // 反馈指令序号
+        short cmdReceiveStatus = byteBuffer.getShort(200); // 指令接收状态
+        short taskNo = byteBuffer.getShort(202); //任务编号
+        short frontEndWorkTemperature = byteBuffer.getShort(204); // 前端工作温度
+        short fenjiWorkTemperature = byteBuffer.getShort(206);  // 分机工作温度
+        long fenjiWorkStatus = byteBuffer.getLong(208);  // 分机工作状态
+        int numCount = byteBuffer.getInt(216); // 全脉冲个数统计
+        int dataPagCount = byteBuffer.getInt(220); // 辐射源数据包统计
+        int zhongDataPagCount = byteBuffer.getInt(224); // 中频数据统计
+        byte deviceNo = byteBuffer.get(228); // 设备编号
+        byte[] bytes3 = new byte[7]; // 备份
+        byteBuffer.get(bytes3, 229, 7);
+        byte b = byteBuffer.get(236); // 6-18GHz 长电缆均1
+        byte c = byteBuffer.get(237); // 6-18GHz 长电缆均2
+        byte d = byteBuffer.get(238); // 测向1
+        byte e = byteBuffer.get(239); // 测向2
+        byte[] bytes4 = new byte[32];
+        byteBuffer.get(bytes4, 240, 32);
+        byte[] bytes5 = new byte[128];
+        byteBuffer.get(bytes5, 272, 128);
+        byte[] bytes6 = new byte[128];
+        byteBuffer.get(bytes6, 400, 128);
+        byteBuffer.getInt(528);
+        // 结尾
+        int verify = byteBuffer.getInt(532); // 校验和
+        int messageEnd = byteBuffer.getInt(536); // 报文尾
     }
 
 
@@ -550,5 +604,46 @@ public class ReceiveInformationService {
         byte b2=byteBuffer.get(2);
         System.out.println(b2 );
         Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);*/
+       /* byte b = (byte) 255;
+        DeviceCheckCMD deviceCheckCMD = new DeviceCheckCMD();
+        deviceCheckCMD.setCheckNum("255");
+        byte c = (byte) Integer.parseInt(deviceCheckCMD.getCheckNum());
+
+        System.out.println(Integer.toBinaryString((c & 0xFF) + 0x100).substring(1));*/
+//        String s = Long.toBinaryString(Long.parseLong("0E8B5A"));
+        //把字符串转成字符数组
+  /*      char[] strChar="8c".toCharArray();
+        String result="";
+        for(int i=0;i<strChar.length;i++){
+            //toBinaryString(int i)返回变量的二进制表示的字符串
+            //toHexString(int i) 八进制
+            //toOctalString(int i) 十六进制
+            result +=Integer.toBinaryString(strChar[i])+ " ";
+        }
+        System.out.println(result);*/
+        /*byte[] bytes=SocketConfig.hexToByte("8CEC4BB57051");
+        System.out.println(bytes.length);*/
+        short s = 2;
+        String a = Integer.toBinaryString((s & 0xFF) + 0x100).substring(1);
+
+        System.out.println(a);
     }
+
+    private static ByteArrayOutputStream cloneInputStream(InputStream input) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = input.read(buffer)) > -1) {
+                baos.write(buffer, 0, len);
+            }
+            baos.flush();
+            return baos;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 }

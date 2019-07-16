@@ -8,7 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
@@ -42,8 +45,8 @@ public class TCPThread {
     public void monitoringTCP() {
         int portTCP = 5889;
         Set set = new HashSet();
-        log.info("监听TCP端口: " + portTCP);
         try {
+            log.info("监听TCP端口: " + portTCP);
             ServerSocket serverSocket = new ServerSocket(portTCP);
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -56,7 +59,7 @@ public class TCPThread {
                 List<AllHost> listAllhost = hostRepository.findAll();
                 for (AllHost allHost : listAllhost) {
                     if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                        receiveInformationService.receiveSocketHandler1(socket);
+                        receiveSocketHandler1(socket);
                     } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
                         receiveInformationService.receiveSocketHandler2(socket);
                     } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
@@ -67,6 +70,16 @@ public class TCPThread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    @Async
+    public void receiveSocketHandler1(Socket socket)  throws IOException {
+        // 为什么需要断开Socket才可以继续往下走
+        InputStream inputStream = null;
+        inputStream = socket.getInputStream();
+        System.out.println(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+        log.info("-------接收报文1-----");
+        String host = socket.getInetAddress().getHostAddress();
+        receiveInformationService.sendMessage(inputStream,host);
     }
 //    //  接收铁塔敌我报文
 //    @Async

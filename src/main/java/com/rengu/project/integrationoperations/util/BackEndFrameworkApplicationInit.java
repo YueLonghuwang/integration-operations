@@ -37,13 +37,16 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
     private final UserService userService;
     private final DeploymentService deploymentService;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
+    private final JavaClientUtil javaClientUtil;
     @Autowired
-    public BackEndFrameworkApplicationInit(TCPThread tcpThread, RoleService roleService, UserService userService, DeploymentService deploymentService, CMDSerialNumberRepository cmdSerialNumberRepository) {
+    public BackEndFrameworkApplicationInit(TCPThread tcpThread, RoleService roleService, UserService userService, DeploymentService deploymentService, CMDSerialNumberRepository cmdSerialNumberRepository, JavaClientUtil javaClientUtil) {
         this.tcpThread = tcpThread;
         this.roleService = roleService;
         this.userService = userService;
         this.deploymentService = deploymentService;
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
+//        this.javaClientUtil = javaClientUtil;
+        this.javaClientUtil = javaClientUtil;
     }
 
     @Override
@@ -85,5 +88,6 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
             log.info("系统成功初始化" + userEntityList.size() + "个用户");
         }
         tcpThread.monitoringTCP();
+        javaClientUtil.monitoringTCP();
     }
 }

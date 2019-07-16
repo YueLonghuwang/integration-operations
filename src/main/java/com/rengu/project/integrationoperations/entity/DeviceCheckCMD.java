@@ -13,7 +13,6 @@ public class DeviceCheckCMD {
     private String checkPeriod; // 自检周期
     private String checkNum; // 自检数量
     private String SingleMachineCode; // 被检单机代码
-
     public void setMessageLength(String messageLength) {
         this.messageLength = messageLength;
     }
