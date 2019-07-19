@@ -6,7 +6,7 @@ import com.rengu.project.integrationoperations.entity.UserEntity;
 import com.rengu.project.integrationoperations.enums.SystemRoleEnum;
 import com.rengu.project.integrationoperations.enums.SystemUserEnum;
 import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
-import com.rengu.project.integrationoperations.service.DeploymentService;
+import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.RoleService;
 import com.rengu.project.integrationoperations.service.UserService;
 import com.rengu.project.integrationoperations.thread.TCPThread;
@@ -35,15 +35,15 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
     private final TCPThread tcpThread;
     private final RoleService roleService;
     private final UserService userService;
-    private final DeploymentService deploymentService;
+    private final WebSendToCService webSendToCService;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private final JavaClientUtil javaClientUtil;
     @Autowired
-    public BackEndFrameworkApplicationInit(TCPThread tcpThread, RoleService roleService, UserService userService, DeploymentService deploymentService, CMDSerialNumberRepository cmdSerialNumberRepository, JavaClientUtil javaClientUtil) {
+    public BackEndFrameworkApplicationInit(TCPThread tcpThread, RoleService roleService, UserService userService, WebSendToCService webSendToCService, CMDSerialNumberRepository cmdSerialNumberRepository, JavaClientUtil javaClientUtil) {
         this.tcpThread = tcpThread;
         this.roleService = roleService;
         this.userService = userService;
-        this.deploymentService = deploymentService;
+        this.webSendToCService = webSendToCService;
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
 //        this.javaClientUtil = javaClientUtil;
         this.javaClientUtil = javaClientUtil;

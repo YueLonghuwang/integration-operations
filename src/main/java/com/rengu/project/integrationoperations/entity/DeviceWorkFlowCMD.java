@@ -8,7 +8,6 @@ package com.rengu.project.integrationoperations.entity;
 public class DeviceWorkFlowCMD {
 
 
-
     private String cmd;
     private String taskFlowNo; // 任务流水号
     private String pulse;  //  内外秒脉冲选择
@@ -24,24 +23,190 @@ public class DeviceWorkFlowCMD {
     private String shieldingMaximumFrequency; // 屏蔽最大频率
     private String shieldingMinimumFrequency; // 屏蔽最小频率
     private String defalutUpdate;  // 默认值更新标记
-    private String workPattern;  //  工作模式 0:自检 1:频域搜索 2:驻留 3:空域搜索 4:中频采集 5:敌我1030 6:敌我1090 其他:无效
-    private String workCycle; //  工作周期 单位50ms
-    private String workCycleAmount; //  工作周期数,默认为1
-    private String beginFrequency; //  起始频率 1MHz
-    private String chooseBandwidth;  // 带宽选择
-    public String getTaskFlowNo() {
-        return taskFlowNo;
+    private String messageNumber; // 信息包序号
+    private String timeCode; // 时间码
+    private String workPattern; // 工作方式
+    private String bandwidthChoose; // 带宽选择
+    private String PulseChoice; // 脉冲选择
+    private String antennaSelection; // 天线选择
+    private String IPReconsitution; // 分机IP重构
+    private String IfAcquisitionMode; // 中频采集模式
+    private String IfAcquisitionTime; // 中频采集时间
+    private String FPGAReconsitution; // FPGA重构标识
+    private String DSPReconsitution; // DSP重构标识
+    private String PDW1030;  // 1030PD个数
+    private String PDW1090; // 1090PWD个数
+
+    public String getPDW1059() {
+        return PDW1059;
     }
-    public String getCmd() {
-        return cmd;
+
+    public void setPDW1059(String PDW1059) {
+        this.PDW1059 = PDW1059;
     }
+
+    public String getPDW740() {
+        return PDW740;
+    }
+
+    public void setPDW740(String PDW740) {
+        this.PDW740 = PDW740;
+    }
+
+    private String PDW740; // PDW740个数
+    private String PDW1059; // PDW1059个数
+    private String PDW837; // 837.5PWD个数
+    private String PDW1464; // 1464PDW个数
+    private String PDW1532; // 1532PDW个数
+    private String hierarchicalControl; // 分机控制
+
+    public String getMessageNumber() {
+        return messageNumber;
+    }
+
+
+    public void setMessageNumber(String messageNumber) {
+        this.messageNumber = messageNumber;
+    }
+
+    public void setTimeCode(String timeCode) {
+        this.timeCode = timeCode;
+    }
+
+    public void setWorkPattern(String workPattern) {
+        this.workPattern = workPattern;
+    }
+
+    public void setBandwidthChoose(String bandwidthChoose) {
+        this.bandwidthChoose = bandwidthChoose;
+    }
+
+    public void setPulseChoice(String pulseChoice) {
+        PulseChoice = pulseChoice;
+    }
+
+    public void setAntennaSelection(String antennaSelection) {
+        this.antennaSelection = antennaSelection;
+    }
+
+    public void setIPReconsitution(String IPReconsitution) {
+        this.IPReconsitution = IPReconsitution;
+    }
+
+    public void setIfAcquisitionMode(String ifAcquisitionMode) {
+        IfAcquisitionMode = ifAcquisitionMode;
+    }
+
+    public void setIfAcquisitionTime(String ifAcquisitionTime) {
+        IfAcquisitionTime = ifAcquisitionTime;
+    }
+
+    public void setFPGAReconsitution(String FPGAReconsitution) {
+        this.FPGAReconsitution = FPGAReconsitution;
+    }
+
+    public void setDSPReconsitution(String DSPReconsitution) {
+        this.DSPReconsitution = DSPReconsitution;
+    }
+
+    public void setPDW1030(String PDW1030) {
+        this.PDW1030 = PDW1030;
+    }
+
+    public void setPDW1090(String PDW1090) {
+        this.PDW1090 = PDW1090;
+    }
+
+    public void setPDW837(String PDW837) {
+        this.PDW837 = PDW837;
+    }
+
+    public void setPDW1464(String PDW1464) {
+        this.PDW1464 = PDW1464;
+    }
+
+    public void setPDW1532(String PDW1532) {
+        this.PDW1532 = PDW1532;
+    }
+
+    public void setHierarchicalControl(String hierarchicalControl) {
+        this.hierarchicalControl = hierarchicalControl;
+    }
+
+
+    public String getTimeCode() {
+        return timeCode;
+    }
+
+    public String getWorkPattern() {
+        return workPattern;
+    }
+
+    public String getBandwidthChoose() {
+        return bandwidthChoose;
+    }
+
+    public String getPulseChoice() {
+        return PulseChoice;
+    }
+
+    public String getAntennaSelection() {
+        return antennaSelection;
+    }
+
+    public String getIPReconsitution() {
+        return IPReconsitution;
+    }
+
+    public String getIfAcquisitionMode() {
+        return IfAcquisitionMode;
+    }
+
+    public String getIfAcquisitionTime() {
+        return IfAcquisitionTime;
+    }
+
+    public String getFPGAReconsitution() {
+        return FPGAReconsitution;
+    }
+
+    public String getDSPReconsitution() {
+        return DSPReconsitution;
+    }
+
+    public String getPDW1030() {
+        return PDW1030;
+    }
+
+    public String getPDW1090() {
+        return PDW1090;
+    }
+
+    public String getPDW837() {
+        return PDW837;
+    }
+
+    public String getPDW1464() {
+        return PDW1464;
+    }
+
+    public String getPDW1532() {
+        return PDW1532;
+    }
+
+    public String getHierarchicalControl() {
+        return hierarchicalControl;
+    }
+
 
     public void setCmd(String cmd) {
         this.cmd = cmd;
     }
+
     public void setTaskFlowNo(String taskFlowNo) {
         this.taskFlowNo = taskFlowNo;
     }
+
     public void setPulse(String pulse) {
         this.pulse = pulse;
     }
@@ -94,68 +259,13 @@ public class DeviceWorkFlowCMD {
         this.defalutUpdate = defalutUpdate;
     }
 
-    public void setWorkPattern(String workPattern) {
-        this.workPattern = workPattern;
+    public String getCmd() {
+        return cmd;
     }
 
-    public void setWorkCycle(String workCycle) {
-        this.workCycle = workCycle;
+    public String getTaskFlowNo() {
+        return taskFlowNo;
     }
-
-    public void setWorkCycleAmount(String workCycleAmount) {
-        this.workCycleAmount = workCycleAmount;
-    }
-
-    public void setBeginFrequency(String beginFrequency) {
-        this.beginFrequency = beginFrequency;
-    }
-
-    public void setChooseBandwidth(String chooseBandwidth) {
-        this.chooseBandwidth = chooseBandwidth;
-    }
-
-    public void setChooseAntenna1(String chooseAntenna1) {
-        this.chooseAntenna1 = chooseAntenna1;
-    }
-
-    public void setChooseAntenna2(String chooseAntenna2) {
-        this.chooseAntenna2 = chooseAntenna2;
-    }
-
-    public void setSelfInspectionAttenuation(String selfInspectionAttenuation) {
-        this.selfInspectionAttenuation = selfInspectionAttenuation;
-    }
-
-    public void setGuidanceSwitch(String guidanceSwitch) {
-        this.guidanceSwitch = guidanceSwitch;
-    }
-
-    public void setGuidance(String guidance) {
-        this.guidance = guidance;
-    }
-
-    public void setFaultDetect(String faultDetect) {
-        this.faultDetect = faultDetect;
-    }
-
-    public void setEndFrequency(String endFrequency) {
-        this.endFrequency = endFrequency;
-    }
-
-    public void setSteppedFrequency(String steppedFrequency) {
-        this.steppedFrequency = steppedFrequency;
-    }
-
-    private String chooseAntenna1;  //  天线一选择
-    private String chooseAntenna2;  //  天线二选择
-    //    private String attenuationRF1;  // 射频一衰减GuidanceSwitch
-//    private String attenuationRF2;  // 射频二衰减
-//    private String balancedAttenuationRF1;  // 射频一长电缆均衡衰减控制
-//    private String balancedAttenuationRF2;  // 射频二长电缆均衡衰减控制
-//    private String attenuationMF1;  // 中频一衰减
-//    private String attenuationMF2;  //  中频二衰减
-//    private String attenuationControlWay;  // 衰减码控制方式
-    private String selfInspectionAttenuation;  // 自检源衰减
 
     public String getPulse() {
         return pulse;
@@ -208,62 +318,4 @@ public class DeviceWorkFlowCMD {
     public String getDefalutUpdate() {
         return defalutUpdate;
     }
-
-    public String getWorkPattern() {
-        return workPattern;
-    }
-
-    public String getWorkCycle() {
-        return workCycle;
-    }
-
-    public String getWorkCycleAmount() {
-        return workCycleAmount;
-    }
-
-    public String getBeginFrequency() {
-        return beginFrequency;
-    }
-
-    public String getChooseBandwidth() {
-        return chooseBandwidth;
-    }
-
-    public String getChooseAntenna1() {
-        return chooseAntenna1;
-    }
-
-    public String getChooseAntenna2() {
-        return chooseAntenna2;
-    }
-
-    public String getSelfInspectionAttenuation() {
-        return selfInspectionAttenuation;
-    }
-
-    public String getGuidanceSwitch() {
-        return guidanceSwitch;
-    }
-
-    public String getGuidance() {
-        return guidance;
-    }
-
-    public String getFaultDetect() {
-        return faultDetect;
-    }
-
-    public String getEndFrequency() {
-        return endFrequency;
-    }
-
-    public String getSteppedFrequency() {
-        return steppedFrequency;
-    }
-
-    private String guidanceSwitch;  // 脉内引导批次号开关
-    private String guidance;  //  脉内引导批次
-    private String faultDetect; //  故障检测门限
-    private String endFrequency;  //  终止频率 1MHz
-    private String steppedFrequency; // 频率步进 单位MHZ
 }

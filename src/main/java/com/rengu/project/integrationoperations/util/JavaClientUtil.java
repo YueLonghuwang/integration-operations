@@ -1,8 +1,6 @@
 package com.rengu.project.integrationoperations.util;
 
-import com.rengu.project.integrationoperations.entity.AllHost;
-import com.rengu.project.integrationoperations.service.ReceiveInformationService;
-import com.sun.org.apache.bcel.internal.generic.FALOAD;
+import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -32,14 +30,14 @@ import java.util.*;
 public class JavaClientUtil {
     private static final int port = 8090;
     private static final String host = "localhost";
-    private final ReceiveInformationService receiveInformationService;
+    private final WebReceiveToCService webReceiveToCService;
     // 通道管理器(Selector)
     private static Selector selector;
-
+    private String msg ;
     //    private final WebSocketUtil webSocketUtil;
     @Autowired
-    public JavaClientUtil(ReceiveInformationService receiveInformationService) {
-        this.receiveInformationService = receiveInformationService;
+    public JavaClientUtil(WebReceiveToCService receiveInformationService) {
+        this.webReceiveToCService = receiveInformationService;
 //        this.webSocketUtil = webSocketUtil;
     }
 
@@ -137,9 +135,9 @@ public class JavaClientUtil {
             selector = Selector.open();
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open(); // 新建channel
 //            ServerSocket serverSocket = serverSocketChannel.socket();
-            serverSocketChannel.bind(new InetSocketAddress(portTCP));
             // 监听端口
             serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.bind(new InetSocketAddress(portTCP));
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
             while (true) {
                 selector.select();
@@ -148,7 +146,6 @@ public class JavaClientUtil {
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
                     iterator.remove();
-
                     if (key.isAcceptable()) {
                         handleAccept(key);
                     } else if (key.isReadable()) {// 监听到读事件，对读事件进行处理
@@ -160,22 +157,28 @@ public class JavaClientUtil {
             e.printStackTrace();
         }
     }
+
     /**
      * 监听到读事件，读取客户端发送过来的消息
      */
-    private  void handleRead(SelectionKey key) throws IOException {
+    private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-
-        receiveInformationService.receiveSocketHandler1(channel);
+//        receiveInformationService.receiveSocketHandler1(channel);
         // 从通道读取数据到缓冲区
         ByteBuffer buffer = ByteBuffer.allocate(128);
         channel.read(buffer);
-
+        System.out.println(channel.getLocalAddress());
         // 输出客户端发送过来的消息
-        byte[] data = buffer.array();
-        String msg = new String(data).trim();
-        System.out.println("server receive msg from client：" + msg);
+       long data = buffer.getLong();
+//        msg=new String(data).trim();
+//        if(msg.equals("")){
+//            key.cancel();
+//        }
+        toHexTable((int) data);
+//        String a=toHexTable();
+        System.out.println("server receive msg from client："+data);
     }
+
     /**
      * 处理客户端连接成功事件
      */
@@ -187,7 +190,25 @@ public class JavaClientUtil {
         // 信息通过通道发送给客户端
 //        socketChannel.write(ByteBuffer.wrap(new String("Hello Client!").getBytes()));
         // 给通道设置读事件，客户端监听到读事件后，进行读取操作
+
         socketChannel.register(selector, SelectionKey.OP_READ);
     }
 
+    // 二进制换16
+    private static void toHexTable(int num) {
+        char[] cha = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        //用数组存放获取到的16进制结果
+        char[] arr = new char[8];
+        int pos = arr.length;
+        while (num != 0) { //右移后，会有很多0, 0000-0000 0000-0000 0000-0000 0000-1100,只取有效位即可，2进制0对应的10进制也是0
+            int temp = num & 15;
+            arr[--pos] = cha[temp];//直接从角标中获取值cha[temp]即为其16进制数，数组倒着放--pos，就不用反转数组cha[temp]
+            num = num >>> 4;
+        }
+        System.out.println("pos:" + pos);
+        //获取到cha[temp]后反转即可打印正确的char
+        for (int i = pos; i < arr.length; i++) {
+            System.out.print(arr[i] + ",");
+        }
+    }
 }

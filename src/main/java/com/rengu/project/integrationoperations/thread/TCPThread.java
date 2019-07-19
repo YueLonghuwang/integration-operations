@@ -2,8 +2,8 @@ package com.rengu.project.integrationoperations.thread;
 
 import com.rengu.project.integrationoperations.entity.AllHost;
 import com.rengu.project.integrationoperations.repository.HostRepository;
-import com.rengu.project.integrationoperations.service.DeploymentService;
-import com.rengu.project.integrationoperations.service.ReceiveInformationService;
+import com.rengu.project.integrationoperations.service.WebSendToCService;
+import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -30,12 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TCPThread {
     public static final Map<String, Object> map = new ConcurrentHashMap<>();
     //  接收报文
-    private final DeploymentService deploymentService;
-    private final ReceiveInformationService receiveInformationService;
+    private final WebSendToCService webSendToCService;
+    private final WebReceiveToCService receiveInformationService;
     private final HostRepository hostRepository;
 
-    public TCPThread(DeploymentService deploymentService, ReceiveInformationService receiveInformationService, HostRepository hostRepository) {
-        this.deploymentService = deploymentService;
+    public TCPThread(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
+        this.webSendToCService = webSendToCService;
         this.receiveInformationService = receiveInformationService;
         this.hostRepository = hostRepository;
     }

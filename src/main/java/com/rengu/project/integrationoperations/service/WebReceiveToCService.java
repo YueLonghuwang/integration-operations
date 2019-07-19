@@ -24,11 +24,11 @@ import java.util.*;
 
 @Service
 @Slf4j
-public class ReceiveInformationService {
+public class WebReceiveToCService {
     private final HostRepository hostRepository;
     private Set<String> set = new HashSet<>();
 
-    public ReceiveInformationService(HostRepository hostRepository) {
+    public WebReceiveToCService(HostRepository hostRepository) {
         this.hostRepository = hostRepository;
     }
 
