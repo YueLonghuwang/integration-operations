@@ -12,12 +12,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -33,6 +37,8 @@ public class TCPThread {
     private final WebSendToCService webSendToCService;
     private final WebReceiveToCService receiveInformationService;
     private final HostRepository hostRepository;
+    private static Selector selector;
+    private String msg = null;
 
     public TCPThread(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
         this.webSendToCService = webSendToCService;
@@ -40,30 +46,28 @@ public class TCPThread {
         this.hostRepository = hostRepository;
     }
 
-    // 监听TCP
     @Async
     public void monitoringTCP() {
         int portTCP = 5889;
-        Set set = new HashSet();
         try {
             log.info("监听TCP端口: " + portTCP);
-            ServerSocket serverSocket = new ServerSocket(portTCP);
+            selector = Selector.open();
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open(); // 新建channel
+            // 监听端口
+            serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.bind(new InetSocketAddress(portTCP));
+            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
             while (true) {
-                Socket socket = serverSocket.accept();
-                String host = socket.getInetAddress().getHostAddress();
-                set.add(host);
-                log.info("当前连接数: " + set.size());
-                // 存放Socket
-                map.put(host, socket);
-                receiveInformationService.allHost(host);
-                List<AllHost> listAllhost = hostRepository.findAll();
-                for (AllHost allHost : listAllhost) {
-                    if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                        receiveSocketHandler1(socket);
-                    } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
-                        receiveInformationService.receiveSocketHandler2(socket);
-                    } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
-                        receiveInformationService.receiveSocketHandler3(socket);
+                selector.select();
+                Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                Iterator<SelectionKey> iterator = selectionKeys.iterator();
+                while (iterator.hasNext()) {
+                    SelectionKey key = iterator.next();
+                    iterator.remove();
+                    if (key.isAcceptable()) {
+                        handleAccept(key);
+                    } else if (key.isValid() & key.isReadable()) { // 监听到读事件，对读事件进行处理
+                        handleRead(key);
                     }
                 }
             }
@@ -71,15 +75,98 @@ public class TCPThread {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 监听到读事件，读取客户端发送过来的消息
+     */
+    private void handleRead(SelectionKey key) throws IOException {
+        SocketChannel channel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(3000);
+        try {
+            channel.read(buffer);
+        } catch (IOException e) {
+            key.cancel();
+            channel.socket().close();
+            channel.close();
+            return;
+        }
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        String host = channel.socket().getInetAddress().getHostAddress();
+        List<AllHost> listAllHost = hostRepository.findAll();
+        for (AllHost allHost : listAllHost) {
+            if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
+                receiveInformationService.receiveSocketHandler1(buffer,host);
+            } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
+                receiveInformationService.receiveSocketHandler2(buffer,host);
+            } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
+                receiveInformationService.receiveSocketHandler3(buffer,host);
+            } else {
+                receiveInformationService.receiveSocketHandler1(buffer,host);
+            }
+        }
+        msg = new String(buffer.array()).trim();
+    }
+
+    /**
+     * 处理客户端连接成功事件
+     */
+    private void handleAccept(SelectionKey key) throws IOException {
+        Set<String> set = new HashSet<>();
+        // 获取客户端连接通道
+
+        ServerSocketChannel server = (ServerSocketChannel) key.channel();
+        SocketChannel socketChannel = server.accept();
+        socketChannel.configureBlocking(false);
+        System.out.println("HostAddress" + socketChannel.socket().getInetAddress().getHostAddress());
+        System.out.println("LocalAddress" + socketChannel.getLocalAddress());
+        map.put(socketChannel.socket().getInetAddress().getHostAddress(), socketChannel.socket());
+        receiveInformationService.allHost(socketChannel.socket().getInetAddress().getHostAddress());
+        set.add(socketChannel.socket().getInetAddress().getHostAddress());
+        log.info("当前连接数: " + set.size());
+        socketChannel.register(selector, SelectionKey.OP_READ);
+    }
+
+
+    // 监听TCP
     @Async
-    public void receiveSocketHandler1(Socket socket)  throws IOException {
+    public void monitoringTCPs() {
+        int portTCP = 5888;
+
+        try {
+            log.info("监听TCP端口: " + portTCP);
+            ServerSocket serverSocket = new ServerSocket(portTCP);
+            while (true) {
+                Socket socket = serverSocket.accept();
+                String host = socket.getInetAddress().getHostAddress();
+
+                // 存放Socket
+                map.put(host, socket);
+                receiveInformationService.allHost(host);
+               /* List<AllHost> listAllHost = hostRepository.findAll();
+                for (AllHost allHost : listAllHost) {
+                    if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
+                        receiveSocketHandler1(socket);
+                    } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
+                        receiveInformationService.receiveSocketHandler2(socket);
+                    } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
+                        receiveInformationService.receiveSocketHandler3(socket);
+                    }
+                }*/
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Async
+    public void receiveSocketHandler1(Socket socket) throws IOException {
         // 为什么需要断开Socket才可以继续往下走
         InputStream inputStream = null;
         inputStream = socket.getInputStream();
         System.out.println(new BufferedReader(new InputStreamReader(socket.getInputStream())));
         log.info("-------接收报文1-----");
         String host = socket.getInetAddress().getHostAddress();
-        receiveInformationService.sendMessage(inputStream,host);
+//        receiveInformationService.sendMessage(inputStream, host);
     }
 //    //  接收铁塔敌我报文
 //    @Async

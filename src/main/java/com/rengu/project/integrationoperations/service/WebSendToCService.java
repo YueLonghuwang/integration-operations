@@ -11,15 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.SocketChannel;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryToDecimal;
+import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryToDecimals;
 
 /**
  * @Author: yaojiahao
@@ -32,435 +33,320 @@ public class WebSendToCService {
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private short shorts = 0;
     private final HostRepository hostRepository;
-    private Set<String> set = new HashSet<>();
-    private final WebReceiveToCService webReceiveToCService;
 
     @Autowired
-    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository, WebReceiveToCService webReceiveToCService) {
+    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
         this.hostRepository = hostRepository;
-        this.webReceiveToCService = webReceiveToCService;
     }
 
     //  系统控制指令帧格式说明（头部固定信息）
-    private void sendSystemControlCmdFormat(ByteBuffer byteBuffer) {
-        // 报文头 7E9118E7
-        byteBuffer.putInt(2122389735);
-        // 当前包数据长度
+    private void sendSystemControlCmdFormat(ByteBuffer byteBuffer, int dataLength, short purPoseAddress, short sourceAddress, byte regionID, byte themeID, short messageCategory, long sendingDateTime, int seriesNumber, int packageSum, int currentNum, int dataLengthSum, short version, int retain1, short retain2) {
+        byteBuffer.putInt(2122389735);  // 报文头 7E9118E7
+        byteBuffer.putInt(dataLength); // 当前包数据长度
+        byteBuffer.putShort(purPoseAddress);  // 目的地址(设备ID号)
+        byteBuffer.putShort(sourceAddress);  // 源地址(设备ID号)
+        byteBuffer.put(regionID); // 域ID(预留)
+        byteBuffer.put(themeID); // 主题ID(预留)
+        byteBuffer.putShort(messageCategory);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
+        byteBuffer.putLong(sendingDateTime);    // 发报日期时间
+        byteBuffer.putInt(seriesNumber);    // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
+        byteBuffer.putInt(packageSum);    // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
+        byteBuffer.putInt(currentNum);   // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
+        byteBuffer.putInt(dataLengthSum);   // 数据总长度
+        byteBuffer.putShort(version); // 版本号
+        byteBuffer.putInt(retain1); // 保留字段
+        byteBuffer.putShort(retain2); // 保留字段
     }
 
     /**
      * 3.4.6.3 设备自检指令
      */
-    public void sendDeviceCheckCMD(DeviceCheckCMD deviceCheckCMD, String host,String updateAll) {
-         // 群发消息
-        if(updateAll.equals("1")){
+    public void sendDeviceCheckCMD(DeviceCheckCMD deviceCheckCMD, String host, String updateAll) {
+        // 群发消息
+        if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             for (AllHost allHost : list) {
-                sendDeviceCheckCMD(deviceCheckCMD,allHost.getHost(),"0");
+                sendDeviceCheckCMD(deviceCheckCMD, allHost.getHost(), "0");
             }
-        }else {
-            try {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(76);
-                sendSystemControlCmdFormat(byteBuffer);
-                byteBuffer.putInt(76); // 当前包数据长度
-                byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
-                byteBuffer.putShort(shorts);  // 源地址(设备ID号)
-                byteBuffer.put(backups); // 域ID(预留)
-                byteBuffer.put(backups); // 主题ID(预留)
-                byteBuffer.putShort((short) 12290);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
-                byteBuffer.putLong(4);  // 发报日期时间
-                byteBuffer.putInt(4);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
-                byteBuffer.putInt(4);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
-                byteBuffer.putInt(4);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
-                byteBuffer.putInt(4);  // 数据总长度
-                byteBuffer.putShort(shorts); // 版本号
-                byteBuffer.putInt(0); // 保留字段
-                byteBuffer.putShort(shorts); // 保留字段
-                // 报文内容
-                byteBuffer.putInt(0); // 信息长度
-                byteBuffer.putLong(Long.parseLong(deviceCheckCMD.getTaskFlowNo()));// 任务流水号
-                byteBuffer.put(Byte.parseByte(deviceCheckCMD.getCheckType())); // 自检类型
-                byteBuffer.putShort(Short.parseShort(deviceCheckCMD.getCheckPeriod())); // 自检周期
-                byte num = (byte) (Integer.parseInt(deviceCheckCMD.getCheckNum()));
-                byteBuffer.put(num); // 自检数量
-                byteBuffer.putInt(Integer.parseInt(deviceCheckCMD.getSingleMachineCode())); // 被检单机代码
-                byteBuffer.putInt(0); // 校验和 (暂时预留)
-                //  帧尾
-                getBigPackageTheTail(byteBuffer);
-                OutputStream outputStream = null;
-                Socket socket = (Socket) TCPThread.map.get(host);
-                if (TCPThread.map.get(host) != null) {
-                    try {
-                        outputStream = socket.getOutputStream();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                assert outputStream != null;
-                outputStream.write(byteBuffer.array());
-            } catch (IOException e) {
-                throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-            }
+        } else {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(76);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 76, shorts, shorts, backups, backups, (short) 12290, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(0); // 信息长度
+            byteBuffer.putLong(Long.parseLong(deviceCheckCMD.getTaskFlowNo()));// 任务流水号
+            byteBuffer.put(Byte.parseByte(deviceCheckCMD.getCheckType())); // 自检类型
+            byteBuffer.putShort(Short.parseShort(deviceCheckCMD.getCheckPeriod())); // 自检周期
+            byte num = (byte) (Integer.parseInt(deviceCheckCMD.getCheckNum()));
+            byteBuffer.put(num); // 自检数量
+            byteBuffer.putInt(Integer.parseInt(deviceCheckCMD.getSingleMachineCode())); // 被检单机代码
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            //  帧尾
+            getBigPackageTheTail(byteBuffer);
+            // 发送信息
+            sendMessage(host, byteBuffer);
         }
     }
 
     /**
      * 3.4.6.4 系统校时指令
      */
-    public void sendSystemTiming(String timeNow, String time, String timingPattern, String host,String updateAll) {
-        if(updateAll.equals("1")){
+    public void sendSystemTiming(String timeNow, String time, String timingPattern, String host, String updateAll) {
+        if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             for (AllHost allHost : list) {
-                sendSystemTiming(timeNow,time,timingPattern,allHost.getHost(),"0");
+                sendSystemTiming(timeNow, time, timingPattern, allHost.getHost(), "0");
             }
-        }else {
-            try {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(77);
-                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                sendSystemControlCmdFormat(byteBuffer);
-                byteBuffer.putInt(77); // 当前包数据长度
-                byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
-                byteBuffer.putShort(shorts);  // 源地址(设备ID号)
-                byteBuffer.put(backups); // 域ID(预留)
-                byteBuffer.put(backups); // 主题ID(预留)
-                byteBuffer.putShort((short) 12291);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
-                byteBuffer.putLong(1);  // 发报日期时间
-                byteBuffer.putInt(1);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
-                byteBuffer.putInt(1);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
-                byteBuffer.putInt(1);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
-                byteBuffer.putInt(1);  // 数据总长度
-                byteBuffer.putShort(shorts); // 版本号
-                byteBuffer.putInt(0); // 保留字段
-                byteBuffer.putShort(shorts); // 保留字段
-                // 报文内容
-                byteBuffer.putInt(1); //信息长度
-                byteBuffer.putLong(Long.parseLong(timeNow));
-                byteBuffer.put(Byte.parseByte(timingPattern));
-                byteBuffer.putLong(Long.parseLong(time));
-
-                byteBuffer.putInt(0); // 校验和 (暂时预留)
-
-            /*int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);*/
-                //  帧尾
-                getBigPackageTheTail(byteBuffer);
-                OutputStream outputStream = null;
-                Socket socket = (Socket) TCPThread.map.get(host);
-                if (TCPThread.map.get(host) != null) {
-                    outputStream = socket.getOutputStream();
-                }
-                assert outputStream != null;
-                outputStream.write(byteBuffer.array());
-            } catch (IOException e) {
-                throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-            }
+        } else {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(77);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 77, shorts, shorts, backups, backups, (short) 12291, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(1); //信息长度
+            byteBuffer.putLong(Long.parseLong(timeNow));
+            byteBuffer.put(Byte.parseByte(timingPattern));
+            byteBuffer.putLong(Long.parseLong(time));
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            getBigPackageTheTail(byteBuffer);
+            // 发送信息
+            sendMessage(host, byteBuffer);
         }
     }
 
     /**
      * 3.4.6.5 设备复位
      */
-    public void sendDeviceRestoration(String timeNow, String executePattern, String host,String updateAll) {
-        if(updateAll.equals("1")){
+    public void sendDeviceRestoration(String timeNow, String executePattern, String host, String updateAll) {
+        if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             for (AllHost allHost : list) {
-                sendDeviceRestoration(timeNow,executePattern,allHost.getHost(),"0");
+                sendDeviceRestoration(timeNow, executePattern, allHost.getHost(), "0");
             }
         } else {
-            try {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(69);
-                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                sendSystemControlCmdFormat(byteBuffer);
-                byteBuffer.putInt(69); // 当前包数据长度
-                byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
-                byteBuffer.putShort(shorts);  // 源地址(设备ID号)
-                byteBuffer.put(backups); // 域ID(预留)
-                byteBuffer.put(backups); // 主题ID(预留)
-                byteBuffer.putShort((short) 12292);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
-                byteBuffer.putLong(5);  // 发报日期时间
-                byteBuffer.putInt(5);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
-                byteBuffer.putInt(5);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
-                byteBuffer.putInt(5);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
-                byteBuffer.putInt(5);  // 数据总长度
-                byteBuffer.putShort(shorts); // 版本号
-                byteBuffer.putInt(0); // 保留字段
-                byteBuffer.putShort(shorts); // 保留字段
-                // 报文内容
-                byteBuffer.putInt(1); // 信息长度
-                byteBuffer.putLong(Long.parseLong(timeNow)); // 任务流水号
-                byteBuffer.put(Byte.parseByte(executePattern));  // 执行方式
-                byteBuffer.putInt(0); // 校验和 (暂时预留)
-                getBigPackageTheTail(byteBuffer);
-                OutputStream outputStream = null;
-                Socket socket = (Socket) TCPThread.map.get(host);
-                if (TCPThread.map.get(host) != null) {
-                    outputStream = socket.getOutputStream();
-                }
-                assert outputStream != null;
-                outputStream.write(byteBuffer.array());
-            } catch (IOException e) {
-                throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-            }
+            ByteBuffer byteBuffer = ByteBuffer.allocate(69);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 69, shorts, shorts, backups, backups, (short) 12292, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(1); // 信息长度
+            byteBuffer.putLong(Long.parseLong(timeNow)); // 任务流水号
+            byteBuffer.put(Byte.parseByte(executePattern));  // 执行方式
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            getBigPackageTheTail(byteBuffer);
+            // 发送信息
+            sendMessage(host, byteBuffer);
         }
     }
 
     /**
      * 3.4.6.6 软件版本远程更新
      */
-    public void sendSoftwareUpdateCMD(String timeNow, String cmd, String softwareID, String host,String updateAll) {
-        if(updateAll.equals("1")){
+    public void sendSoftwareUpdateCMD(String timeNow, String cmd, String softwareID, String host, String updateAll) {
+        if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             for (AllHost allHost : list) {
-                sendSoftwareUpdateCMD(timeNow,cmd,softwareID,allHost.getHost(),"0");
+                sendSoftwareUpdateCMD(timeNow, cmd, softwareID, allHost.getHost(), "0");
             }
-        }else {
-            try {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(72);
-                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                sendSystemControlCmdFormat(byteBuffer);
-                byteBuffer.putInt(72); // 当前包数据长度
-                byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
-                byteBuffer.putShort(shorts);  // 源地址(设备ID号)
-                byteBuffer.put(backups); // 域ID(预留)
-                byteBuffer.put(backups); // 主题ID(预留)
-                byteBuffer.putShort((short) 12293);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
-                byteBuffer.putLong(6);  // 发报日期时间
-                byteBuffer.putInt(6);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
-                byteBuffer.putInt(6);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
-                byteBuffer.putInt(6);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
-                byteBuffer.putInt(6);  // 数据总长度
-                byteBuffer.putShort(shorts); // 版本号
-                byteBuffer.putInt(0); // 保留字段
-                byteBuffer.putShort(shorts); // 保留字段
-                // 报文内容
-                byteBuffer.putInt(2); // 信息长度
-                byteBuffer.putLong(Long.parseLong(timeNow)); // 任务流水号
-                byteBuffer.putShort(Short.parseShort(cmd));  // 指令操作码
-                byteBuffer.putShort(Short.parseShort(softwareID)); // 软件ID号
-                byteBuffer.putInt(0); // 校验和 (暂时预留)
-                getBigPackageTheTail(byteBuffer);
-                OutputStream outputStream = null;
-                Socket socket = (Socket) TCPThread.map.get(host);
-                if (TCPThread.map.get(host) != null) {
-                    outputStream = socket.getOutputStream();
-                }
-                assert outputStream != null;
-                outputStream.write(byteBuffer.array());
-            } catch (IOException e) {
-                throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-            }
+        } else {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(72);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 72, shorts, shorts, backups, backups, (short) 12293, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(2); // 信息长度
+            byteBuffer.putLong(Long.parseLong(timeNow)); // 任务流水号
+            byteBuffer.putShort(Short.parseShort(cmd));  // 指令操作码
+            byteBuffer.putShort(Short.parseShort(softwareID)); // 软件ID号
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            getBigPackageTheTail(byteBuffer);
+            // 发送信息
+            sendMessage(host, byteBuffer);
         }
     }
 
     /**
      * 3.4.6.7 设备网络参数更新指令
      */
-    public void sendDeviceNetworkCMD(SendDeviceNetWorkParam sendDeviceNetWorkParam, String host,String updateAll) {
-        if(updateAll.equals("1")){
+    public void sendDeviceNetworkCMD(SendDeviceNetWorkParam sendDeviceNetWorkParam, String host, String updateAll) {
+        if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             for (AllHost allHost : list) {
-                sendDeviceNetworkCMD(sendDeviceNetWorkParam,allHost.getHost(),"0");
+                sendDeviceNetworkCMD(sendDeviceNetWorkParam, allHost.getHost(), "0");
             }
-        }else {
-            try {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(156);
-                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                sendSystemControlCmdFormat(byteBuffer);
-                byteBuffer.putInt(156); // 当前包数据长度
-                byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
-                byteBuffer.putShort(shorts);  // 源地址(设备ID号)
-                byteBuffer.put(backups); // 域ID(预留)
-                byteBuffer.put(backups); // 主题ID(预留)
-                byteBuffer.putShort((short) 12294);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
-                byteBuffer.putLong(7);  // 发报日期时间
-                byteBuffer.putInt(7);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
-                byteBuffer.putInt(7);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
-                byteBuffer.putInt(7);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
-                byteBuffer.putInt(7);  // 数据总长度
-                byteBuffer.putShort(shorts); // 版本号
-                byteBuffer.putInt(0); // 保留字段
-                byteBuffer.putShort(shorts); // 保留字段
-                // 报文内容
-                byteBuffer.putInt(3); // 信息长度
-                byteBuffer.putLong(Long.parseLong(sendDeviceNetWorkParam.getTaskFlowNo())); // 任务流水号
-                byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getCmd()));
-                byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getNetworkID())); // 网络终端ID号
+        } else {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(156);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 156, shorts, shorts, backups, backups, (short) 12294, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(3); // 信息长度
+            byteBuffer.putLong(Long.parseLong(sendDeviceNetWorkParam.getTaskFlowNo())); // 任务流水号
+            byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getCmd()));
+            byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getNetworkID())); // 网络终端ID号
 
-                // 1
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP1())); // 网络IP地址1
-                byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP1()));// MAC地址1
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage1())); //网络端口信息1
+            // 1
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP1())); // 网络IP地址1
+            byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP1()));// MAC地址1
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage1())); //网络端口信息1
 
-                // 2
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP2())); // 网络IP地址2
-                byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP2()));// MAC地址2
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage2())); //网络端口信息2
+            // 2
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP2())); // 网络IP地址2
+            byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP2()));// MAC地址2
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage2())); //网络端口信息2
 
-                // 3
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP3())); // 网络IP地址3
-                byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP3()));// MAC地址3
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage3())); //网络端口信息3
+            // 3
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP3())); // 网络IP地址3
+            byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP3()));// MAC地址3
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage3())); //网络端口信息3
 
-                // 4
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP4())); // 网络IP地址4
-                byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP4()));// MAC地址4
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage4())); //网络端口信息4
+            // 4
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP4())); // 网络IP地址4
+            byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP4()));// MAC地址4
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage4())); //网络端口信息4
 
-                // 5
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP5())); // 网络IP地址5
-                byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP5()));// MAC地址5
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage5())); //网络端口信息5
+            // 5
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP5())); // 网络IP地址5
+            byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP5()));// MAC地址5
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage5())); //网络端口信息5
 
-                // 6
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP6())); // 网络IP地址6
-                byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP6()));// MAC地址6
-                byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage6())); //网络端口信息6
-                byteBuffer.putInt(0); // 校验和 (暂时预留)
-                getBigPackageTheTail(byteBuffer);
-                OutputStream outputStream = null;
-                Socket socket = (Socket) TCPThread.map.get(host);
-                if (TCPThread.map.get(host) != null) {
-                    outputStream = socket.getOutputStream();
-                }
-                assert outputStream != null;
-                outputStream.write(byteBuffer.array());
-            } catch (IOException e) {
-                throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
-            }
+            // 6
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP6())); // 网络IP地址6
+            byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP6()));// MAC地址6
+            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage6())); //网络端口信息6
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            getBigPackageTheTail(byteBuffer);
+            // 发送信息
+            sendMessage(host, byteBuffer);
         }
     }
 
     /**
      * 3.4.6.8 设备工作流程控制指令
      */
-    public void sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, int count, String host,String updateAll) {
-        if(updateAll.equals("1")){
+    public void sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, int count, String host, String updateAll) {
+        if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             for (AllHost allHost : list) {
-                sendDeviceWorkFlowCMD(deviceWorkFlowCMD,count,allHost.getHost(),"0");
+                sendDeviceWorkFlowCMD(deviceWorkFlowCMD, count, allHost.getHost(), "0");
             }
-        }else {
-            try {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(1110);
-                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                sendSystemControlCmdFormat(byteBuffer);
-                byteBuffer.putInt(1094); // 当前包数据长度
-                byteBuffer.putShort(shorts);  // 目的地址(设备ID号)
-                byteBuffer.putShort(shorts);  // 源地址(设备ID号)
-                byteBuffer.put(backups); // 域ID(预留)
-                byteBuffer.put(backups); // 主题ID(预留)
-                byteBuffer.putShort((short) 12295);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
-                byteBuffer.putLong(8);  // 发报日期时间
-                byteBuffer.putInt(8);  // 序列号 (同批数据的序列号相同，不同批数据的序列号不同)
-                byteBuffer.putInt(8);  // 包总数 (当前发送的数据，总共分成几个包发送。默认一包)
-                byteBuffer.putInt(8);  // 当前包号 (当前发送的数据包序号。从1开始，当序列号不同时，当前包号清零，从1开始。)
-                byteBuffer.putInt(8);  // 数据总长度
-                byteBuffer.putShort(shorts); // 版本号
-                byteBuffer.putInt(0); // 保留字段
-                byteBuffer.putShort(shorts); // 保留字段
-                // 报文内容
-                byteBuffer.putInt(1); // 信息长度
-                byteBuffer.putLong(Long.parseLong(deviceWorkFlowCMD.getTaskFlowNo()));
-                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getCmd()));
-                for (int i = 1; i <= count; i++) {
-                    byteBuffer.putShort(SocketConfig.header);
-                    byte pulse = Byte.parseByte(deviceWorkFlowCMD.getPulse());
-                    byteBuffer.put(pulse);
-                    byteBuffer.put(backups);
-                    //  分机控制字
-                    extensionControl(deviceWorkFlowCMD.getExtensionControlCharacter(), byteBuffer);
-                    byteBuffer.put(backups);
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getThreshold()));
-                    byteBuffer.putShort((Short.parseShort(deviceWorkFlowCMD.getOverallpulse())));
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMinamplitude()));
-                    byte c = (byte) (Integer.parseInt(deviceWorkFlowCMD.getMaxamplitude()) & 0xff);
-                    byteBuffer.put(c);
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMinPulsewidth()));
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMaxPulsewidth()));
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMaximumFrequency()));
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMinimumFrequency()));
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMaximumFrequency()));
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMinimumFrequency()));
-                    //  默认值更新标记
-                    if (deviceWorkFlowCMD.getDefalutUpdate().equals("0")) {
-                        byteBuffer.put((byte) 0);
-                    } else if (deviceWorkFlowCMD.getDefalutUpdate().equals("1")) {
-                        byteBuffer.put((byte) 1);
-                    }
-                    byteBuffer.putShort(shorts);
-                    byteBuffer.put(backups);
-                    byteBuffer.putShort(shorts);
-                    //  包尾
-                    getPackageTheTail(byteBuffer);
+        } else {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1110);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 1110, shorts, shorts, backups, backups, (short) 12295, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(1); // 信息长度
+            byteBuffer.putLong(Long.parseLong(deviceWorkFlowCMD.getTaskFlowNo()));
+            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getCmd()));
+            for (int i = 1; i <= count; i++) {
+                byteBuffer.putShort(SocketConfig.header);
+                byte pulse = Byte.parseByte(deviceWorkFlowCMD.getPulse());
+                byteBuffer.put(pulse);
+                byteBuffer.put(backups);
+                //  分机控制字
+                extensionControl(deviceWorkFlowCMD.getExtensionControlCharacter(), byteBuffer);
+                byteBuffer.put(backups);
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getThreshold()));
+                byteBuffer.putShort((Short.parseShort(deviceWorkFlowCMD.getOverallpulse())));
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMinamplitude()));
+                byte c = (byte) (Integer.parseInt(deviceWorkFlowCMD.getMaxamplitude()) & 0xff);
+                byteBuffer.put(c);
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMinPulsewidth()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMaxPulsewidth()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMaximumFrequency()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMinimumFrequency()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMaximumFrequency()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMinimumFrequency()));
+                //  默认值更新标记
+                if (deviceWorkFlowCMD.getDefalutUpdate().equals("0")) {
+                    byteBuffer.put((byte) 0);
+                } else if (deviceWorkFlowCMD.getDefalutUpdate().equals("1")) {
+                    byteBuffer.put((byte) 1);
+                }
+                byteBuffer.putShort(shorts);
+                byteBuffer.put(backups);
+                byteBuffer.putShort(shorts);
+                //  包尾
+                getPackageTheTail(byteBuffer);
 
-                }
-                // 512字节 多余补0
-                int a = 512;
-                byte[] bytes = new byte[a - count * 32];
-                byteBuffer.put(bytes);
-                for (int i = 1; i <= count; i++) {
-                    // 敌我系统控制指令
-                    byteBuffer.putShort((short) 21496); // 包头 53F8
-                    byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMessageNumber()));// 信息包序号
-                    String time = deviceWorkFlowCMD.getTimeCode(); // 解析时间
-                    if (time.isEmpty()) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:SSS:dd:MM:yyyy");
-                        time = simpleDateFormat.format(new Date());
-                    }
-                    byte hour = Byte.parseByte(time.substring(0, 2));
-                    byteBuffer.put(hour);
-                    byte minute = Byte.parseByte(time.substring(3, 5));
-                    byteBuffer.put(minute);
-                    //  秒>毫秒>int>16进制
-                    byteBuffer.putShort(Short.parseShort(time.substring(6, 9)));
-                    byte day = Byte.parseByte(time.substring(10, 12));
-                    byteBuffer.put(day);
-                    byte month = Byte.parseByte(time.substring(13, 15));
-                    byteBuffer.put(month);
-                    short year = Short.parseShort(time.substring(16));
-                    byteBuffer.putShort(year);
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getWorkPattern())); // 工作方式
-                    // 带宽选择解析
-                    String bandwidthChoose = deviceWorkFlowCMD.getBandwidthChoose();
-                    byteBuffer.put((byte) BinaryToDecimal(Integer.parseInt(bandwidthChoose(bandwidthChoose))));
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getPulseChoice())); // 内外秒脉冲选择
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getAntennaSelection())); // 天线选择
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getIPReconsitution())); //分机IP重构
-                    byteBuffer.putShort(backups);// 备份
-                    byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getIfAcquisitionMode())); // 中频采集模式
-                    byteBuffer.putInt(0);  // 中频采集时间 未知
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW740())); // 740PDW个数 备份
-                    // FPGA重构标识 将接收过来的16进制转换成10进制
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getFPGAReconsitution(), 16));
-                    // DSP重构标识
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getDSPReconsitution(), 16));
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1030())); // 1030 PDW个数
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1090())); // 1090 PDW个数
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1059())); // 1059PDW个数备份
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW837())); // 837.5 PDW个数
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1464())); // 1464PDW个数
-                    byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1532())); // 1532PDW个数
-                    // 分机控制
-                    String hierarchicalControl = deviceWorkFlowCMD.getHierarchicalControl();
-                    byteBuffer.putInt(BinaryToDecimal(Integer.parseInt(hierarchicalControl(hierarchicalControl))));
-                }
-                // 512字节 多余补0
-                int c = 512;
-                byte[] byte1 = new byte[c - count * 48];
-                byteBuffer.put(byte1);
-                byteBuffer.putInt(0); // 校验和 (暂时预留)
-                getBigPackageTheTail(byteBuffer);
-                OutputStream outputStream = null;
-                Socket socket = (Socket) TCPThread.map.get(host);
-                if (TCPThread.map.get(host) != null) {
-                    outputStream = socket.getOutputStream();
-                }
-                assert outputStream != null;
-                outputStream.write(byteBuffer.array());
-            } catch (IOException e) {
-                throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
             }
+            // 512字节 多余补0
+            int a = 512;
+            byte[] bytes = new byte[a - count * 32];
+            byteBuffer.put(bytes);
+            for (int i = 1; i <= count; i++) {
+                // 敌我系统控制指令
+                byteBuffer.putShort((short) 21496); // 包头 53F8
+                byteBuffer.putShort(shorts); // 信息包序号
+                String time = deviceWorkFlowCMD.getTimeCode(); // 解析时间
+                if (time.isEmpty()) {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:SSS:dd:MM:yyyy");
+                    time = simpleDateFormat.format(new Date());
+                }
+                byte hour = Byte.parseByte(time.substring(0, 2));
+                byteBuffer.put(hour);
+                byte minute = Byte.parseByte(time.substring(3, 5));
+                byteBuffer.put(minute);
+                //  秒>毫秒>int>16进制
+                byteBuffer.putShort(Short.parseShort(time.substring(6, 9)));
+                byte day = Byte.parseByte(time.substring(10, 12));
+                byteBuffer.put(day);
+                byte month = Byte.parseByte(time.substring(13, 15));
+                byteBuffer.put(month);
+                short year = Short.parseShort(time.substring(16));
+                byteBuffer.putShort(year);
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getWorkPattern())); // 工作方式
+                // 带宽选择解析
+                String bandwidthChoose = deviceWorkFlowCMD.getBandwidthChoose();
+
+                byteBuffer.put((byte) BinaryToDecimals(Long.parseLong(bandwidthChoose(bandwidthChoose))));
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getPulseChoice())); // 内外秒脉冲选择
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getAntennaSelection())); // 天线选择
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getIPReconsitution())); //分机IP重构
+                byteBuffer.putShort(backups);// 备份
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getIfAcquisitionMode())); // 中频采集模式
+                byteBuffer.putInt(0);  // 中频采集时间 未知
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW740())); // 740PDW个数 备份
+                // FPGA重构标识 将接收过来的16进制转换成10进制
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getFPGAReconsitution(), 16));
+                // DSP重构标识
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getDSPReconsitution(), 16));
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1030())); // 1030 PDW个数
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1090())); // 1090 PDW个数
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1059())); // 1059PDW个数备份
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW837())); // 837.5 PDW个数
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1464())); // 1464PDW个数
+                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1532())); // 1532PDW个数
+                // 分机控制
+                String hierarchicalControl = deviceWorkFlowCMD.getHierarchicalControl();
+                byteBuffer.putInt(BinaryToDecimal(Integer.parseInt(hierarchicalControl(hierarchicalControl))));
+            }
+            // 512字节 多余补0
+            int c = 512;
+            byte[] byte1 = new byte[c - count * 48];
+            byteBuffer.put(byte1);
+            byteBuffer.putInt(0); // 校验和 (暂时预留)
+            getBigPackageTheTail(byteBuffer);
+            // 发送信息
+            sendMessage(host, byteBuffer);
+        }
+    }
+
+
+    /**
+     * 统一发送信息
+     */
+    private void sendMessage(String host, ByteBuffer byteBuffer) {
+        Socket socket = (Socket) TCPThread.map.get(host);
+        SocketChannel socketChannel = socket.getChannel();
+        try {
+            socketChannel.write(ByteBuffer.wrap(byteBuffer.array()));
+            byteBuffer.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -673,7 +559,7 @@ public class WebSendToCService {
         String res = stringBuilder.reverse().toString();
         StringBuilder stringBuilder1 = new StringBuilder();
         /**
-         * 因bit5-bit32 数据暂时未确定 所以先做补0处理
+         * 因bit5-bit32 数据暂时未确定 所以先做补0处理 其实无需补0，int类型自然会补齐 但为了日后开发 留下接口以便提醒
          */
         for (int i = 0; i < 27; i++) {
             stringBuilder1.append("0");

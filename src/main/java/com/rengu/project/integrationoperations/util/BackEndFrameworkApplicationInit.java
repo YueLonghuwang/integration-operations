@@ -88,6 +88,5 @@ public class BackEndFrameworkApplicationInit implements ApplicationRunner {
             log.info("系统成功初始化" + userEntityList.size() + "个用户");
         }
         tcpThread.monitoringTCP();
-        javaClientUtil.monitoringTCP();
     }
 }

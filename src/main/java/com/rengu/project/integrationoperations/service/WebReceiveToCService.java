@@ -13,7 +13,6 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
@@ -26,7 +25,6 @@ import java.util.*;
 @Slf4j
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
-    private Set<String> set = new HashSet<>();
 
     public WebReceiveToCService(HostRepository hostRepository) {
         this.hostRepository = hostRepository;
@@ -34,31 +32,12 @@ public class WebReceiveToCService {
 
     // 储存或更新当前连接服务端的IP地址
     public void allHost(String hosts) {
-        List<AllHost> list = hostRepository.findAll();
         if (!hasHostIP(hosts)) {
-            set.add(hosts);
             AllHost allHosts = new AllHost();
             allHosts.setHost(hosts);
-            allHosts.setNum(list.size() + 1);
+            AllHost allHost = hostRepository.findMaxByNum();
+            allHosts.setNum(allHost.getNum() + 1);
             hostRepository.save(allHosts);
-        }
-        //  如果数据库的ip地址有三个，并且当前ip有修改，那么修改当前IP,并且存入数据库
-        Set<String> set1 = new HashSet<>(set);
-        if (list.size() == 3) {
-            for (AllHost allHost : list) {
-                set.add(allHost.getHost());
-            }
-            // 如果存入的size大于3，那么代表有新的ip地址，因为set自动去重,所以存入新的IP地址
-            if (set.size() > 3) {
-                for (AllHost allHost : list) {
-                    hostRepository.deleteById(allHost.getId());
-                }
-                for (String s : set1) {
-                    AllHost allHost = new AllHost();
-                    allHost.setHost(s);
-                    hostRepository.save(allHost);
-                }
-            }
         }
     }
 
@@ -66,7 +45,7 @@ public class WebReceiveToCService {
     @Async
     public Map<String, Number> receiveFixedInformation(ByteBuffer byteBuffer) {
         Map<String, Number> map = new HashMap<>();
-        map.put("header", byteBuffer.getInt()); // 报文头
+        map.put("header", byteBuffer.getInt(0)); // 报文头
         map.put("dataLength", byteBuffer.getInt(4)); // 当前包数据长度
         map.put("targetHost", byteBuffer.getShort(8)); // 目的地址
         map.put("sourceHost", byteBuffer.getShort(10)); // 源地址
@@ -84,67 +63,89 @@ public class WebReceiveToCService {
         return map;
     }
 
+    /**
+     * 区分每一个信息包 设备1
+     */
     @Async
-    public void receiveSocketHandler1(SocketChannel socket) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-        socket.read(byteBuffer);
-        byteBuffer.flip();
-        while (byteBuffer.hasRemaining()){
-            System.err.println((char)byteBuffer.get());    //输出
-        }
-
-        // 为什么需要断开Socket才可以继续往下走
-   /*     @Cleanup InputStream inputStream = socket.getInputStream();
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文1-----");
-        String host = socket.getInetAddress().getHostAddress();*/
-//        IOUtils.copy(inputStream, byteArrayOutputStream);
-//        ByteArrayOutputStream byteArrayOutputStream = cloneInputStream(inputStream);
-//        System.out.println(byteArrayOutputStream.toByteArray().length);
-    }
-
-
-    @Async
-    public void sendMessage(InputStream inputStream, String host) throws IOException {
-
-    }
-
-    @Async
-    public void receiveSocketHandler2(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文2-----");
-        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        System.out.println(byteArrayOutputStream.toByteArray().length);
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 60) {
-            receiveHeartbeatCMD(byteArrayOutputStream.toByteArray(), host);
+    public void receiveSocketHandler1(ByteBuffer byteBuffer, String host) {
+        short messageCategory = byteBuffer.getShort(14);
+        switch (messageCategory) {
+            case 3001:
+                receiveHeartbeatCMD(byteBuffer, host);
+                break;
+            case 3101:
+                uploadHeartBeatMessage(byteBuffer, host);
+                break;
+            case 3102:
+                uploadSelfInspectionResult(byteBuffer, host);
+                break;
+            case 3105:
+                uploadSoftwareVersionMessage(byteBuffer, host);
+                break;
+            case 3106:
+                uploadDeviceNetWorkParamMessage(byteBuffer, host);
+                break;
+            case 3107:
+                uploadRadarSubSystemWorkStatusMessage(byteBuffer,host);
+                break;
         }
     }
 
+    /**
+     * 区分每一个信息包 设备2
+     */
     @Async
-    public void receiveSocketHandler3(Socket socket) throws IOException {
-        @Cleanup InputStream inputStream = socket.getInputStream();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        log.info("-------接收报文3----");
-         /* byte[] bytes = new byte[1024];
-        inputStream.read(bytes);*/
-        IOUtils.copy(inputStream, byteArrayOutputStream);
-        String host = socket.getInetAddress().getHostAddress();
-        if (byteArrayOutputStream.toByteArray().length > 600) {
-            reciveAndConvertIronFriendOrFoe(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 400) {
-            reciveAndConvertIronRadar(byteArrayOutputStream.toByteArray(), host);
-        } else if (byteArrayOutputStream.toByteArray().length > 60) {
-
-            receiveHeartbeatCMD(byteArrayOutputStream.toByteArray(), host);
+    public void receiveSocketHandler2(ByteBuffer byteBuffer, String host) {
+        short messageCategory = byteBuffer.getShort(14);
+        switch (messageCategory) {
+            case 3001:
+                receiveHeartbeatCMD(byteBuffer, host);
+                break;
+            case 3101:
+                uploadHeartBeatMessage(byteBuffer, host);
+                break;
+            case 3102:
+                uploadSelfInspectionResult(byteBuffer, host);
+                break;
+            case 3105:
+                uploadSoftwareVersionMessage(byteBuffer, host);
+                break;
+            case 3106:
+                uploadDeviceNetWorkParamMessage(byteBuffer, host);
+                break;
+            case 3107:
+                uploadRadarSubSystemWorkStatusMessage(byteBuffer,host);
+                break;
         }
     }
 
+    /**
+     * 区分每一个信息包 设备3
+     */
+    @Async
+    public void receiveSocketHandler3(ByteBuffer byteBuffer, String host) {
+        short messageCategory = byteBuffer.getShort(14);
+        switch (messageCategory) {
+            case 3001:
+                receiveHeartbeatCMD(byteBuffer, host);
+                break;
+            case 3101:
+                uploadHeartBeatMessage(byteBuffer, host);
+                break;
+            case 3102:
+                uploadSelfInspectionResult(byteBuffer, host);
+                break;
+            case 3105:
+                uploadSoftwareVersionMessage(byteBuffer, host);
+                break;
+            case 3106:
+                uploadDeviceNetWorkParamMessage(byteBuffer, host);
+                break;
+            case 3107:
+                uploadRadarSubSystemWorkStatusMessage(byteBuffer,host);
+                break;
+        }
+    }
 
     private StringBuilder getBit(byte[] mcuLoad) {
         StringBuilder stringBuilders = new StringBuilder();
@@ -162,7 +163,6 @@ public class WebReceiveToCService {
     /**
      * 解析铁塔敌我报文
      */
-    @Async
     public void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(650);
         byteBuffer.put(bytes);
@@ -281,7 +281,6 @@ public class WebReceiveToCService {
     /**
      * 解析铁塔雷达报文
      */
-    @Async
     public void reciveAndConvertIronRadar(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
         byteBuffer.put(bytes);
@@ -345,11 +344,7 @@ public class WebReceiveToCService {
     /**
      * 3.4.6.2 心跳指令
      */
-    @Async
-    public void receiveHeartbeatCMD(byte[] bytes, String host) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(69);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+    private void receiveHeartbeatCMD(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48); // 信息长度
         long taskFlowNo = byteBuffer.getLong(52); // 任务流水号
@@ -362,11 +357,7 @@ public class WebReceiveToCService {
     /**
      * 3.4.6.9 上传心跳信息
      */
-    @Async
-    public void uploadHeartBeatMessage(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(72);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+    private void uploadHeartBeatMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
@@ -381,11 +372,7 @@ public class WebReceiveToCService {
     /**
      * 3.4.6.10 上报自检结果
      */
-    @Async
-    public void uploadSelfInspectionResult(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(69);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+    private void uploadSelfInspectionResult(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
@@ -399,11 +386,7 @@ public class WebReceiveToCService {
     /**
      * 3.4.6.11 上报软件版本信息包 (软件版本信息表256字节待定)
      */
-    @Async
-    public void uploadSoftwareVersionMessage(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(326);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+    private void uploadSoftwareVersionMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
@@ -420,12 +403,7 @@ public class WebReceiveToCService {
     /**
      * 3.4.6.12 上传设备网络参数信息包
      */
-    @Async
-    public void uploadDeviceNetWorkParamMessage(byte[] bytes) {
-        DeviceNetWorkParam deviceNetWorkParam = new DeviceNetWorkParam();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(156);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+    private void uploadDeviceNetWorkParamMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
@@ -464,10 +442,7 @@ public class WebReceiveToCService {
      * 3.4.6.13上报雷达子系统工作状态信息包 雷达子系统状态信息(512字节待完成)
      */
     @Async
-    public void uploadRadarSubSystemWorkStatusMessage(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(580);
-        byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+    public void uploadRadarSubSystemWorkStatusMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
@@ -476,7 +451,7 @@ public class WebReceiveToCService {
         Short dataType = byteBuffer.getShort(62); // 数据类型
         int dataLength = byteBuffer.getInt(64); // 数据长度
         byte[] bytes1 = new byte[64]; // 系统控制信息
-        byteBuffer.get(bytes, 68, 64);
+        byteBuffer.get(bytes1, 68, 64);
         byte[] bytes2 = new byte[64]; // GPS数据
         byteBuffer.get(bytes2, 132, 64);
         byte faNodeNo = byteBuffer.get(196); // 发方节点号

@@ -48,6 +48,22 @@ public class SocketConfig {
         return decimal;
     }
 
+    //  二进制转换成10进制 (Long)
+    public static long BinaryToDecimals(long binaryNumber) {
+        int decimal = 0;
+        int p = 0;
+        while (true) {
+            if (binaryNumber == 0) {
+                break;
+            } else {
+                long temp = binaryNumber % 10;
+                decimal += temp * Math.pow(2, p);
+                binaryNumber = binaryNumber / 10;
+                p++;
+            }
+        }
+        return decimal;
+    }
     public static void main(String[] args) {
       /*  Map map = new ConcurrentHashMap();
         for (int i = 0; i < 10; i++) {
@@ -64,9 +80,8 @@ public class SocketConfig {
 //      stringBuilder.append("01");
 //      String s=stringBuilder.toString();
 //      System.out.println(stringBuilder.reverse());
-        String str ="5533";
-       int a= Integer.parseInt(str,16);
-        System.out.println(a);
+        int c=Integer.parseInt("010100000000");
+        System.out.println(c);
     }
 
     public static String binary(byte[] bytes, int radix) {

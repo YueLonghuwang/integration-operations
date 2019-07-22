@@ -126,73 +126,7 @@ public class JavaClientUtil {
         }
     }
 
-    @Async
-    public void monitoringTCP() {
-        int portTCP = 5888;
-        Set set = new HashSet();
-        try {
-            log.info("监听TCP端口: " + portTCP);
-            selector = Selector.open();
-            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open(); // 新建channel
-//            ServerSocket serverSocket = serverSocketChannel.socket();
-            // 监听端口
-            serverSocketChannel.configureBlocking(false);
-            serverSocketChannel.bind(new InetSocketAddress(portTCP));
-            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-            while (true) {
-                selector.select();
-                Set<SelectionKey> selectionKeys = selector.selectedKeys();
-                Iterator<SelectionKey> iterator = selectionKeys.iterator();
-                while (iterator.hasNext()) {
-                    SelectionKey key = iterator.next();
-                    iterator.remove();
-                    if (key.isAcceptable()) {
-                        handleAccept(key);
-                    } else if (key.isReadable()) {// 监听到读事件，对读事件进行处理
-                        handleRead(key);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    /**
-     * 监听到读事件，读取客户端发送过来的消息
-     */
-    private void handleRead(SelectionKey key) throws IOException {
-        SocketChannel channel = (SocketChannel) key.channel();
-//        receiveInformationService.receiveSocketHandler1(channel);
-        // 从通道读取数据到缓冲区
-        ByteBuffer buffer = ByteBuffer.allocate(128);
-        channel.read(buffer);
-        System.out.println(channel.getLocalAddress());
-        // 输出客户端发送过来的消息
-       long data = buffer.getLong();
-//        msg=new String(data).trim();
-//        if(msg.equals("")){
-//            key.cancel();
-//        }
-        toHexTable((int) data);
-//        String a=toHexTable();
-        System.out.println("server receive msg from client："+data);
-    }
-
-    /**
-     * 处理客户端连接成功事件
-     */
-    private static void handleAccept(SelectionKey key) throws IOException {
-        // 获取客户端连接通道
-        ServerSocketChannel server = (ServerSocketChannel) key.channel();
-        SocketChannel socketChannel = server.accept();
-        socketChannel.configureBlocking(false);
-        // 信息通过通道发送给客户端
-//        socketChannel.write(ByteBuffer.wrap(new String("Hello Client!").getBytes()));
-        // 给通道设置读事件，客户端监听到读事件后，进行读取操作
-
-        socketChannel.register(selector, SelectionKey.OP_READ);
-    }
 
     // 二进制换16
     private static void toHexTable(int num) {
