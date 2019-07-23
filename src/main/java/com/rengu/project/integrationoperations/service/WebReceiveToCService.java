@@ -1,9 +1,11 @@
 package com.rengu.project.integrationoperations.service;
 
 import com.rengu.project.integrationoperations.entity.*;
+import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -371,7 +373,7 @@ public class WebReceiveToCService {
         maps.put("heartbeat", byteBuffer.get(60));// 心跳
 //        map.put("verify", byteBuffer.getInt(61));// 校验和
 //        map.put("messageEnd", byteBuffer.getInt(65));// 结尾
-        simpMessagingTemplate.convertAndSend("/receiveHeartbeatCMD"+maps,host);
+        simpMessagingTemplate.convertAndSend("/receiveHeartbeatCMD/"+maps,host);
     }
 
     /**
@@ -389,8 +391,14 @@ public class WebReceiveToCService {
         byteBuffer.get(backups);
         int verify = byteBuffer.getInt(64); // 校验和
         int messageEnd = byteBuffer.getInt(68); // 报文尾
-
-        simpMessagingTemplate.convertAndSend("/uploadHeartBeatMessage/"+map,host);
+        String msg="成功啦";
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("message",map);
+        map1.put("host",host);
+        List list = new ArrayList();
+        list.add(map);
+        list.add(host);
+       simpMessagingTemplate.convertAndSend("/topic",new ResultEntity(SystemStatusCodeEnum.SUCCESS,msg));
     }
 
     /**

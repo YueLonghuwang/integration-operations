@@ -6,6 +6,7 @@ import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,4 +72,5 @@ public class WebSendToCController {
     public ResultEntity findAll(){
       return new ResultEntity(SystemStatusCodeEnum.SUCCESS, receiveInformationService.findAll());
     }
+
 }
