@@ -8,13 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SelectionKey;
@@ -38,7 +33,6 @@ public class TCPThread {
     private final WebReceiveToCService receiveInformationService;
     private final HostRepository hostRepository;
     private static Selector selector;
-    private String msg = null;
 
     public TCPThread(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
         this.webSendToCService = webSendToCService;
@@ -104,7 +98,6 @@ public class TCPThread {
                 receiveInformationService.receiveSocketHandler1(buffer,host);
             }
         }
-        msg = new String(buffer.array()).trim();
     }
 
     /**
@@ -113,12 +106,9 @@ public class TCPThread {
     private void handleAccept(SelectionKey key) throws IOException {
         Set<String> set = new HashSet<>();
         // 获取客户端连接通道
-
         ServerSocketChannel server = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel = server.accept();
         socketChannel.configureBlocking(false);
-        System.out.println("HostAddress" + socketChannel.socket().getInetAddress().getHostAddress());
-        System.out.println("LocalAddress" + socketChannel.getLocalAddress());
         map.put(socketChannel.socket().getInetAddress().getHostAddress(), socketChannel.socket());
         receiveInformationService.allHost(socketChannel.socket().getInetAddress().getHostAddress());
         set.add(socketChannel.socket().getInetAddress().getHostAddress());
@@ -127,7 +117,7 @@ public class TCPThread {
     }
 
 
-    // 监听TCP
+    /*// 监听TCP
     @Async
     public void monitoringTCPs() {
         int portTCP = 5888;
@@ -142,7 +132,7 @@ public class TCPThread {
                 // 存放Socket
                 map.put(host, socket);
                 receiveInformationService.allHost(host);
-               /* List<AllHost> listAllHost = hostRepository.findAll();
+               *//* List<AllHost> listAllHost = hostRepository.findAll();
                 for (AllHost allHost : listAllHost) {
                     if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
                         receiveSocketHandler1(socket);
@@ -151,7 +141,7 @@ public class TCPThread {
                     } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
                         receiveInformationService.receiveSocketHandler3(socket);
                     }
-                }*/
+                }*//*
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -167,7 +157,7 @@ public class TCPThread {
         log.info("-------接收报文1-----");
         String host = socket.getInetAddress().getHostAddress();
 //        receiveInformationService.sendMessage(inputStream, host);
-    }
+    }*/
 //    //  接收铁塔敌我报文
 //    @Async
 //    public void scoketIronFriendOrFoeHandler(Socket socket) throws IOException {

@@ -3,17 +3,13 @@ package com.rengu.project.integrationoperations.service;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
 import java.util.*;
 
 /**
@@ -25,9 +21,10 @@ import java.util.*;
 @Slf4j
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
-
-    public WebReceiveToCService(HostRepository hostRepository) {
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.hostRepository = hostRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     // 储存或更新当前连接服务端的IP地址
@@ -86,8 +83,10 @@ public class WebReceiveToCService {
                 uploadDeviceNetWorkParamMessage(byteBuffer, host);
                 break;
             case 3107:
-                uploadRadarSubSystemWorkStatusMessage(byteBuffer,host);
+                uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
+
+
         }
     }
 
@@ -96,7 +95,8 @@ public class WebReceiveToCService {
      */
     @Async
     public void receiveSocketHandler2(ByteBuffer byteBuffer, String host) {
-        short messageCategory = byteBuffer.getShort(14);
+        short messageCategorys = byteBuffer.getShort(14);
+      int messageCategory=Integer.parseInt(Integer.toHexString(messageCategorys));
         switch (messageCategory) {
             case 3001:
                 receiveHeartbeatCMD(byteBuffer, host);
@@ -114,7 +114,10 @@ public class WebReceiveToCService {
                 uploadDeviceNetWorkParamMessage(byteBuffer, host);
                 break;
             case 3107:
-                uploadRadarSubSystemWorkStatusMessage(byteBuffer,host);
+                uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
+                break;
+            default:
+                test(byteBuffer,host);
                 break;
         }
     }
@@ -142,7 +145,7 @@ public class WebReceiveToCService {
                 uploadDeviceNetWorkParamMessage(byteBuffer, host);
                 break;
             case 3107:
-                uploadRadarSubSystemWorkStatusMessage(byteBuffer,host);
+                uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
         }
     }
@@ -161,7 +164,7 @@ public class WebReceiveToCService {
 
 
     /**
-     * 解析铁塔敌我报文
+     * 解析铁塔敌我报文 (这是旧版本的报文 目前不确定需不需要接收)
      */
     public void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(650);
@@ -279,7 +282,7 @@ public class WebReceiveToCService {
     }
 
     /**
-     * 解析铁塔雷达报文
+     * 解析铁塔雷达报文 (这是旧版本的报文 目前不确定需不需要接收)
      */
     public void reciveAndConvertIronRadar(byte[] bytes, String host) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(500);
@@ -340,33 +343,54 @@ public class WebReceiveToCService {
         byte[] bytes8 = SocketConfig.hexToByte(SocketConfig.end);
     }
 
+    /**
+     * 测试数据
+     */
+    public void test(ByteBuffer byteBuffer1,String host){
+        ByteBuffer byteBuffer=ByteBuffer.wrap(byteBuffer1.array());
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        int a=byteBuffer.getInt(0);
+        byteBuffer.position(4);
+        byte[] bytes = new byte[3];
+        byteBuffer.get(bytes);
+        System.out.println(a);
+        for(byte b:bytes){
+            System.out.println(b);
+        }
+        byteBuffer.clear();
+    }
 
     /**
      * 3.4.6.2 心跳指令
      */
     private void receiveHeartbeatCMD(ByteBuffer byteBuffer, String host) {
-        Map<String, Number> map = receiveFixedInformation(byteBuffer);
-        int messageLength = byteBuffer.getInt(48); // 信息长度
-        long taskFlowNo = byteBuffer.getLong(52); // 任务流水号
-        byte heartbeat = byteBuffer.get(60); // 心跳
-        int verify = byteBuffer.getInt(61); // 校验和
-        int messageEnd = byteBuffer.getInt(65); // 报文尾
-        System.out.println(heartbeat);
+        Map<String,Number> map = receiveFixedInformation(byteBuffer);
+        Map<String, Number> maps = new HashMap<>();
+//        map.put("messageLength",byteBuffer.getInt(48));// 信息长度
+        maps.put("taskFlowNo",byteBuffer.getLong(52));// 任务流水号
+        maps.put("heartbeat", byteBuffer.get(60));// 心跳
+//        map.put("verify", byteBuffer.getInt(61));// 校验和
+//        map.put("messageEnd", byteBuffer.getInt(65));// 结尾
+        simpMessagingTemplate.convertAndSend("/receiveHeartbeatCMD"+maps,host);
     }
 
     /**
      * 3.4.6.9 上传心跳信息
      */
-    private void uploadHeartBeatMessage(ByteBuffer byteBuffer, String host) {
-        Map<String, Number> map = receiveFixedInformation(byteBuffer);
-        int messageLength = byteBuffer.getInt(48);
-        long taskFlowNo = byteBuffer.getLong(52);
+    private void uploadHeartBeatMessage(ByteBuffer byteBuffer1, String host) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteBuffer1.array());
+        Map<String, Number> mapFixation = receiveFixedInformation(byteBuffer);
+//        int messageLength = byteBuffer.getInt(48);
+//        long taskFlowNo = byteBuffer.getLong(52);
         byte systemWorkStatus = byteBuffer.get(60);
-        Map map1 = workStatus(systemWorkStatus); // 解析系统工作状态
+        Map<String, String> map = workStatus(systemWorkStatus); // 解析系统工作状态
+        byteBuffer.position(61);
         byte[] backups = new byte[3];
-        byteBuffer.get(backups, 61, 3);
+        byteBuffer.get(backups);
         int verify = byteBuffer.getInt(64); // 校验和
         int messageEnd = byteBuffer.getInt(68); // 报文尾
+
+        simpMessagingTemplate.convertAndSend("/uploadHeartBeatMessage/"+map,host);
     }
 
     /**
@@ -377,7 +401,7 @@ public class WebReceiveToCService {
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
         byte systemWorkStatus = byteBuffer.get(60);
-        Map map1 = workStatus(systemWorkStatus); // 解析系统工作状态
+        Map<String, String> map1 = workStatus(systemWorkStatus); // 解析系统工作状态
         int verify = byteBuffer.getInt(64); // 校验和
         int messageEnd = byteBuffer.getInt(68); // 报文尾
     }
@@ -564,6 +588,13 @@ public class WebReceiveToCService {
         return list;
     }
 
+    private String getMac(short s, int c) {
+        String d = Integer.toHexString(s);
+        String g = d.substring(4);
+        String f = Integer.toHexString(c);
+        return g + f;
+    }
+
     public static void main(String[] args) {
      /*   byte b=5;
         String s=Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
@@ -602,22 +633,6 @@ public class WebReceiveToCService {
         String a = Integer.toBinaryString((s & 0xFF) + 0x100).substring(1);
 
         System.out.println(a);
-    }
-
-    private static ByteArrayOutputStream cloneInputStream(InputStream input) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = input.read(buffer)) > -1) {
-                baos.write(buffer, 0, len);
-            }
-            baos.flush();
-            return baos;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
 
