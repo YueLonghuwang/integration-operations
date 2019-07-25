@@ -22,7 +22,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         //服务端广播消息的路径前缀，客户端需要相应订阅/topic/yyy这个地址的消息
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/uploadHeartBeatMessage","/receiveHeartbeatCMD","/uploadSelfInspectionResult","/uploadSoftwareVersionMessage","/uploadDeviceNetWorkParamMessage","/uploadRadarSubSystemWorkStatusMessage");
     }
 
 }

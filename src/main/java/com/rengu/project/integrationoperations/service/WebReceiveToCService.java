@@ -1,11 +1,14 @@
 package com.rengu.project.integrationoperations.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.repository.HostRepository;
+import com.rengu.project.integrationoperations.util.JsonUtils;
 import com.rengu.project.integrationoperations.util.SocketConfig;
+import com.sun.xml.internal.ws.util.ASCIIUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.apache.tomcat.util.buf.Ascii;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * author : yaojiahao
@@ -24,6 +28,7 @@ import java.util.*;
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+
     public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.hostRepository = hostRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -67,7 +72,8 @@ public class WebReceiveToCService {
      */
     @Async
     public void receiveSocketHandler1(ByteBuffer byteBuffer, String host) {
-        short messageCategory = byteBuffer.getShort(14);
+        short messageCategorys = byteBuffer.getShort(14);
+        int messageCategory = Integer.parseInt(Integer.toHexString(messageCategorys));
         switch (messageCategory) {
             case 3001:
                 receiveHeartbeatCMD(byteBuffer, host);
@@ -98,7 +104,7 @@ public class WebReceiveToCService {
     @Async
     public void receiveSocketHandler2(ByteBuffer byteBuffer, String host) {
         short messageCategorys = byteBuffer.getShort(14);
-      int messageCategory=Integer.parseInt(Integer.toHexString(messageCategorys));
+        int messageCategory = Integer.parseInt(Integer.toHexString(messageCategorys));
         switch (messageCategory) {
             case 3001:
                 receiveHeartbeatCMD(byteBuffer, host);
@@ -119,7 +125,7 @@ public class WebReceiveToCService {
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
             default:
-                test(byteBuffer,host);
+                test(byteBuffer, host);
                 break;
         }
     }
@@ -129,7 +135,8 @@ public class WebReceiveToCService {
      */
     @Async
     public void receiveSocketHandler3(ByteBuffer byteBuffer, String host) {
-        short messageCategory = byteBuffer.getShort(14);
+        short messageCategorys = byteBuffer.getShort(14);
+        int messageCategory = Integer.parseInt(Integer.toHexString(messageCategorys));
         switch (messageCategory) {
             case 3001:
                 receiveHeartbeatCMD(byteBuffer, host);
@@ -348,15 +355,15 @@ public class WebReceiveToCService {
     /**
      * 测试数据
      */
-    public void test(ByteBuffer byteBuffer1,String host){
-        ByteBuffer byteBuffer=ByteBuffer.wrap(byteBuffer1.array());
+    public void test(ByteBuffer byteBuffer1, String host) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteBuffer1.array());
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
-        int a=byteBuffer.getInt(0);
+        int a = byteBuffer.getInt(0);
         byteBuffer.position(4);
         byte[] bytes = new byte[3];
         byteBuffer.get(bytes);
         System.out.println(a);
-        for(byte b:bytes){
+        for (byte b : bytes) {
             System.out.println(b);
         }
         byteBuffer.clear();
@@ -366,14 +373,15 @@ public class WebReceiveToCService {
      * 3.4.6.2 心跳指令
      */
     private void receiveHeartbeatCMD(ByteBuffer byteBuffer, String host) {
-        Map<String,Number> map = receiveFixedInformation(byteBuffer);
-        Map<String, Number> maps = new HashMap<>();
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        Map<String, Object> map1 = new HashMap<>();
 //        map.put("messageLength",byteBuffer.getInt(48));// 信息长度
-        maps.put("taskFlowNo",byteBuffer.getLong(52));// 任务流水号
-        maps.put("heartbeat", byteBuffer.get(60));// 心跳
+//        map1.put("taskFlowNo", byteBuffer.getLong(52));// 任务流水号
+        map1.put("heartbeat", byteBuffer.get(60));// 心跳
 //        map.put("verify", byteBuffer.getInt(61));// 校验和
 //        map.put("messageEnd", byteBuffer.getInt(65));// 结尾
-        simpMessagingTemplate.convertAndSend("/receiveHeartbeatCMD/"+maps,host);
+        map1.put("host", host);
+        simpMessagingTemplate.convertAndSend("/receiveHeartbeatCMD/sendToHeartBeat", new ResultEntity(SystemStatusCodeEnum.SUCCESS, map1));
     }
 
     /**
@@ -385,20 +393,15 @@ public class WebReceiveToCService {
 //        int messageLength = byteBuffer.getInt(48);
 //        long taskFlowNo = byteBuffer.getLong(52);
         byte systemWorkStatus = byteBuffer.get(60);
-        Map<String, String> map = workStatus(systemWorkStatus); // 解析系统工作状态
+        Map<String, String> map1 = workStatus(systemWorkStatus); // 解析系统工作状态
         byteBuffer.position(61);
         byte[] backups = new byte[3];
         byteBuffer.get(backups);
         int verify = byteBuffer.getInt(64); // 校验和
         int messageEnd = byteBuffer.getInt(68); // 报文尾
-        String msg="成功啦";
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("message",map);
-        map1.put("host",host);
-        List list = new ArrayList();
-        list.add(map);
-        list.add(host);
-       simpMessagingTemplate.convertAndSend("/topic",new ResultEntity(SystemStatusCodeEnum.SUCCESS,msg));
+        map1.put("host", host);
+        // 根据设备发送指定信息
+        simpMessagingTemplate.convertAndSend("/uploadHeartBeatMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, map1));
     }
 
     /**
@@ -412,8 +415,10 @@ public class WebReceiveToCService {
         Map<String, String> map1 = workStatus(systemWorkStatus); // 解析系统工作状态
         int verify = byteBuffer.getInt(64); // 校验和
         int messageEnd = byteBuffer.getInt(68); // 报文尾
+        map1.put("host", host);
+        // 根据设备发送指定信息
+        simpMessagingTemplate.convertAndSend("/uploadSelfInspectionResult/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, map1));
     }
-
 
     /**
      * 3.4.6.11 上报软件版本信息包 (软件版本信息表256字节待定)
@@ -423,13 +428,20 @@ public class WebReceiveToCService {
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
         short cmd = byteBuffer.getShort(60);
-        // 软件版本信息表 先显示前16个字节
+        // 软件版本信息表 (数据不全 先显示前16个字节)
         byte[] bytes1 = new byte[16];
-        byteBuffer.get(bytes1, 62, 16);
+        byteBuffer.position(62);
+        byteBuffer.get(bytes1);
         /*byte[] softwareVersionMessage = new byte[256];
         byteBuffer.get(softwareVersionMessage, 62, 256);*/
         int verify = byteBuffer.getInt(318); // 校验和
         int messageEnd = byteBuffer.getInt(322); // 报文尾
+        List<Object> list = new ArrayList<>();
+        list.add(host);
+        list.add(bytes1);
+        // 根据设备发送指定信息
+        simpMessagingTemplate.convertAndSend("/uploadSoftwareVersionMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, list));
+
     }
 
     /**
@@ -437,85 +449,165 @@ public class WebReceiveToCService {
      */
     private void uploadDeviceNetWorkParamMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        SendDeviceNetWorkParam sendDeviceNetWorkParam = new SendDeviceNetWorkParam();
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
         short cmd = byteBuffer.getShort(60);
         short networkID = byteBuffer.getShort(62); // 网络终端ID号
-        int networkIP1 = byteBuffer.getInt(64); // 网络IP地址1
-        byte[] bytes1 = new byte[6]; // 网络MAC地址1
-        byteBuffer.get(bytes1, 68, 6);
+        sendDeviceNetWorkParam.setNetworkID(String.valueOf(networkID));
+        byteBuffer.position(64);
+        byte[] networkIP1s = new byte[4];
+        byteBuffer.get(networkIP1s);
+        sendDeviceNetWorkParam.setNetworkIP1(getIP(networkIP1s)); // 网络IP地址1
+        String mac1 = getMac(byteBuffer.getShort(68), byteBuffer.getInt(70));  // 网络MAC地址1
+        sendDeviceNetWorkParam.setNetworkMacIP1(mac1);
         int networkMessage1 = byteBuffer.getInt(74); // 网络端口信息1
-        int networkIP2 = byteBuffer.getInt(78); // 网络IP地址2
-        byte[] bytes2 = new byte[6]; // 网络MAC地址2
-        byteBuffer.get(bytes2, 82, 6);
+        sendDeviceNetWorkParam.setNetworkMessage1(String.valueOf(networkMessage1));
+        byteBuffer.position(78);
+        byte[] networkIP2s = new byte[4];
+        byteBuffer.get(networkIP2s);
+        sendDeviceNetWorkParam.setNetworkIP2(getIP(networkIP2s)); // 网络IP地址2
+        String mac2 = getMac(byteBuffer.getShort(82), byteBuffer.getInt(86)); // 网络MAC地址2
+        sendDeviceNetWorkParam.setNetworkMacIP2(mac2);
         int networkMessage2 = byteBuffer.getInt(88); // 网络端口信息2
-        int networkIP3 = byteBuffer.getInt(92); // 网络IP地址3
-        byte[] bytes3 = new byte[6]; // 网络MAC地址3
-        byteBuffer.get(bytes3, 96, 6);
+        sendDeviceNetWorkParam.setNetworkMessage2(String.valueOf(networkMessage2));
+
+        byteBuffer.position(92);
+        byte[] networkIP3s = new byte[4];
+        byteBuffer.get(networkIP3s);
+        sendDeviceNetWorkParam.setNetworkIP3(getIP(networkIP3s)); // 网络IP地址3
+
+        String mac3 = getMac(byteBuffer.getShort(96), byteBuffer.getInt(98)); // 网络MAC地址3
+        sendDeviceNetWorkParam.setNetworkMacIP3(mac3);
         int networkMessage3 = byteBuffer.getInt(102); // 网络端口信息3
-        int networkIP4 = byteBuffer.getInt(106); // 网络IP地址4
-        byte[] bytes4 = new byte[6]; // 网络MAC地址4
-        byteBuffer.get(bytes4, 110, 6);
+        sendDeviceNetWorkParam.setNetworkMessage3(String.valueOf(networkMessage3));
+
+        byteBuffer.position(106);
+        byte[] networkIP4s = new byte[4];
+        byteBuffer.get(networkIP4s);
+        sendDeviceNetWorkParam.setNetworkIP4(getIP(networkIP4s)); // 网络IP地址4
+
+        String mac4 = getMac(byteBuffer.getShort(110), byteBuffer.getInt(112)); // 网络MAC地址4
+        sendDeviceNetWorkParam.setNetworkMacIP4(mac4);
         int networkMessage4 = byteBuffer.getInt(116); // 网络端口信息4
-        int networkIP5 = byteBuffer.getInt(120); // 网络IP地址5
-        byte[] bytes5 = new byte[6]; // 网络MAC地址5
-        byteBuffer.get(bytes5, 124, 6);
+        sendDeviceNetWorkParam.setNetworkMessage4(String.valueOf(networkMessage4));
+
+        byteBuffer.position(120);
+        byte[] networkIP5s = new byte[4];
+        byteBuffer.get(networkIP5s);
+        sendDeviceNetWorkParam.setNetworkIP5(getIP(networkIP5s)); // 网络IP地址5
+
+        String mac5 = getMac(byteBuffer.getShort(124), byteBuffer.getInt(126)); // 网络MAC地址5
+        sendDeviceNetWorkParam.setNetworkMacIP5(mac5);
         int networkMessage5 = byteBuffer.getInt(130); // 网络端口信息5
-        int networkIP6 = byteBuffer.getInt(134); // 网络IP地址6
-        byte[] bytes6 = new byte[6]; // 网络MAC地址6
-        byteBuffer.get(bytes6, 138, 6);
+        sendDeviceNetWorkParam.setNetworkMessage5(String.valueOf(networkMessage5));
+
+        byteBuffer.position(134);
+        byte[] networkIP6s = new byte[4];
+        byteBuffer.get(networkIP6s);
+        sendDeviceNetWorkParam.setNetworkIP6(getIP(networkIP6s)); // 网络IP地址6
+
+        String mac6 = getMac(byteBuffer.getShort(138), byteBuffer.getInt(140)); // 网络MAC地址6
+        sendDeviceNetWorkParam.setNetworkMacIP6(mac6);
         int networkMessage6 = byteBuffer.getInt(144); // 网络端口信息6
+        sendDeviceNetWorkParam.setNetworkMessage6(String.valueOf(networkMessage6));
         // 结尾
         int verify = byteBuffer.getInt(148); // 校验和
         int messageEnd = byteBuffer.getInt(152); // 报文尾
+        List<Object> list = new ArrayList<>();
+        list.add(host);
+        list.add(sendDeviceNetWorkParam);
+        // 根据设备发送指定信息
+        simpMessagingTemplate.convertAndSend("/uploadDeviceNetWorkParamMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, list));
     }
 
     /**
-     * 3.4.6.13上报雷达子系统工作状态信息包 雷达子系统状态信息(512字节待完成)
+     * 3.4.6.13 上报雷达子系统工作状态信息包 雷达子系统状态信息(512字节待完成)
      */
     @Async
     public void uploadRadarSubSystemWorkStatusMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        Map<String, String> map1 = new HashMap<>();
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
         // 雷达子系统状态信息
         short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort(60));
         Short dataType = byteBuffer.getShort(62); // 数据类型
         int dataLength = byteBuffer.getInt(64); // 数据长度
+        byteBuffer.position(68);
         byte[] bytes1 = new byte[64]; // 系统控制信息
-        byteBuffer.get(bytes1, 68, 64);
+        byteBuffer.get(bytes1);
+        byteBuffer.position(132);
         byte[] bytes2 = new byte[64]; // GPS数据
-        byteBuffer.get(bytes2, 132, 64);
+        byteBuffer.get(bytes2);
+        // 数据信息
         byte faNodeNo = byteBuffer.get(196); // 发方节点号
-        byte shouNodeNo = byteBuffer.get(197); // 收方节点号
+        map1.put("faNodeNo", String.valueOf(faNodeNo));
+        byte souNodeNo = byteBuffer.get(197); // 收方节点号
+        map1.put("souNodeNo", String.valueOf(souNodeNo));
         short feedbackNo = byteBuffer.getShort(198); // 反馈指令序号
+        map1.put("feedbackNo", String.valueOf(feedbackNo));
         short cmdReceiveStatus = byteBuffer.getShort(200); // 指令接收状态
+        map1.put("cmdReceiveStatus", String.valueOf(cmdReceiveStatus));
         short taskNo = byteBuffer.getShort(202); //任务编号
+        map1.put("taskNo", String.valueOf(taskNo));
         short frontEndWorkTemperature = byteBuffer.getShort(204); // 前端工作温度
+        map1.put("frontEndWorkTemperature", String.valueOf(frontEndWorkTemperature));
         short fenjiWorkTemperature = byteBuffer.getShort(206);  // 分机工作温度
-        long fenjiWorkStatus = byteBuffer.getLong(208);  // 分机工作状态
+        map1.put("fenjiWorkTemperature", String.valueOf(fenjiWorkTemperature));
+        long fenJiWorkStatus = byteBuffer.getLong(208);  // 分机工作状态
+        String fenJiWorkStatusString = Long.toBinaryString(fenJiWorkStatus); // 将分机工作状态解析为二进制
+        map1.put("fenJiWorkStatus", fenJiWorkStatusString);
         int numCount = byteBuffer.getInt(216); // 全脉冲个数统计
+        map1.put("numCount", String.valueOf(numCount));
         int dataPagCount = byteBuffer.getInt(220); // 辐射源数据包统计
+        map1.put("dataPagCount", String.valueOf(dataPagCount));
         int zhongDataPagCount = byteBuffer.getInt(224); // 中频数据统计
+        map1.put("zhongDataPagCount", String.valueOf(zhongDataPagCount));
         byte deviceNo = byteBuffer.get(228); // 设备编号
+        // 解析设备编号
+        String deviceNoString = Integer.toBinaryString((deviceNo & 0xFF) + 0x100).substring(1);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(deviceNoString, 0, 4);
+        // bit7-bit4 0：520项目 1：西沙改 2：大车 3：舰载
+        if (Integer.parseInt(deviceNoString.substring(4)) == 0) {
+            stringBuilder.append("0");
+        } else if (Integer.parseInt(deviceNoString.substring(4)) == 1) {
+            stringBuilder.append("1");
+        } else if (Integer.parseInt(deviceNoString.substring(4)) == 10) {
+            stringBuilder.append("2");
+        } else if (Integer.parseInt(deviceNoString.substring(4)) == 11) {
+            // 3在2进制中为11
+            stringBuilder.append("3");
+        }
+        map1.put("deviceNo", stringBuilder.toString());
+        byteBuffer.position(229);
         byte[] bytes3 = new byte[7]; // 备份
-        byteBuffer.get(bytes3, 229, 7);
+        byteBuffer.get(bytes3);
         byte b = byteBuffer.get(236); // 6-18GHz 长电缆均1
+        map1.put("longCable1", String.valueOf(b));
         byte c = byteBuffer.get(237); // 6-18GHz 长电缆均2
+        map1.put("longCable2", String.valueOf(c));
         byte d = byteBuffer.get(238); // 测向1
+        map1.put("directionFinding1", String.valueOf(d));
         byte e = byteBuffer.get(239); // 测向2
+        map1.put("directionFinding2", String.valueOf(e));
+        byteBuffer.position(240);
         byte[] bytes4 = new byte[32];
-        byteBuffer.get(bytes4, 240, 32);
+        byteBuffer.get(bytes4);
+        byteBuffer.position(272);
         byte[] bytes5 = new byte[128];
-        byteBuffer.get(bytes5, 272, 128);
+        byteBuffer.get(bytes5);
+        byteBuffer.position(400);
         byte[] bytes6 = new byte[128];
-        byteBuffer.get(bytes6, 400, 128);
+        byteBuffer.get(bytes6);
         byteBuffer.getInt(528);
         // 结尾
         int verify = byteBuffer.getInt(532); // 校验和
         int messageEnd = byteBuffer.getInt(536); // 报文尾
+        map1.put("host", host);
+        simpMessagingTemplate.convertAndSend("/uploadRadarSubSystemWorkStatusMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, map1));
     }
-
 
     // 解析工作状态  3.4.6.10 上报自检结果   3.4.6.9 上传心跳信息 引用
     private Map<String, String> workStatus(byte systemWorkStatus) {
@@ -592,18 +684,46 @@ public class WebReceiveToCService {
     }
 
     public List<AllHost> findAll() {
-        List<AllHost> list = hostRepository.findAll();
-        return list;
+        return hostRepository.findAll();
     }
 
-    private String getMac(short s, int c) {
+    // 解析mac
+    private static String getMac(short s, int c) {
+        String g;
         String d = Integer.toHexString(s);
-        String g = d.substring(4);
+        // 当short s为负数时  如：-10000 转换成16进制后为 FFFFD8F0 因为前4位没用，所以需要截取后4位。正数时则不需要
+        if (s < 0) {
+            g = d.substring(4);
+        } else {
+            g = d;
+        }
         String f = Integer.toHexString(c);
-        return g + f;
+        String h = g + f;
+        StringBuilder stringBuilder = new StringBuilder(h.toUpperCase());
+        stringBuilder.insert(2, " : ");
+        stringBuilder.insert(7, " : ");
+        stringBuilder.insert(12, " : ");
+        stringBuilder.insert(17, " : ");
+        stringBuilder.insert(22, " : ");
+        return stringBuilder.toString();
+    }
+
+    // 解析IP地址
+    private String getIP(byte[] bytes) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            // 当循环到最后一个数据时 无需再加.
+            if (i == bytes.length - 1) {
+                stringBuilder.append(bytes[i]);
+            } else {
+                stringBuilder.append(bytes[i]).append(".");
+            }
+        }
+        return stringBuilder.toString();
     }
 
     public static void main(String[] args) {
+        System.out.println(getMac((short) 10000, 589620011));
      /*   byte b=5;
         String s=Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
         System.out.println(s.substring(6,7));
@@ -637,10 +757,10 @@ public class WebReceiveToCService {
         System.out.println(result);*/
         /*byte[] bytes=SocketConfig.hexToByte("8CEC4BB57051");
         System.out.println(bytes.length);*/
-        short s = 2;
-        String a = Integer.toBinaryString((s & 0xFF) + 0x100).substring(1);
-
-        System.out.println(a);
+//        String s = "0010";
+//        String a = Integer.toBinaryString((s & 0xFF) + 0x100).substring(1);
+//        String a = String.valueOf(s);
+//        System.out.println(Integer.parseInt(s));
     }
 
 

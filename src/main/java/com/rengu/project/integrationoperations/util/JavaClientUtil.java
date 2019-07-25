@@ -30,6 +30,7 @@ import java.util.*;
 public class JavaClientUtil {
     private static final int port = 8090;
     private static final String host = "localhost";
+    private static String deviceId = null;
     private final WebReceiveToCService webReceiveToCService;
     // 通道管理器(Selector)
     private static Selector selector;
@@ -144,5 +145,13 @@ public class JavaClientUtil {
         for (int i = pos; i < arr.length; i++) {
             System.out.print(arr[i] + ",");
         }
+
+    }
+    public static void see(){
+        deviceId="7889";
+    }
+    public static void main(String args[]){
+        see();
+        System.out.println(deviceId);
     }
 }

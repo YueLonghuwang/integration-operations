@@ -72,5 +72,4 @@ public class WebSendToCController {
     public ResultEntity findAll(){
       return new ResultEntity(SystemStatusCodeEnum.SUCCESS, receiveInformationService.findAll());
     }
-
 }

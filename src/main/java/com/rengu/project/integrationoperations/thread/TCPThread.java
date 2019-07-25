@@ -94,8 +94,6 @@ public class TCPThread {
                 receiveInformationService.receiveSocketHandler2(buffer,host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
                 receiveInformationService.receiveSocketHandler3(buffer,host);
-            } else {
-                receiveInformationService.receiveSocketHandler1(buffer,host);
             }
         }
     }
