@@ -13,6 +13,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
@@ -699,7 +701,9 @@ public class WebReceiveToCService {
         }
         String f = Integer.toHexString(c);
         String h = g + f;
+        // 需要转换成大写形式显示给前端方便显示
         StringBuilder stringBuilder = new StringBuilder(h.toUpperCase());
+        // 补上冒号 直接传给前端
         stringBuilder.insert(2, " : ");
         stringBuilder.insert(7, " : ");
         stringBuilder.insert(12, " : ");
@@ -709,21 +713,50 @@ public class WebReceiveToCService {
     }
 
     // 解析IP地址
-    private String getIP(byte[] bytes) {
+    private static String getIP(byte[] bytes) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            // 当循环到最后一个数据时 无需再加.
-            if (i == bytes.length - 1) {
-                stringBuilder.append(bytes[i]);
+        // 为什么要从大到小 循环
+        // 因为 192.168.31.88 这样类似的ip byte[3] 是192 所以要先从大到小循环
+        for (int i = bytes.length-1; i >=0; i--) {
+            /**
+             *
+             * 如果当前值小于0，即为负数 那么需要将当前值转换成16进制，再转成10进制
+             * 解释： 为什么会为负数？
+             * 答： 因为当传过来的数大于127时，那么转成byte时会转换成负数 如168 --> 会变成 -88 这个时候就需要将-88先转换成16进制，再转换成String类型 转回168
+             */
+            if (bytes[i] < 0) {
+                /**
+                 * 因为由后端拼接IP所以 当遍历到最后一个字节时 不需要再加小数点 所以要做判断
+                 */
+                if (i == 0) {
+                    stringBuilder.append(new BigInteger(Integer.toHexString(bytes[i]).substring(6), 16).toString());
+                } else {
+                    stringBuilder.append(new BigInteger(Integer.toHexString(bytes[i]).substring(6), 16).toString()).append(".");
+                }
             } else {
-                stringBuilder.append(bytes[i]).append(".");
+                if (i == 0) {
+                    stringBuilder.append(bytes[i]);
+                } else {
+                    // 当为正数时 不需要判断 直接在末尾加小数点
+                    stringBuilder.append(bytes[i]).append(".");
+                }
             }
         }
         return stringBuilder.toString();
     }
 
     public static void main(String[] args) {
-        System.out.println(getMac((short) 10000, 589620011));
+        byte[] bytes = new byte[4];
+        bytes[0] = 88;
+        bytes[1] = 31;
+        bytes[2] = -88;
+        bytes[3] = (byte)192;
+      System.out.println(getIP(bytes));
+//        String d = Integer.toHexString(bytes[1]);
+//        System.out.println(d);
+//        String a = new BigInteger(d, 16).toString();
+//        System.out.println(a);
+//        System.out.println(getMac((short) 10000, 589620011));
      /*   byte b=5;
         String s=Integer.toBinaryString((b & 0xFF) + 0x100).substring(1);
         System.out.println(s.substring(6,7));
