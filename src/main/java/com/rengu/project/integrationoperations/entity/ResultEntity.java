@@ -6,7 +6,6 @@ import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import java.util.Date;
 
 /**
- *
  * @author hanchangming
  * @date 2019-03-25
  */

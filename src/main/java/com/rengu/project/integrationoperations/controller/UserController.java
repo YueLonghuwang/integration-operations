@@ -18,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- *
  * @author hanchangming
  * @date 2019-03-21
  */

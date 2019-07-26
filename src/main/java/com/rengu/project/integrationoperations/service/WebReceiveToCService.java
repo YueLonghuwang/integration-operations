@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
+ * 解析c++端发送的请求，发送给java端，发送给web端
  * author : yaojiahao
  * Date: 2019/7/8 11:19
  **/
@@ -29,7 +30,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate; //用于服务器端给客户端主动发送消息
 
     public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.hostRepository = hostRepository;
@@ -74,7 +75,9 @@ public class WebReceiveToCService {
      */
     @Async
     public void receiveSocketHandler1(ByteBuffer byteBuffer, String host) {
+        //获取读取一个简单的方法
         short messageCategorys = byteBuffer.getShort(14);
+        //进行进制之间的转换
         int messageCategory = Integer.parseInt(Integer.toHexString(messageCategorys));
         switch (messageCategory) {
             case 3001:
@@ -178,9 +181,9 @@ public class WebReceiveToCService {
      * 解析铁塔敌我报文 (这是旧版本的报文 目前不确定需不需要接收)
      */
     public void reciveAndConvertIronFriendOrFoe(byte[] bytes, String host) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(650);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(650); //分配一个新的字节缓冲
         byteBuffer.put(bytes);
-        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN); //大端
         // 判断包
         short header = (short) SocketConfig.BinaryToDecimal(byteBuffer.getShort());
         short dataType = byteBuffer.getShort(2);

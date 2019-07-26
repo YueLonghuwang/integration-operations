@@ -7,6 +7,7 @@ import com.rengu.project.integrationoperations.repository.CMDSerialNumberReposit
 import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.thread.TCPThread;
 import com.rengu.project.integrationoperations.util.SocketConfig;
+import com.sun.deploy.panel.ITreeNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryTo
 import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryToDecimals;
 
 /**
+ * java端发送给c++端
  * @Author: yaojiahao
  * @Date: 2019/4/12 13:32
  */
@@ -31,7 +33,7 @@ public class WebSendToCService {
     private byte backups = 0;
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private short shorts = 0;
-    private final HostRepository hostRepository;
+    private final HostRepository hostRepository;//当前连接的最大数
 
     @Autowired
     public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository) {
@@ -41,7 +43,8 @@ public class WebSendToCService {
 
     //  系统控制指令帧格式说明（头部固定信息）
     private void sendSystemControlCmdFormat(ByteBuffer byteBuffer, int dataLength, short purPoseAddress, short sourceAddress, byte regionID, byte themeID, short messageCategory, long sendingDateTime, int seriesNumber, int packageSum, int currentNum, int dataLengthSum, short version, int retain1, short retain2) {
-        byteBuffer.putInt(2122389735);  // 报文头 7E9118E7
+        //十六进制转换成十进制
+        byteBuffer.putInt(2122389735);  // 报文头 7E8118E7
         byteBuffer.putInt(dataLength); // 当前包数据长度
         byteBuffer.putShort(purPoseAddress);  // 目的地址(设备ID号)
         byteBuffer.putShort(sourceAddress);  // 源地址(设备ID号)
@@ -74,7 +77,7 @@ public class WebSendToCService {
             // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
             sendSystemControlCmdFormat(byteBuffer, 76, shorts, shorts, backups, backups, (short) 12290, 0, 0, 0, 0, 0, shorts, 0, shorts);
             // 报文内容
-            byteBuffer.putInt(0); // 信息长度
+            byteBuffer.putInt(0); // 信息长度 待定
             byteBuffer.putLong(Long.parseLong(deviceCheckCMD.getTaskFlowNo()));// 任务流水号
             byteBuffer.put(Byte.parseByte(deviceCheckCMD.getCheckType())); // 自检类型
             byteBuffer.putShort(Short.parseShort(deviceCheckCMD.getCheckPeriod())); // 自检周期
@@ -183,7 +186,7 @@ public class WebSendToCService {
             // 报文内容
             byteBuffer.putInt(3); // 信息长度
             byteBuffer.putLong(Long.parseLong(sendDeviceNetWorkParam.getTaskFlowNo())); // 任务流水号
-            byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getCmd()));
+            byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getCmd())); //指令操作码
             byteBuffer.putShort(Short.parseShort(sendDeviceNetWorkParam.getNetworkID())); // 网络终端ID号
 
             // 1
@@ -240,6 +243,7 @@ public class WebSendToCService {
             byteBuffer.putInt(1); // 信息长度
             byteBuffer.putLong(Long.parseLong(deviceWorkFlowCMD.getTaskFlowNo()));
             byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getCmd()));
+            // 分机控制指令
             for (int i = 1; i <= count; i++) {
                 byteBuffer.putShort(SocketConfig.header);
                 byte pulse = Byte.parseByte(deviceWorkFlowCMD.getPulse());

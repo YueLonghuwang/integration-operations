@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import java.util.UUID;
 
 /**
+ * 前端设备（1，2，3号设备）
  * @author yaojiahao
  * @data 2019/4/29 19:14
  */

@@ -2,6 +2,7 @@ package com.rengu.project.integrationoperations.controller;
 
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
+import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.NonNull;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import javax.xml.transform.Result;
 import java.io.IOException;
 
 /**
@@ -31,10 +33,17 @@ public class WebSendToCController {
     }
 
     // 发送系统校时
-    @PostMapping("/sendSystemTiming/communication")
+    /*@PostMapping("/sendSystemTiming/communication")
     public ResultEntity sendSystemTiming(@NotNull String timeNow,@NotNull String timingPattern,@NonNull String time, @NonNull String host,@NonNull String updateAll) throws IOException {
         webSendToCService.sendSystemTiming(timeNow,time,timingPattern, host,updateAll);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, null);
+    }*/
+    //发送系统效时（yyc）
+    //timingPattern:是否更新所有（状态：是或否）
+    public ResultEntity sendSystemTiming(@NonNull String timeNow, @NonNull String timingPattern,@NonNull String time, @NonNull String host,@NonNull String updateAll){
+        //从web前端发送数据到java
+        webSendToCService.sendSystemTiming(timeNow,timingPattern,time,host,updateAll);
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS,null);
     }
 
     // 设备复位
@@ -49,6 +58,7 @@ public class WebSendToCController {
         webSendToCService.sendDeviceCheckCMD(deviceCheckCMD,host,updateAll);
      return new ResultEntity(SystemStatusCodeEnum.SUCCESS,"发送指令成功") ;
     }
+
     // 软件版本更新
     @PostMapping("/sendSoftwareUpdateCMD/communication")
     public ResultEntity sendSoftwareUpdateCMD(String timeNow, String cmd, String softwareID, String host,@NonNull String updateAll){
