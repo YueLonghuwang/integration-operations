@@ -89,11 +89,11 @@ public class TCPThread {
         List<AllHost> listAllHost = hostRepository.findAll();
         for (AllHost allHost : listAllHost) {
             if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                receiveInformationService.receiveSocketHandler1(buffer,host);
+                receiveInformationService.receiveSocketHandler1(buffer, host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
-                receiveInformationService.receiveSocketHandler2(buffer,host);
+                receiveInformationService.receiveSocketHandler2(buffer, host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
-                receiveInformationService.receiveSocketHandler3(buffer,host);
+                receiveInformationService.receiveSocketHandler3(buffer, host);
             }
         }
     }

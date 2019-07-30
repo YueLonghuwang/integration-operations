@@ -1,24 +1,18 @@
 package com.rengu.project.integrationoperations.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.repository.HostRepository;
-import com.rengu.project.integrationoperations.util.JsonUtils;
 import com.rengu.project.integrationoperations.util.SocketConfig;
-import com.sun.xml.internal.ws.util.ASCIIUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.buf.Ascii;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * author : yaojiahao
@@ -30,7 +24,6 @@ import java.util.regex.Pattern;
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
-
     public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.hostRepository = hostRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -38,6 +31,19 @@ public class WebReceiveToCService {
 
     // 储存或更新当前连接服务端的IP地址
     public void allHost(String hosts) {
+        List<AllHost> allHostList = hostRepository.findAll();
+        int size= hostRepository.findByHostNotLike("无").size();
+        for(AllHost allHost:allHostList){
+            if(allHost.getHost().equals("无")){
+                allHost.setHost(hosts);
+                Map<Object, Object> map = new HashMap<>();
+                map.put("device",size+1);
+                map.put("message","一台新的设备已入库");
+                hostRepository.save(allHost);
+                simpMessagingTemplate.convertAndSend("/deviceConnect/send",map);
+                return;
+            }
+        }
         if (!hasHostIP(hosts)) {
             AllHost allHosts = new AllHost();
             allHosts.setHost(hosts);
@@ -45,6 +51,7 @@ public class WebReceiveToCService {
             allHosts.setNum(allHost.getNum() + 1);
             hostRepository.save(allHosts);
         }
+
     }
 
     // 解析报文固定信息
@@ -95,8 +102,6 @@ public class WebReceiveToCService {
             case 3107:
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
-
-
         }
     }
 
@@ -127,7 +132,7 @@ public class WebReceiveToCService {
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
             default:
-                test(byteBuffer, host);
+//                test(byteBuffer, host);
                 break;
         }
     }
@@ -357,7 +362,7 @@ public class WebReceiveToCService {
     /**
      * 测试数据
      */
-    public void test(ByteBuffer byteBuffer1, String host) {
+    /*public void test(ByteBuffer byteBuffer1, String host) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteBuffer1.array());
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
         int a = byteBuffer.getInt(0);
@@ -369,7 +374,7 @@ public class WebReceiveToCService {
             System.out.println(b);
         }
         byteBuffer.clear();
-    }
+    }*/
 
     /**
      * 3.4.6.2 心跳指令
@@ -443,7 +448,6 @@ public class WebReceiveToCService {
         list.add(bytes1);
         // 根据设备发送指定信息
         simpMessagingTemplate.convertAndSend("/uploadSoftwareVersionMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, list));
-
     }
 
     /**
@@ -524,7 +528,7 @@ public class WebReceiveToCService {
     }
 
     /**
-     * 3.4.6.13 上报雷达子系统工作状态信息包 雷达子系统状态信息(512字节待完成)
+     * 3.4.6.13 上报雷达子系统工作状态信息包 雷达子系统状态信息
      */
     @Async
     public void uploadRadarSubSystemWorkStatusMessage(ByteBuffer byteBuffer, String host) {
@@ -546,7 +550,7 @@ public class WebReceiveToCService {
         byte faNodeNo = byteBuffer.get(196); // 发方节点号
         map1.put("faNodeNo", String.valueOf(faNodeNo));
         byte souNodeNo = byteBuffer.get(197); // 收方节点号
-        map1.put("souNodeNo", String.valueOf(souNodeNo));
+        map1.put("receiveNodeNo", String.valueOf(souNodeNo));
         short feedbackNo = byteBuffer.getShort(198); // 反馈指令序号
         map1.put("feedbackNo", String.valueOf(feedbackNo));
         short cmdReceiveStatus = byteBuffer.getShort(200); // 指令接收状态
@@ -559,7 +563,14 @@ public class WebReceiveToCService {
         map1.put("fenjiWorkTemperature", String.valueOf(fenjiWorkTemperature));
         long fenJiWorkStatus = byteBuffer.getLong(208);  // 分机工作状态
         String fenJiWorkStatusString = Long.toBinaryString(fenJiWorkStatus); // 将分机工作状态解析为二进制
-        map1.put("fenJiWorkStatus", fenJiWorkStatusString);
+
+        StringBuilder stringBuilders = new StringBuilder();
+        if (fenJiWorkStatusString.length() < 64) {
+            for (int i = 0; i < 64 - fenJiWorkStatusString.length(); i++) {
+                stringBuilders.append("0");
+            }
+        }
+        map1.put("fenJiWorkStatus", getWorkStatus(stringBuilders.append(fenJiWorkStatusString)));
         int numCount = byteBuffer.getInt(216); // 全脉冲个数统计
         map1.put("numCount", String.valueOf(numCount));
         int dataPagCount = byteBuffer.getInt(220); // 辐射源数据包统计
@@ -569,16 +580,19 @@ public class WebReceiveToCService {
         byte deviceNo = byteBuffer.get(228); // 设备编号
         // 解析设备编号
         String deviceNoString = Integer.toBinaryString((deviceNo & 0xFF) + 0x100).substring(1);
+        StringBuilder stringBuilder1 = new StringBuilder(deviceNoString);
+        stringBuilder1.reverse();
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(deviceNoString, 0, 4);
+        stringBuilder.append(stringBuilder1, 0, 4);
+        int bit7_4 = Integer.parseInt(stringBuilder1.substring(4, 6));
         // bit7-bit4 0：520项目 1：西沙改 2：大车 3：舰载
-        if (Integer.parseInt(deviceNoString.substring(4)) == 0) {
+        if (bit7_4 == 0) {
             stringBuilder.append("0");
-        } else if (Integer.parseInt(deviceNoString.substring(4)) == 1) {
+        } else if (bit7_4 == 1) {
             stringBuilder.append("1");
-        } else if (Integer.parseInt(deviceNoString.substring(4)) == 10) {
+        } else if (bit7_4 == 10) {
             stringBuilder.append("2");
-        } else if (Integer.parseInt(deviceNoString.substring(4)) == 11) {
+        } else if (bit7_4 == 11) {
             // 3在2进制中为11
             stringBuilder.append("3");
         }
@@ -689,6 +703,27 @@ public class WebReceiveToCService {
         return hostRepository.findAll();
     }
 
+    // 解析分机工作状态二进制
+    private String getWorkStatus(StringBuilder work) {
+        // 中频存储组件状态
+        StringBuilder stringBuilder = new StringBuilder();
+        work.reverse();
+        String workStatuss = work.toString();
+        // 测向处理组件状态
+        stringBuilder.append(workStatuss, 0, 10);
+        // 侦察处理组件状态
+        stringBuilder.append(workStatuss, 16, 27);
+        // 信号分选组件状态 (因为图片中没用bit4，所以暂时不把bit4传给前端)
+        stringBuilder.append(workStatuss, 32, 36);
+        stringBuilder.append(workStatuss, 37, 42);
+//        stringBuilder.append(workStatuss, 32, 42);
+        // 系统控制组件状态
+        stringBuilder.append(workStatuss, 43, 52);
+        // 中频存储组件状态
+        stringBuilder.append(workStatuss, 54, 58);
+        return stringBuilder.reverse().toString();
+    }
+
     // 解析mac
     private static String getMac(short s, int c) {
         String g;
@@ -700,7 +735,7 @@ public class WebReceiveToCService {
             g = d;
         }
         String f = Integer.toHexString(c);
-        String h = g + f;
+        String h = f + g;
         // 需要转换成大写形式显示给前端方便显示
         StringBuilder stringBuilder = new StringBuilder(h.toUpperCase());
         // 补上冒号 直接传给前端
@@ -717,7 +752,7 @@ public class WebReceiveToCService {
         StringBuilder stringBuilder = new StringBuilder();
         // 为什么要从大到小 循环
         // 因为 192.168.31.88 这样类似的ip byte[3] 是192 所以要先从大到小循环
-        for (int i = bytes.length-1; i >=0; i--) {
+        for (int i = bytes.length - 1; i >= 0; i--) {
             /**
              *
              * 如果当前值小于0，即为负数 那么需要将当前值转换成16进制，再转成10进制
@@ -750,8 +785,8 @@ public class WebReceiveToCService {
         bytes[0] = 88;
         bytes[1] = 31;
         bytes[2] = -88;
-        bytes[3] = (byte)192;
-      System.out.println(getIP(bytes));
+        bytes[3] = (byte) 192;
+        System.out.println(getIP(bytes));
 //        String d = Integer.toHexString(bytes[1]);
 //        System.out.println(d);
 //        String a = new BigInteger(d, 16).toString();

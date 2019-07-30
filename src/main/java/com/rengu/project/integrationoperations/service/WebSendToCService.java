@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,8 +44,10 @@ public class WebSendToCService {
     private void sendSystemControlCmdFormat(ByteBuffer byteBuffer, int dataLength, short purPoseAddress, short sourceAddress, byte regionID, byte themeID, short messageCategory, long sendingDateTime, int seriesNumber, int packageSum, int currentNum, int dataLengthSum, short version, int retain1, short retain2) {
         byteBuffer.putInt(2122389735);  // 报文头 7E9118E7
         byteBuffer.putInt(dataLength); // 当前包数据长度
-        byteBuffer.putShort(purPoseAddress);  // 目的地址(设备ID号)
-        byteBuffer.putShort(sourceAddress);  // 源地址(设备ID号)
+        // 获取当前pid (无法获取目标的pid，暂时拿源地址的PID)
+        String pid =  ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+        byteBuffer.putShort(Short.parseShort(pid));  // 目的地址(设备ID号)
+        byteBuffer.putShort(Short.parseShort(pid));  // 源地址(设备ID号)
         byteBuffer.put(regionID); // 域ID(预留)
         byteBuffer.put(themeID); // 主题ID(预留)
         byteBuffer.putShort(messageCategory);  // 信息类别号 (各种交换的信息格式报分配唯一的编号)
@@ -72,7 +75,7 @@ public class WebSendToCService {
             ByteBuffer byteBuffer = ByteBuffer.allocate(76);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
-            sendSystemControlCmdFormat(byteBuffer, 76, shorts, shorts, backups, backups, (short) 12290, 0, 0, 0, 0, 0, shorts, 0, shorts);
+            sendSystemControlCmdFormat(byteBuffer, 76, backups,backups, backups, backups, (short) 12290, 0, 0, 0, 0, 0, shorts, 0, shorts);
             // 报文内容
             byteBuffer.putInt(0); // 信息长度
             byteBuffer.putLong(Long.parseLong(deviceCheckCMD.getTaskFlowNo()));// 任务流水号
