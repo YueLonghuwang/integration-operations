@@ -35,13 +35,15 @@ public class WebReceiveToCService {
         int size= hostRepository.findByHostNotLike("无").size();
         for(AllHost allHost:allHostList){
             if(allHost.getHost().equals("无")){
-                allHost.setHost(hosts);
-                Map<Object, Object> map = new HashMap<>();
-                map.put("device",size+1);
-                map.put("message","一台新的设备已入库");
-                hostRepository.save(allHost);
-                simpMessagingTemplate.convertAndSend("/deviceConnect/send",map);
-                return;
+                if (!hasHostIP(hosts)) {
+                    allHost.setHost(hosts);
+                    Map<Object, Object> map = new HashMap<>();
+                    map.put("device",size+1);
+                    map.put("message","一台新的设备已入库");
+                    hostRepository.save(allHost);
+                    simpMessagingTemplate.convertAndSend("/deviceConnect/send",map);
+                    return;
+                }
             }
         }
         if (!hasHostIP(hosts)) {
