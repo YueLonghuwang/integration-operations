@@ -24,6 +24,8 @@ import java.io.IOException;
 public class WebSendToCController {
     private final WebSendToCService webSendToCService;
     private final WebReceiveToCService receiveInformationService;
+    // 设置同批数据为同一序号
+    private final int serialNumber = 0;
     @Autowired
     public WebSendToCController(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService) {
         this.webSendToCService = webSendToCService;
@@ -33,38 +35,38 @@ public class WebSendToCController {
     // 发送系统校时
     @PostMapping("/sendSystemTiming/communication")
     public ResultEntity sendSystemTiming(@NotNull String timeNow,@NotNull String timingPattern,@NonNull String time, @NonNull String host,@NonNull String updateAll) throws IOException {
-        webSendToCService.sendSystemTiming(timeNow,time,timingPattern, host,updateAll);
+        webSendToCService.sendSystemTiming(timeNow,time,timingPattern, host,updateAll,serialNumber);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, null);
     }
 
     // 设备复位
     @PostMapping("/sendDeviceRestoration/communication")
     public ResultEntity sendDeviceRestoration(String timeNow, String executePattern, String host,@NonNull String updateAll){
-        webSendToCService.sendDeviceRestoration(timeNow,executePattern,host,updateAll);
+        webSendToCService.sendDeviceRestoration(timeNow,executePattern,host,updateAll,serialNumber);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS,"发送指令成功") ;
     }
     // 设备自检指令
     @PostMapping("/sendDeviceCheckCMD/communication")
     public ResultEntity sendDeviceCheckCMD(DeviceCheckCMD deviceCheckCMD,String host,@NonNull String updateAll){
-        webSendToCService.sendDeviceCheckCMD(deviceCheckCMD,host,updateAll);
+        webSendToCService.sendDeviceCheckCMD(deviceCheckCMD,host,updateAll,serialNumber);
      return new ResultEntity(SystemStatusCodeEnum.SUCCESS,"发送指令成功") ;
     }
     // 软件版本更新
     @PostMapping("/sendSoftwareUpdateCMD/communication")
     public ResultEntity sendSoftwareUpdateCMD(String timeNow, String cmd, String softwareID, String host,@NonNull String updateAll){
-        webSendToCService.sendSoftwareUpdateCMD(timeNow,cmd,softwareID,host,updateAll);
+        webSendToCService.sendSoftwareUpdateCMD(timeNow,cmd,softwareID,host,updateAll,serialNumber);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS,"发送指令成功") ;
     }
     // 设备网络参数更新指令
     @PostMapping("/sendDeviceNetworkCMD/communication")
     public ResultEntity sendDeviceNetworkCMD(SendDeviceNetWorkParam sendDeviceNetWorkParam,String host,@NonNull String updateAll){
-        webSendToCService.sendDeviceNetworkCMD(sendDeviceNetWorkParam,host,updateAll);
+        webSendToCService.sendDeviceNetworkCMD(sendDeviceNetWorkParam,host,updateAll,serialNumber);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS,"发送指令成功") ;
     }
     // 设备工作流程控制指令
     @PostMapping("/sendDeviceWorkFlowCMD/communication")
     public ResultEntity sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD,int count,String host,@NonNull String updateAll){
-        webSendToCService.sendDeviceWorkFlowCMD(deviceWorkFlowCMD,count,host,updateAll);
+        webSendToCService.sendDeviceWorkFlowCMD(deviceWorkFlowCMD,count,host,updateAll,serialNumber);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS,"发送指令成功");
     }
     // 查询所有

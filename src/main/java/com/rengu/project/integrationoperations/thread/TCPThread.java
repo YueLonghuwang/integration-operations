@@ -29,13 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TCPThread {
     public static final Map<String, Object> map = new ConcurrentHashMap<>();
     //  接收报文
-    private final WebSendToCService webSendToCService;
     private final WebReceiveToCService receiveInformationService;
     private final HostRepository hostRepository;
     private static Selector selector;
-
-    public TCPThread(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
-        this.webSendToCService = webSendToCService;
+    private Set<String> set = new HashSet<>();
+    public TCPThread(WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
         this.receiveInformationService = receiveInformationService;
         this.hostRepository = hostRepository;
     }
@@ -89,11 +87,11 @@ public class TCPThread {
         List<AllHost> listAllHost = hostRepository.findAll();
         for (AllHost allHost : listAllHost) {
             if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                receiveInformationService.receiveSocketHandler1(buffer,host);
+                receiveInformationService.receiveSocketHandler1(buffer, host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
-                receiveInformationService.receiveSocketHandler2(buffer,host);
+                receiveInformationService.receiveSocketHandler2(buffer, host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
-                receiveInformationService.receiveSocketHandler3(buffer,host);
+                receiveInformationService.receiveSocketHandler3(buffer, host);
             }
         }
     }
@@ -102,7 +100,7 @@ public class TCPThread {
      * 处理客户端连接成功事件
      */
     private void handleAccept(SelectionKey key) throws IOException {
-        Set<String> set = new HashSet<>();
+
         // 获取客户端连接通道
         ServerSocketChannel server = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel = server.accept();
