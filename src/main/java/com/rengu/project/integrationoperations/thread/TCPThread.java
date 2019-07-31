@@ -28,33 +28,27 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class TCPThread {
     public static final Map<String, Object> map = new ConcurrentHashMap<>();
-    //  接收报文，web端发送给java端
-    private final WebSendToCService webSendToCService;
-    //解析c++发送数据
+    //  接收报文
     private final WebReceiveToCService receiveInformationService;
-    //主机存储库
     private final HostRepository hostRepository;
-    // 通道管理器(Selector)
     private static Selector selector;
-    private static Set<String> set = new HashSet<>();
-    public TCPThread(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
-        this.webSendToCService = webSendToCService;
+    private Set<String> set = new HashSet<>();
+    public TCPThread(WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
         this.receiveInformationService = receiveInformationService;
         this.hostRepository = hostRepository;
     }
-    //与c++端建立连接
+
     @Async
     public void monitoringTCP() {
-        int portTCP = 5889; //设置端口号
+        int portTCP = 5889;
         try {
             log.info("监听TCP端口: " + portTCP);
-            selector = Selector.open();  //创建通道管理器(Selector)
-            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open(); //创建通道SocketChannel
-            //将通道设置为非阻塞
+            selector = Selector.open();
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open(); // 新建channel
+            // 监听端口
             serverSocketChannel.configureBlocking(false);
-            // 客户端连接服务器，其实方法执行并没有实现连接，需要在handleConnect方法中调channel.finishConnect()才能完成连接
-            serverSocketChannel.bind(new InetSocketAddress(portTCP)); 
-            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);//接收就绪
+            serverSocketChannel.bind(new InetSocketAddress(portTCP));
+            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
             while (true) {
                 selector.select();
                 Set<SelectionKey> selectionKeys = selector.selectedKeys();
@@ -77,11 +71,9 @@ public class TCPThread {
     /**
      * 监听到读事件，读取客户端发送过来的消息
      */
-    @Async
-    public void handleRead(SelectionKey key) throws IOException {
+    private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(3000);
-        //  因为当客户端强制断开连接 read会抛IO异常
         try {
             channel.read(buffer);
         } catch (IOException e) {
@@ -91,17 +83,15 @@ public class TCPThread {
             return;
         }
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        // 拿到当前连接的IP
         String host = channel.socket().getInetAddress().getHostAddress();
         List<AllHost> listAllHost = hostRepository.findAll();
-        // 因为有三台设备，三台设备同时发送
         for (AllHost allHost : listAllHost) {
             if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                receiveInformationService.receiveSocketHandler1(buffer,host);
+                receiveInformationService.receiveSocketHandler1(buffer, host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
-                receiveInformationService.receiveSocketHandler2(buffer,host);
+                receiveInformationService.receiveSocketHandler2(buffer, host);
             } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
-                receiveInformationService.receiveSocketHandler3(buffer,host);
+                receiveInformationService.receiveSocketHandler3(buffer, host);
             }
         }
     }
@@ -119,7 +109,7 @@ public class TCPThread {
         receiveInformationService.allHost(socketChannel.socket().getInetAddress().getHostAddress());
         set.add(socketChannel.socket().getInetAddress().getHostAddress());
         log.info("当前连接数: " + set.size());
-        socketChannel.register(selector, SelectionKey.OP_READ);//表示可以读取
+        socketChannel.register(selector, SelectionKey.OP_READ);
     }
 
 
