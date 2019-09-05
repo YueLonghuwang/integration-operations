@@ -10,11 +10,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 
 /**
+ * 接收c++发送数据，进行解析
  * author : yaojiahao
  * Date: 2019/7/8 11:19
  **/
@@ -53,9 +55,7 @@ public class WebReceiveToCService {
             allHosts.setNum(allHost.getNum() + 1);
             hostRepository.save(allHosts);
         }
-
     }
-
     // 解析报文固定信息
     @Async
     public Map<String, Number> receiveFixedInformation(ByteBuffer byteBuffer) {

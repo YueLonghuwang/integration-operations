@@ -5,11 +5,23 @@ import com.rengu.project.integrationoperations.repository.HostRepository;
 import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.SimpleMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import javax.websocket.OnClose;
+import javax.websocket.WebSocketContainer;
+import javax.xml.ws.WebServiceClient;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SelectionKey;
@@ -33,6 +45,9 @@ public class TCPThread {
     private final HostRepository hostRepository;
     private static Selector selector;
     private Set<String> set = new HashSet<>();
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     public TCPThread(WebReceiveToCService receiveInformationService, HostRepository hostRepository) {
         this.receiveInformationService = receiveInformationService;
         this.hostRepository = hostRepository;
@@ -62,6 +77,7 @@ public class TCPThread {
                         handleRead(key);
                     }
                 }
+                selectionKeys.clear();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,26 +90,33 @@ public class TCPThread {
     private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(3000);
-        try {
-            channel.read(buffer);
-        } catch (IOException e) {
-            key.cancel();
-            channel.socket().close();
-            channel.close();
-            return;
-        }
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        String host = channel.socket().getInetAddress().getHostAddress();
-        List<AllHost> listAllHost = hostRepository.findAll();
-        for (AllHost allHost : listAllHost) {
-            if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
-                receiveInformationService.receiveSocketHandler1(buffer, host);
-            } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
-                receiveInformationService.receiveSocketHandler2(buffer, host);
-            } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
-                receiveInformationService.receiveSocketHandler3(buffer, host);
+            int readLen = channel.read(buffer);
+            if(readLen > 0){
+                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                String host = channel.socket().getInetAddress().getHostAddress();
+                List<AllHost> listAllHost = hostRepository.findAll();
+                for (AllHost allHost : listAllHost) {
+                    if (allHost.getHost().equals(host) && allHost.getNum() == 1) {
+                        receiveInformationService.receiveSocketHandler1(buffer, host);
+                    } else if (allHost.getHost().equals(host) && allHost.getNum() == 2) {
+                        receiveInformationService.receiveSocketHandler2(buffer, host);
+                    } else if (allHost.getHost().equals(host) && allHost.getNum() == 3) {
+                        receiveInformationService.receiveSocketHandler3(buffer, host);
+                    }
+                }
+            }else if(readLen < 0){
+                String host = channel.socket().getInetAddress().getHostAddress();
+                Map<Object,Object> map=new HashMap<>();
+                map.put("host",host);
+                Map<Object,Object> map1=new HashMap<>();
+                map1.put("data",map);
+                simpMessagingTemplate.convertAndSend("/deviceUnConnect/send", map1);
+                log.info("当前设备已断开连接");
+                key.cancel();
+                channel.socket().close();
+                channel.close();
+                return;
             }
-        }
     }
 
     /**
@@ -109,9 +132,26 @@ public class TCPThread {
         receiveInformationService.allHost(socketChannel.socket().getInetAddress().getHostAddress());
         set.add(socketChannel.socket().getInetAddress().getHostAddress());
         log.info("当前连接数: " + set.size());
+        SocketAddress sendSucess = socketChannel.getLocalAddress();
+        String str=String.valueOf(sendSucess);
+        //String sendSucess = server.socket().getInetAddress().getHostAddress();
+        int a=str.indexOf("/")+1;//获取ip地址开头
+        String str1=str.substring(a);
+        int c=str1.length();
+        int b=str1.indexOf(":")+1;
+        int d=(str1.substring(b)).length();
+        int ipl=c-d;
+        String ip=str.substring(a,ipl);
+        Map<Object, Object> map = new HashMap<>();
+        map.put("host", ip);
+        Map<Object, Object> map1 = new HashMap<>();
+        map1.put("data", map);
+        map1.put("message", "当前设备连接已成功");
+        map1.put("device", set.size());
+        //连接成功后，给前端一个话题，指示灯变成绿色
+        simpMessagingTemplate.convertAndSend("/deviceConnectSuccess/send", map1);
         socketChannel.register(selector, SelectionKey.OP_READ);
     }
-
 
     /*// 监听TCP
     @Async

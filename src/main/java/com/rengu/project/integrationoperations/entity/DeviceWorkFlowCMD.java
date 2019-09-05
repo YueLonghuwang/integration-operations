@@ -5,7 +5,7 @@ package com.rengu.project.integrationoperations.entity;
  * Date: 2019/7/15 16:03
  **/
 
-public class DeviceWorkFlowCMD {
+public class DeviceWorkFlowCMD{
 
 
     private String cmd;
@@ -132,7 +132,6 @@ public class DeviceWorkFlowCMD {
     public void setHierarchicalControl(String hierarchicalControl) {
         this.hierarchicalControl = hierarchicalControl;
     }
-
 
     public String getTimeCode() {
         return timeCode;

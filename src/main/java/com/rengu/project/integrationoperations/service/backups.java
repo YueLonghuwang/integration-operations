@@ -5,12 +5,25 @@ package com.rengu.project.integrationoperations.service;
  * Date: 2019/7/19 9:23
  **/
 
+import com.rengu.project.integrationoperations.entity.AllHost;
+import com.rengu.project.integrationoperations.entity.DeviceWorkFlowCMD;
+import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
+import com.rengu.project.integrationoperations.exception.SystemException;
+import com.rengu.project.integrationoperations.thread.TCPThread;
+import com.rengu.project.integrationoperations.util.SocketConfig;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.List;
+
 /**
  * 备份用的 实际用不到
  */
-public class backups {
+/*public class backups {
+
     //  分机控制指令
-   /* public String sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, String host) throws SystemException {
+    public String sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, String host) throws SystemException {
         try {
             ByteBuffer byteBuffer = ByteBuffer.allocate(88);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -62,8 +75,8 @@ public class backups {
             getPackageTheTail(byteBuffer);
 
             byteBuffer.putInt(0); // 校验和 (暂时预留)
-            *//*int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);*//*
+            int a = getByteCount(byteBuffer);
+            byteBuffer.putInt(a);
             getBigPackageTheTail(byteBuffer);  //  帧尾
             OutputStream outputStream = null;
             Socket socket = (Socket) TCPThread.map.get(host);
@@ -76,9 +89,9 @@ public class backups {
         } catch (IOException e) {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
         }
-    }*/
+    }
     //  发送系统控制指令
-   /* public String sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, String host) {
+    public String sendDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, String host) {
         try {
             ByteBuffer byteBuffer = ByteBuffer.allocate(104);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -113,9 +126,9 @@ public class backups {
             byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getChooseAntenna2()));
             byteBuffer.putShort(shorts);
             //  射频一衰减(最新)
-           *//* StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder();
             String attenuationRF1 = stringBuilder.reverse().append(deviceWorkFlowCMD.getAttenuationRF1()).toString();
-            byte bytes = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));*//*
+            byte bytes = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));
             byte b = 0;
             byteBuffer.put(b);
 
@@ -125,9 +138,9 @@ public class backups {
 //            String balancedAttenuationRF1 = stringBuilders.reverse().append(deviceWorkFlowCMD.getBalancedAttenuationRF1()).toString();
 //            byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
 
-            *//*(最新)
+            //(最新)
             byte bytesAttenuationRF1 = (byte) BinaryToDecimal(Integer.parseInt(deviceWorkFlowCMD.getBalancedAttenuationRF1()));
-            byteBuffer.put(bytesAttenuationRF1);*//*
+            byteBuffer.put(bytesAttenuationRF1);
             byteBuffer.put(b);
 
             byteBuffer.putShort(shorts);
@@ -136,29 +149,29 @@ public class backups {
 //            String attenuationRF2 = stringBuilder2.reverse().append(deviceWorkFlowCMD.getAttenuationRF2()).toString();
 //            byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
 
-            *//*(最新)
+            //(最新)
             byte byteAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(deviceWorkFlowCMD.getBalancedAttenuationRF2()));
-            byteBuffer.put(byteAttenuationRF2);*//*
+            byteBuffer.put(byteAttenuationRF2);
             byteBuffer.put(b);
 
-            *//*射频二长电缆均衡衰减控制(最新)
+            //射频二长电缆均衡衰减控制(最新)
             StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
             String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(deviceWorkFlowCMD.getBalancedAttenuationRF2()).toString();
             byte bytesAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
-            byteBuffer.put(bytesAttenuationRF2);*//*
+            byteBuffer.put(bytesAttenuationRF2);
             byteBuffer.put(b);
 
             byteBuffer.putShort(shorts);
-           *//* 中频一衰减(最新)
+            //中频一衰减(最新)
             byte bytesAttenuationMF1 = (byte) BinaryToDecimal(Integer.parseInt(deviceWorkFlowCMD.getAttenuationMF1()));
-            byteBuffer.put(bytesAttenuationMF1);*//*
+            byteBuffer.put(bytesAttenuationMF1);
             byteBuffer.put(b);
 
             byteBuffer.putShort(shorts);
             byteBuffer.put(backups);
-            *//*中频二衰减(最新)
+            //中频二衰减(最新)
             byte bytesAttenuationMF2 = (byte) BinaryToDecimal(Integer.parseInt(deviceWorkFlowCMD.getAttenuationMF2()));
-            byteBuffer.put(bytesAttenuationMF2);*//*
+            byteBuffer.put(bytesAttenuationMF2);
             byteBuffer.put(b);
 
 //            byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getAttenuationControlWay()));
@@ -176,7 +189,7 @@ public class backups {
 
             //  定时时间码
 
-       *//*     String time = deviceWorkFlowCMD.getTimingCode();
+            String time = deviceWorkFlowCMD.getTimingCode();
             //  转换2进制
             StringBuilder month = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(0, 2))));
             StringBuilder day = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(2, 4))));
@@ -216,7 +229,7 @@ public class backups {
             bytes1[3] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(24)));
             for (byte c : bytes1) {
                 byteBuffer.put(c);
-            }*//*
+            }
             int d = 0;
             byteBuffer.putInt(d);
 
@@ -224,8 +237,8 @@ public class backups {
             byteBuffer.putShort(shorts);
             getPackageTheTail(byteBuffer);
             byteBuffer.putInt(0); // 校验和 (暂时预留)
-            *//*int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);*//*
+            int a = getByteCount(byteBuffer);
+            byteBuffer.putInt(a);
             getBigPackageTheTail(byteBuffer);  //  帧尾
             OutputStream outputStream = null;
             Socket socket = (Socket) TCPThread.map.get(host);
@@ -239,9 +252,8 @@ public class backups {
             throw new SystemException(SystemStatusCodeEnum.SOCKET_CONNENT_ERROR);
         }
     }
-*/
 
-/*    //  群发系统控制指令
+    //  群发系统控制指令
     public void sendAllDeviceWorkFlowCMD(DeviceWorkFlowCMD deviceWorkFlowCMD) {
         List<AllHost> list = hostRepository.findAll();
         for (AllHost allHost : list) {
@@ -255,5 +267,5 @@ public class backups {
         for (AllHost allHost : list) {
             sendDeviceWorkFlowCMD(deviceWorkFlowCMD, allHost.getHost());
         }
-    }*/
-}
+    }
+}*/

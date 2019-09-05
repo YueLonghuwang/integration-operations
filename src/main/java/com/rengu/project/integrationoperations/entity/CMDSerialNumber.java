@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import java.util.UUID;
 
 /**
+ * 命令序列编码
  * @author yaojiahao
  * @data 2019/4/30 13:18
  */

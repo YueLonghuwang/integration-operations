@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- *
+ * 管理员用户接口
  * @author hanchangming
  * @date 2019-03-19
  */

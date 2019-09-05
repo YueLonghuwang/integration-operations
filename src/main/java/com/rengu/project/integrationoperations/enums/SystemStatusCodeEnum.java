@@ -15,6 +15,7 @@ public enum SystemStatusCodeEnum {
     // 成功
     SUCCESS(1, "请求成功"),
     // 角色名已存在
+    FAIL(2,"请求失败"),
     ROLE_NAME_EXISTED(101, BackEndFrameworkApplicationMessage.ROLE_NAME_EXISTED),
     // 角色名不存在
     ROLE_NAME_NOT_FOUND(102, BackEndFrameworkApplicationMessage.ROLE_NAME_NOT_FOUND),
