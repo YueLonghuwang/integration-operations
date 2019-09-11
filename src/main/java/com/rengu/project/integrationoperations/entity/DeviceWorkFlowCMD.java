@@ -1,5 +1,7 @@
 package com.rengu.project.integrationoperations.entity;
 
+import com.sun.xml.internal.ws.api.message.Packet;
+
 /**
  * author : yaojiahao
  * Date: 2019/7/15 16:03
@@ -10,6 +12,9 @@ public class DeviceWorkFlowCMD{
 
     private String cmd;
     private String taskFlowNo; // 任务流水号
+    /**
+     *  雷达分机指令
+     */
     private String pulse;  //  内外秒脉冲选择
     private String extensionControlCharacter;  // 分机控制字
     private String threshold;  //检测门限调节
@@ -23,19 +28,40 @@ public class DeviceWorkFlowCMD{
     private String shieldingMaximumFrequency; // 屏蔽最大频率
     private String shieldingMinimumFrequency; // 屏蔽最小频率
     private String defalutUpdate;  // 默认值更新标记
+    /**
+     * 敌我侦查
+     */
     private String messageNumber; // 信息包序号
-    private String timeCode; // 时间码
-    private String workPattern; // 工作方式
+    private String timeCode; // 时间码（同步时间）
+    private String workPattern; // 工作模式(工作模式)
     private String bandwidthChoose; // 带宽选择
     private String PulseChoice; // 脉冲选择
+    private String selfChoose;  //自检模式选择
+    private String pointSelection; //自检频点选择
+    //private String synchronizationTime; //同步时间
+    private String hierarchicalControl; // 分机控制字
+    private String PDW740; // PDW740个数
+    private String PDW837; // 837.5PWD个数
+    private String PDW1030;  // 1030PD个数
+    private String PDW1059; // PDW1059个数
+    private String PDW1090; // 1090PWD个数
+    private String PDW1464; // 1464PDW个数
+    private String PDW1532; // 1532PDW个数
+    private String mid740; //740中频个数
+    private String mid1030; //1030中频个数
+    private String mid1090; //1090中频个数
+    private String IfAcquisitionTime; // 中频采集时间
+    private String faultDetection; //故障检测门限
+    private String networkPacketCounting; //网络包计数
+
+    /**
+     * 未用到参数
+     */
     private String antennaSelection; // 天线选择
     private String IPReconsitution; // 分机IP重构
     private String IfAcquisitionMode; // 中频采集模式
-    private String IfAcquisitionTime; // 中频采集时间
     private String FPGAReconsitution; // FPGA重构标识
     private String DSPReconsitution; // DSP重构标识
-    private String PDW1030;  // 1030PD个数
-    private String PDW1090; // 1090PWD个数
 
     public String getPDW1059() {
         return PDW1059;
@@ -52,13 +78,6 @@ public class DeviceWorkFlowCMD{
     public void setPDW740(String PDW740) {
         this.PDW740 = PDW740;
     }
-
-    private String PDW740; // PDW740个数
-    private String PDW1059; // PDW1059个数
-    private String PDW837; // 837.5PWD个数
-    private String PDW1464; // 1464PDW个数
-    private String PDW1532; // 1532PDW个数
-    private String hierarchicalControl; // 分机控制
 
     public String getMessageNumber() {
         return messageNumber;
@@ -316,5 +335,61 @@ public class DeviceWorkFlowCMD{
 
     public String getDefalutUpdate() {
         return defalutUpdate;
+    }
+
+    public String getSelfChoose() {
+        return selfChoose;
+    }
+
+    public void setSelfChoose(String selfChoose) {
+        this.selfChoose = selfChoose;
+    }
+
+    public String getPointSelection() {
+        return pointSelection;
+    }
+
+    public void setPointSelection(String pointSelection) {
+        this.pointSelection = pointSelection;
+    }
+
+    public String getMid740() {
+        return mid740;
+    }
+
+    public void setMid740(String mid740) {
+        this.mid740 = mid740;
+    }
+
+    public String getMid1030() {
+        return mid1030;
+    }
+
+    public void setMid1030(String mid1030) {
+        this.mid1030 = mid1030;
+    }
+
+    public String getMid1090() {
+        return mid1090;
+    }
+
+    public void setMid1090(String mid1090) {
+        this.mid1090 = mid1090;
+    }
+
+    public String getFaultDetection() {
+        return faultDetection;
+    }
+
+    public void setFaultDetection(String faultDetection) {
+        this.faultDetection = faultDetection;
+    }
+
+    public String getNetworkPacketCounting() {
+        return networkPacketCounting;
+    }
+
+    public void setNetworkPacketCounting(String networkPacketCounting) {
+        this.networkPacketCounting = networkPacketCounting;
     }
 }
