@@ -145,7 +145,7 @@ public class WebSendToCService {
             byteBuffer.putInt(1); //信息长度
             byteBuffer.putLong(Long.parseLong(timeNow));
             byteBuffer.put(Byte.parseByte(timingPattern));
-            //byteBuffer.putLong(Long.parseLong(time));
+            byteBuffer.putLong(Long.parseLong(time));
             byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
             getBigPackageTheTail(byteBuffer);
             // 发送信息
@@ -1056,12 +1056,12 @@ public class WebSendToCService {
      * @param updateAll   群发
      * @param serialNumber
      */
-    public void addTimeSendTask(String timeNow, String time, String timingPattern, String host, String updateAll, int serialNumber) {
+    public void addTimeSendTask(String timeNow, String time, String sendTime,String timingPattern, String host, String updateAll, int serialNumber) {
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             int serialNumbers = addSerialNum();
             for (AllHost allHost : list) {
-                addTimeSendTask(timeNow, time, timingPattern, allHost.getHost(), "0", serialNumbers);
+                addTimeSendTask(timeNow, time,sendTime, timingPattern, allHost.getHost(), "0", serialNumbers);
 
 
             }
@@ -1082,7 +1082,7 @@ public class WebSendToCService {
             byteBuffer.putLong(Long.parseLong(timeNow));
             //long aaa = System.currentTimeMillis();
             byteBuffer.put(Byte.parseByte(timingPattern));
-            //byteBuffer.putLong(Long.parseLong(time));
+            byteBuffer.putLong(Long.parseLong(time));
             byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
             getBigPackageTheTail(byteBuffer);
 
@@ -1091,7 +1091,7 @@ public class WebSendToCService {
             Date sendingDateStr = null;
             String cron = "";
             try {
-                 sendingDateStr =sdf.parse(time);
+                 sendingDateStr =sdf.parse(sendTime);
 
                  cron = CronDateUtils.getCron(sendingDateStr);
             } catch (ParseException e) {
