@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.swing.*;
 import javax.swing.text.html.ImageView;
@@ -63,9 +60,9 @@ public class WebSendToCController {
 
     //添加定时发送
     @PostMapping("/addSystemTimingTask/communication")
-    public ResultEntity addSystemTimingTask(@NotNull String timeNow,@NotNull String timingPattern, @NonNull String time,@NotNull String sendTime, @NonNull String host, @NonNull String updateAll) throws SchedulerException {
+    public ResultEntity addSystemTimingTask(  String timeNow,  String timingPattern, String time,  String sendTime,  String host,   String updateAll) throws SchedulerException {
 
-        ;
+        System.out.println(timeNow+"   2"+time+"   3"+sendTime+"   4"+timingPattern+"   5"+ host+"   6"+ updateAll+"  7 "+ serialNumber);
 
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, webSendToCService.addTimeSendTask(timeNow, time,sendTime, timingPattern, host, updateAll, serialNumber));
     }

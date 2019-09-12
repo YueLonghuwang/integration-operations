@@ -1111,13 +1111,13 @@ public class WebSendToCService {
             tasks.setJobGroup("bwjs");
             tasks.setJobName(tasks.getId());
             tasks.setParams(params);
-            tasks.setState(0);
+            tasks.setState(1);
             tasks.setHost(host);
             tasks.setCron(cron);
 
 
             TimingTasks ua = timingTaskRepository.save(tasks);
-            refresh(ua);
+            System.out.println(refresh(ua));
             tks.add(ua);
 
         }
@@ -1138,6 +1138,7 @@ public class WebSendToCService {
             if (entity.getState()==1) {
                 scheduler.scheduleJob(jobDetail, jobService.getTrigger(entity));
                 result = "Refresh Job : " + entity.getJobName() + " success !";
+
             } else {
                 result = "Refresh Job : " + entity.getJobName() + " failed ! , " +
                         "Because the Job status is " + entity.getState();
