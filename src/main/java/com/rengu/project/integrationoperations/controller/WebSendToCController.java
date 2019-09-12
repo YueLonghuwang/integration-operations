@@ -58,9 +58,9 @@ public class WebSendToCController {
     @PostMapping("/addSystemTimingTask/communication")
     public ResultEntity addSystemTimingTask(@NotNull String timeNow,@NotNull String timingPattern, @NonNull String time,@NotNull String sendTime, @NonNull String host, @NonNull String updateAll){
 
-        webSendToCService.addTimeSendTask(timeNow, time,sendTime, timingPattern, host, updateAll, serialNumber);
+        ;
 
-        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, "添加定时任务成功");
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, webSendToCService.addTimeSendTask(timeNow, time,sendTime, timingPattern, host, updateAll, serialNumber));
     }
 
 

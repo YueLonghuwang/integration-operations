@@ -22,10 +22,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryToDecimal;
 import static com.rengu.project.integrationoperations.util.SocketConfig.BinaryToDecimals;
@@ -44,6 +41,8 @@ public class WebSendToCService {
     private short shorts = 0;
     private final HostRepository hostRepository;//当前连接的最大数·
     private final TimingTaskRepository timingTaskRepository;
+
+
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -1056,7 +1055,8 @@ public class WebSendToCService {
      * @param updateAll   群发
      * @param serialNumber
      */
-    public void addTimeSendTask(String timeNow, String time, String sendTime,String timingPattern, String host, String updateAll, int serialNumber) {
+    public List<TimingTasks> addTimeSendTask(String timeNow, String time, String sendTime,String timingPattern, String host, String updateAll, int serialNumber) {
+        List<TimingTasks> tks = new ArrayList<>();
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             int serialNumbers = addSerialNum();
@@ -1109,34 +1109,10 @@ public class WebSendToCService {
 
 
             TimingTasks ua = timingTaskRepository.save(tasks);
+            tks.add(ua);
 
-
-
-            // 发送信息
-            //TODO
-            //sendMessage(host, byteBuffer);
         }
-
-
-
+        return tks;
     }
-  /*  public static void main(String[]args)
-    {
-        String networkIP1="192.168.31.88";
-        long[]ip1=new long[4];
-        int position1 = networkIP1.indexOf(".");
-        int position2 = networkIP1.indexOf(".", position1 + 1);
-        int position3 = networkIP1.indexOf(".", position2 + 1);
-        //将每个.之间的字符串转换成整型
-        ip1[0] = Long.parseLong(networkIP1.substring(0, position1));
-        ip1[1] = Long.parseLong(networkIP1.substring(position1 + 1, position2));
-        ip1[2] = Long.parseLong(networkIP1.substring(position2 + 1, position3));
-        ip1[3] = Long.parseLong(networkIP1.substring(position3 + 1));
-        Long ipArr = (ip1[0] << 24) + (ip1[1] << 16) + (ip1[2] << 8) + (ip1[3]);
-        //Integer a=Integer.parseInt(Long.valueOf(ipArr).toString());
-        //Integer b=Integer.parseInt(String.valueOf(ipArr));
-        String a=String.valueOf(Long.parseLong(String.valueOf(ipArr)));
-        Integer b=Integer.valueOf(a);
-        System.out.println(b);
-    }*/
+
 }
