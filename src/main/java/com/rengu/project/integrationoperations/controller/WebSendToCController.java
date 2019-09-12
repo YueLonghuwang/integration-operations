@@ -54,6 +54,17 @@ public class WebSendToCController {
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, null);
     }
 
+    //添加定时发送
+    @PostMapping("/addSystemTimingTask/communication")
+    public ResultEntity addSystemTimingTask(@NotNull String timeNow,@NotNull String timingPattern, @NonNull String time, @NonNull String host, @NonNull String updateAll){
+
+        webSendToCService.addTimeSendTask(timeNow, time, timingPattern, host, updateAll, serialNumber);
+
+        return new ResultEntity(SystemStatusCodeEnum.SUCCESS, "添加定时任务成功");
+    }
+
+
+
     // 设备复位
     @PostMapping("/sendDeviceRestoration/communication")
     public ResultEntity sendDeviceRestoration(String timeNow, String executePattern, String host, @NonNull String updateAll) {

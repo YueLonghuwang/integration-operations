@@ -5,8 +5,11 @@ import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
 import com.rengu.project.integrationoperations.repository.CMDSerialNumberRepository;
 import com.rengu.project.integrationoperations.repository.HostRepository;
+import com.rengu.project.integrationoperations.repository.TimingTaskRepository;
 import com.rengu.project.integrationoperations.thread.TCPThread;
+import com.rengu.project.integrationoperations.util.CronDateUtils;
 import com.rengu.project.integrationoperations.util.SocketConfig;
+import com.rengu.project.integrationoperations.util.TopNTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,6 +20,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,13 +43,16 @@ public class WebSendToCService {
     private final CMDSerialNumberRepository cmdSerialNumberRepository;
     private short shorts = 0;
     private final HostRepository hostRepository;//当前连接的最大数·
+    private final TimingTaskRepository timingTaskRepository;
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository) {
+    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository,TimingTaskRepository timingTaskRepository) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
         this.hostRepository = hostRepository;
+        this.timingTaskRepository = timingTaskRepository;
+
     }
 
     //  系统控制指令帧格式说明（头部固定信息）
@@ -138,7 +145,7 @@ public class WebSendToCService {
             byteBuffer.putInt(1); //信息长度
             byteBuffer.putLong(Long.parseLong(timeNow));
             byteBuffer.put(Byte.parseByte(timingPattern));
-            byteBuffer.putLong(Long.parseLong(time));
+            //byteBuffer.putLong(Long.parseLong(time));
             byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
             getBigPackageTheTail(byteBuffer);
             // 发送信息
@@ -1037,6 +1044,81 @@ public class WebSendToCService {
         ip1[3] = Integer.parseInt(networkIP1.substring(position3 + 1));
         Integer ipArr = (ip1[0] << 24) + (ip1[1] << 16) + (ip1[2] << 8) + (ip1[3]);
         return ipArr.toString();
+    }
+
+
+    /**
+     *
+     * @param timeNow  报文内容 校对时间
+     * @param time     定时发送时间
+     * @param timingPattern   报文内容
+     * @param host     发送ip
+     * @param updateAll   群发
+     * @param serialNumber
+     */
+    public void addTimeSendTask(String timeNow, String time, String timingPattern, String host, String updateAll, int serialNumber) {
+        if (updateAll.equals("1")) {
+            List<AllHost> list = hostRepository.findAll();
+            int serialNumbers = addSerialNum();
+            for (AllHost allHost : list) {
+                addTimeSendTask(timeNow, time, timingPattern, allHost.getHost(), "0", serialNumbers);
+
+
+            }
+        } else {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(77);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            // 如果等于0 代表该数据并非是群发,因为同批数据序号无需自增，代表群发的消息序号共享同一个序号
+            int serialNumber1;
+            if (serialNumber == 0) {
+                serialNumber1 = addSerialNum();
+            } else {
+                serialNumber1 = serialNumber;
+            }
+            // 头部固定信息 凡是为0的数据 都只是暂定数据 待后期修改
+            sendSystemControlCmdFormat(byteBuffer, 77, shorts, shorts, backups, backups, (short) 12291, 0, serialNumber1, 0, serialNumber1, 0, shorts, 0, shorts);
+            // 报文内容
+            byteBuffer.putInt(1); //信息长度
+            byteBuffer.putLong(Long.parseLong(timeNow));
+            //long aaa = System.currentTimeMillis();
+            byteBuffer.put(Byte.parseByte(timingPattern));
+            //byteBuffer.putLong(Long.parseLong(time));
+            byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
+            getBigPackageTheTail(byteBuffer);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            Date sendingDateStr = null;
+            String cron = "";
+            try {
+                 sendingDateStr =sdf.parse(time);
+
+                 cron = CronDateUtils.getCron(sendingDateStr);
+            } catch (ParseException e) {
+                System.err.println("定时格式不对");
+            }
+            String params = TopNTool.getString(byteBuffer);
+
+            TimingTasks tasks = new TimingTasks();
+            tasks.setJobGroup("bwjs");
+            tasks.setJobName(tasks.getId());
+            tasks.setParams(params);
+            tasks.setState(0);
+            tasks.setHost(host);
+            tasks.setCron(cron);
+
+
+            TimingTasks ua = timingTaskRepository.save(tasks);
+
+
+
+            // 发送信息
+            //TODO
+            //sendMessage(host, byteBuffer);
+        }
+
+
+
     }
   /*  public static void main(String[]args)
     {
