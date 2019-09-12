@@ -2,25 +2,14 @@ package com.rengu.project.integrationoperations.thread;
 
 import com.rengu.project.integrationoperations.entity.AllHost;
 import com.rengu.project.integrationoperations.repository.HostRepository;
-import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.SimpleMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import javax.websocket.OnClose;
-import javax.websocket.WebSocketContainer;
-import javax.xml.ws.WebServiceClient;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -52,7 +41,6 @@ public class TCPThread {
         this.receiveInformationService = receiveInformationService;
         this.hostRepository = hostRepository;
     }
-
     @Async
     public void monitoringTCP() {
         int portTCP = 5889;
@@ -118,7 +106,6 @@ public class TCPThread {
                 return;
             }
     }
-
     /**
      * 处理客户端连接成功事件
      */

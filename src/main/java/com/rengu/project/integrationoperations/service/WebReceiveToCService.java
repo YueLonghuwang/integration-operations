@@ -514,7 +514,6 @@ public class WebReceiveToCService {
         byte[] networkIP6s = new byte[4];
         byteBuffer.get(networkIP6s);
         sendDeviceNetWorkParam.setNetworkIP6(getIP(networkIP6s)); // 网络IP地址6
-
         String mac6 = getMac(byteBuffer.getShort(138), byteBuffer.getInt(140)); // 网络MAC地址6
         sendDeviceNetWorkParam.setNetworkMacIP6(mac6);
         int networkMessage6 = byteBuffer.getInt(144); // 网络端口信息6

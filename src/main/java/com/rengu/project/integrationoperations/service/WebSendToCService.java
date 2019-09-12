@@ -47,7 +47,6 @@ public class WebSendToCService {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
         this.hostRepository = hostRepository;
     }
-
     //  系统控制指令帧格式说明（头部固定信息）
     private void sendSystemControlCmdFormat(ByteBuffer byteBuffer, int dataLength, short purPoseAddress, short sourceAddress, byte regionID, byte themeID, short messageCategory, long sendingDateTime, int seriesNumber, int packageSum, int currentNum, int dataLengthSum, short version, int retain1, short retain2) {
         //十六进制转换成十进制
@@ -250,27 +249,37 @@ public class WebSendToCService {
             byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage1())); //网络端口信息1
 
             // 2
-            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP2())); // 网络IP地址2
+            //byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP2())); // 网络IP地址2
+            String networkIP2 = sendDeviceNetWorkParam.getNetworkIP2();
+            byteBuffer.putInt(Integer.parseInt(networkIP1(networkIP2)));
             byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP2()));// MAC地址2
             byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage2())); //网络端口信息2
 
             // 3
-            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP3())); // 网络IP地址3
+            //byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP3())); // 网络IP地址3
+            String networkIP3 = sendDeviceNetWorkParam.getNetworkIP3();
+            byteBuffer.putInt(Integer.parseInt(networkIP1(networkIP3)));
             byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP3()));// MAC地址3
             byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage3())); //网络端口信息3
 
             // 4
-            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP4())); // 网络IP地址4
+            //byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP4())); // 网络IP地址4
+            String networkIP4 = sendDeviceNetWorkParam.getNetworkIP4();
+            byteBuffer.putInt(Integer.parseInt(networkIP1(networkIP4)));
             byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP4()));// MAC地址4
             byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage4())); //网络端口信息4
 
             // 5
-            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP5())); // 网络IP地址5
+            //byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP5())); // 网络IP地址5
+            String networkIP5 = sendDeviceNetWorkParam.getNetworkIP5();
+            byteBuffer.putInt(Integer.parseInt(networkIP1(networkIP5)));
             byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP5()));// MAC地址5
             byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage5())); //网络端口信息5
 
             // 6
-            byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP6())); // 网络IP地址6
+            //byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkIP6())); // 网络IP地址6
+            String networkIP6 = sendDeviceNetWorkParam.getNetworkIP6();
+            byteBuffer.putInt(Integer.parseInt(networkIP1(networkIP6)));
             byteBuffer.put(getMac(sendDeviceNetWorkParam.getNetworkMacIP6()));// MAC地址6
             byteBuffer.putInt(Integer.parseInt(sendDeviceNetWorkParam.getNetworkMessage6())); //网络端口信息6
             byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
@@ -352,14 +361,13 @@ public class WebSendToCService {
                 byteBuffer.put(Byte.parseByte(systemControlCMD.getAntennaSelection1()));//天线1选择
                 byteBuffer.put(Byte.parseByte(systemControlCMD.getAntennaSelection2()));//天线2选择
                 byteBuffer.putShort(shorts);//备份
-                //  射频一衰减(最新)
+                //  射频一衰减
                 StringBuilder stringBuilder = new StringBuilder();
                 String attenuationRF1 = stringBuilder.reverse().append(systemControlCMD.getRadioFrequencyAttenuation1()).toString();
                 byte bytess = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));
                 byteBuffer.put(bytess);
                 //  射频一长电缆均衡衰减控制
                 StringBuilder stringBuilders = new StringBuilder();
-                //反转数组的原因是因为二级制从第0位开始是从右边开始的，而传过来的值第0位在最左边，所以需要反转
                 String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getAttenuationControl1()).toString();
                 //byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
                 byte bytesAttenuationRF1 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
@@ -368,48 +376,41 @@ public class WebSendToCService {
                 //  射频二衰减
                 StringBuilder stringBuilder2 = new StringBuilder();
                 String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationControl2()).toString();
-                //  byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
                 byte byteAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF2));
                 byteBuffer.put(byteAttenuationRF2);
-                //byteBuffer.put(b);
                 //射频二长电缆均衡衰减控制(最新)
                 StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
                 String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getAttenuationControl2()).toString();
                 byte bytesAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
                 byteBuffer.put(bytesAttenuationRF2);
-                //byteBuffer.put(b);
                 byteBuffer.putShort(shorts);
                 // 中频一衰减(最新)
                 StringBuilder cut1 = new StringBuilder();
                 String midCut1 = cut1.reverse().append(systemControlCMD.getMidCut1()).toString();
                 byte bytesAttenuationMF1 = (byte) BinaryToDecimal(Integer.parseInt(midCut1));
                 byteBuffer.put(bytesAttenuationMF1);
-                //byteBuffer.put(b);
                 byteBuffer.putShort(shorts);
                 byteBuffer.put(backups);
-                //byteBuffer.put(backups);
                 //中频二衰减(最新)
                 StringBuilder cut2 = new StringBuilder();
                 String midCut2 = cut2.reverse().append(systemControlCMD.getMidCut2()).toString();
                 byte bytesAttenuationMF2 = (byte) BinaryToDecimal(Integer.parseInt(midCut2));
                 byteBuffer.put(bytesAttenuationMF2);
-                // byteBuffer.put(b);
-//                  byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getAttenuationControlWay()));
-                //byteBuffer.put(b);
                 //衰减吗控制方式
                 byteBuffer.put(Byte.parseByte(systemControlCMD.getAttenuationCodeControlMode()));
                 //备份
                 byteBuffer.putShort(shorts);
                 //自检源衰减
-                //byteBuffer.put(backups);
-                byteBuffer.put(Byte.parseByte(systemControlCMD.getSelfCheckingSourceAttenuation()));
+                byteBuffer.put(backups);
+                //byteBuffer.put(Byte.parseByte(systemControlCMD.getSelfCheckingSourceAttenuation()));
                 //  脉内引导批次开关
                 byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumberSwitch()));
                 //  脉内引导批次号
-                byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumber()));
+                byteBuffer.put(backups);
+                //byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumber()));
                 //  故障检测门限
-                //byteBuffer.put(backups);
-                byteBuffer.put(Byte.parseByte(systemControlCMD.getFaultDetectionThreshold()));
+                byteBuffer.put(backups);
+                //byteBuffer.put(Byte.parseByte(systemControlCMD.getFaultDetectionThreshold()));
                 //  定时时间码
                 String time = systemControlCMD.getTimingTimeCode();
                 //  转换2进制
@@ -449,19 +450,14 @@ public class WebSendToCService {
                 bytes1[1] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(8, 16)));
                 bytes1[2] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(16, 24)));
                 bytes1[3] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(24)));
-                /*for (byte cc : bytes1) {
-                    byteBuffer.put(cc);
-                }
-                int d = 0;
-                byteBuffer.putInt(d);*/
                 for (byte cc : bytes1) {
                     byteBuffer.put(cc);
                 }
                 //  单次执行指令集所需时间
-                byteBuffer.putShort(Short.parseShort(systemControlCMD.getTimeRequired()));
+                byteBuffer.putShort(shorts);
+                //byteBuffer.putShort(Short.parseShort(systemControlCMD.getTimeRequired()));
                 //小包尾
                 getPackageTheTail(byteBuffer);
-
             }
             // 512字节 多余补0
             int a = 512;
@@ -470,13 +466,20 @@ public class WebSendToCService {
             for (int i = 1; i <= count; i++) {
                 // 敌我系统控制指令
                 byteBuffer.putShort(SocketConfig.header); // 包头 53F8
-                byteBuffer.putShort(shorts); // 信息包序号
+                byteBuffer.put(backups); // 信息包序号
                 byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getWorkPattern())); // 工作模式（0：自检 1：工作）
                 // 带宽选择解析
                 String bandwidthChoose = deviceWorkFlowCMD.getBandwidthChoose();
                 byteBuffer.put((byte) BinaryToDecimals(Long.parseLong(bandwidthChoose(bandwidthChoose))));
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getPulseChoice())); // 秒脉冲选择
+                //byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getPulseChoice())); // 秒脉冲选择
+                if (deviceWorkFlowCMD.getPulseChoice().equals("0")) {
+                    byteBuffer.put((byte) 0);
+                } else if (deviceWorkFlowCMD.getPulseChoice().equals("1")) {
+                    byteBuffer.put((byte) 1);
+                }
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getSelfChoose()));// //字频模式选择
                 byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getPointSelection())); //自检频点选择
+
                 String time = deviceWorkFlowCMD.getTimeCode(); // 解析时间（同步时间）
                 if (time.isEmpty()) {
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:SSS:dd:MM:yyyy");
@@ -496,48 +499,38 @@ public class WebSendToCService {
                 byteBuffer.putShort(year);
                 // 分机控制
                 String hierarchicalControl = deviceWorkFlowCMD.getHierarchicalControl();
-                byteBuffer.putInt(BinaryToDecimal(Integer.parseInt(hierarchicalControl(hierarchicalControl))));
-                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW740())); // 740全脉冲个数 备份
-                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW837())); // 837.5 PDW个数
+                byteBuffer.putInt(BinaryToDecimal((int) Long.parseLong(hierarchicalControl(hierarchicalControl))));
+                byteBuffer.putInt(shorts); // 740全脉冲个数 备份
+                byteBuffer.putInt(shorts); // 837.5 PDW个数
                 byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1030())); // 1030 PDW个数
-                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1059())); // 1059PDW个数备份
+                byteBuffer.putInt(shorts); // 1059PDW个数备份
                 byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1090())); // 1090 PDW个数
                 byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1464())); // 1464PDW个数
                 byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getPDW1532())); // 1532PDW个数
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMid740())); //740中频个数
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMid1030())); //1030中频个数
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMid1090())); //1090中频个数
+                byteBuffer.put(backups); //740中频个数
+                byteBuffer.put(backups); //1030中频个数
+                byteBuffer.put(backups); //1090中频个数
                 byteBuffer.put(backups);  // 中频采集时间 未知
-                byteBuffer.putLong(Long.parseLong(deviceWorkFlowCMD.getFaultDetection())); //故障检测门限（默认0x1111111111111111111111111)
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getNetworkPacketCounting()));//网络包计数
+                byteBuffer.putLong(backups); //故障检测门限（默认0x1111111111111111111111111)
+                byteBuffer.put(backups);//网络包计数
                 byteBuffer.put(backups);//备份
                 //  包尾
                 getPackageTheTail(byteBuffer);
-
-                /*byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getAntennaSelection())); // 天线选择
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getIPReconsitution())); //分机IP重构
-                byteBuffer.putShort(backups);// 备份
-                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getIfAcquisitionMode())); // 中频采集模式
-                // FPGA重构标识 将接收过来的16进制转换成10进制
-                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getFPGAReconsitution(), 16));
-                // DSP重构标识
-                byteBuffer.putInt(Integer.parseInt(deviceWorkFlowCMD.getDSPReconsitution(), 16));*/
             }
             // 512字节 多余补0
             int c = 512;
             byte[] byte1 = new byte[c - count * 64];
             byteBuffer.put(byte1);
-            //byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
-            //getBigPackageTheTail(byteBuffer);
-            //byteBuffer.putInt(0); // 校验和 (暂时预留)
-            byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
+            byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和 (暂时预留)
             getBigPackageTheTail(byteBuffer); //  帧尾
             // 发送信息
             sendMessage(host, byteBuffer);
         }
     }
 
-    //设备工作流程控制指令(雷达分机指令)
+    /**
+     * 设备工作流程控制指令(雷达分机指令)
+     */
     public void sendExtensionInstructionsCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, int count, String host, String updateAll, int serialNumber, int radarExtensionNum) {
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
@@ -552,7 +545,7 @@ public class WebSendToCService {
             // todo 4. 放指令有效标记 静态值0、1、2
             // todo 5. 放第一个512 下面的代码
             // todo 6. 放第二个512 这个看具体的协议
-            ByteBuffer byteBuffer = ByteBuffer.allocate(572);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(568);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             int serialNumber1;
             if (serialNumber == 0) {
@@ -561,59 +554,52 @@ public class WebSendToCService {
                 serialNumber1 = serialNumber;
             }
             //大包头
-            sendSystemControlCmdFormat(byteBuffer, 2048, shorts, shorts, backups, backups, (short) 12296, 0, serialNumber1, 0, serialNumber1, 0, shorts, 0, shorts);
-            // 分机控制指令
-            byteBuffer.putShort(SocketConfig.header); //小包头
-            byte pulse = Byte.parseByte(deviceWorkFlowCMD.getPulse());
-            byteBuffer.put(pulse);
-            byteBuffer.put(backups);
-            //  分机控制字
-            extensionControl(deviceWorkFlowCMD.getExtensionControlCharacter(), byteBuffer);
-            byteBuffer.put(backups);
-            byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getThreshold()));
-            byteBuffer.putShort((Short.parseShort(deviceWorkFlowCMD.getOverallpulse())));
-            byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMinamplitude()));
-            byte c = (byte) (Integer.parseInt(deviceWorkFlowCMD.getMaxamplitude()) & 0xff);
-            byteBuffer.put(c);
-            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMinPulsewidth()));
-            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMaxPulsewidth()));
-            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMaximumFrequency()));
-            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMinimumFrequency()));
-            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMaximumFrequency()));
-            byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMinimumFrequency()));
-            //  默认值更新标记
-            if (deviceWorkFlowCMD.getDefalutUpdate().equals("0")) {
-                byteBuffer.put((byte) 0);
-            } else if (deviceWorkFlowCMD.getDefalutUpdate().equals("1")) {
-                byteBuffer.put((byte) 1);
+            sendSystemControlCmdFormat(byteBuffer, 568, shorts, shorts, backups, backups, (short) 12296, 0, serialNumber1, 0, serialNumber1, 0, shorts, 0, shorts);
+            for (int i = 1; i <= radarExtensionNum; i++) {
+                // 分机控制指令
+                byteBuffer.putShort(SocketConfig.header); //小包头
+                byte pulse = Byte.parseByte(deviceWorkFlowCMD.getPulse());
+                byteBuffer.put(pulse);
+                byteBuffer.put(backups);
+                //  分机控制字
+                extensionControl(deviceWorkFlowCMD.getExtensionControlCharacter(), byteBuffer);
+                byteBuffer.put(backups);
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getThreshold()));
+                byteBuffer.putShort((Short.parseShort(deviceWorkFlowCMD.getOverallpulse())));
+                byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getMinamplitude()));
+                byte c = (byte) (Integer.parseInt(deviceWorkFlowCMD.getMaxamplitude()) & 0xff);
+                byteBuffer.put(c);
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMinPulsewidth()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getMaxPulsewidth()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMaximumFrequency()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getFilterMinimumFrequency()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMaximumFrequency()));
+                byteBuffer.putShort(Short.parseShort(deviceWorkFlowCMD.getShieldingMinimumFrequency()));
+                //  默认值更新标记
+                if (deviceWorkFlowCMD.getDefalutUpdate().equals("0")) {
+                    byteBuffer.put((byte) 0);
+                } else if (deviceWorkFlowCMD.getDefalutUpdate().equals("1")) {
+                    byteBuffer.put((byte) 1);
+                }
+                byteBuffer.putShort(shorts);
+                byteBuffer.put(backups);
+                byteBuffer.putShort(shorts);
+                //  包尾
+                getPackageTheTail(byteBuffer);
             }
-            byteBuffer.putShort(shorts);
-            byteBuffer.put(backups);
-            byteBuffer.putShort(shorts);
-            //  包尾
-            getPackageTheTail(byteBuffer);
             // 512字节 多余补0
             int a = 512;
             byte[] bytes = new byte[a - radarExtensionNum * 32];
-            //Map<Object,Object> map=new HashMap<>();
-            /*if (bytes.length<=a){
-                map.put("sendCode",0);
-                byteBuffer.put(bytes);
-                simpMessagingTemplate.convertAndSend("/byte1Over/send",map);
-            }else {
-                map.put("sendCode",1);
-                simpMessagingTemplate.convertAndSend("/byte1Over/send",map);
-                return;
-            }*/
-            byteBuffer.putInt(0); // 校验和 (暂时预留)
-            int aa = getByteCount(byteBuffer);
-            byteBuffer.putInt(aa);
+            byteBuffer.put(bytes);
+            byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和// 校验和 (暂时预留)
             getBigPackageTheTail(byteBuffer); //  帧尾
             sendMessage(host, byteBuffer);
         }
     }
 
-    //设备工作流程控制指令(雷达系统指令)
+    /**
+     *设备工作流程控制指令(雷达系统指令)
+     */
     public void sendSystemInstructionsCMD(SystemControlCMD systemControlCMD, int count, String host, String updateAll, int serialNumber, int radarSystemNum) {
         //String message = null;
         if (updateAll.equals("1")) {
@@ -623,7 +609,7 @@ public class WebSendToCService {
                 sendSystemInstructionsCMD(systemControlCMD, count, allHost.getHost(), "0", serialNumbers, radarSystemNum);
             }
         } else {
-            ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(568);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             int serialNumber1;
             if (serialNumber == 0) {
@@ -632,148 +618,124 @@ public class WebSendToCService {
                 serialNumber1 = serialNumber;
             }
             //大包头
-            sendSystemControlCmdFormat(byteBuffer, 2048, shorts, shorts, backups, backups, (short) 12297, 0, serialNumber1, 0, serialNumber1, 0, shorts, 0, shorts);
-            byteBuffer.putShort(SocketConfig.header); //小包头
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkPattern()));//工作模式
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkPeriod())); //工作周期
-            byteBuffer.putShort(Short.parseShort(systemControlCMD.getWorkPeriodNum()));//工作周期数
-            byteBuffer.putShort(Short.parseShort(systemControlCMD.getInitialFrequency())); //起始频率
-            byteBuffer.putShort(Short.parseShort(systemControlCMD.getTerminationFrequency())); //终止频率
-            byteBuffer.putShort(Short.parseShort(systemControlCMD.getSteppedFrequency()));// 频率步进
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getBandWidthSelection()));//宽带选择
-            byteBuffer.putShort(shorts);//备份
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getAntennaSelection1()));//天线1选择
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getAntennaSelection2()));//天线2选择
-            byteBuffer.putShort(shorts);//备份
-            //  射频一衰减(最新)
-            StringBuilder stringBuilder = new StringBuilder();
-            String attenuationRF1 = stringBuilder.reverse().append(systemControlCMD.getRadioFrequencyAttenuation1()).toString();
-            byte bytes = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));
-            byteBuffer.put(bytes);
-            byte b = 0;
-            byteBuffer.put(b);
-            //  射频一长电缆均衡衰减控制
-            StringBuilder stringBuilders = new StringBuilder();
-            //反转数组的原因是因为二级制从第0位开始是从右边开始的，而传过来的值第0位在最左边，所以需要反转
-            String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getAttenuationControl1()).toString();
-            //byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
-            byte bytesAttenuationRF1 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
-            byteBuffer.put(bytesAttenuationRF1);
-            byteBuffer.put(b);
-            byteBuffer.putShort(shorts); //备份
-            //  射频二衰减
-            StringBuilder stringBuilder2 = new StringBuilder();
-            String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationControl2()).toString();
-            //  byte byteAttenuationRF2 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(attenuationRF2));
-            byte byteAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF2));
-            byteBuffer.put(byteAttenuationRF2);
-            byteBuffer.put(b);
-            //射频二长电缆均衡衰减控制(最新)
-            StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
-            String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getAttenuationControl2()).toString();
-            byte bytesAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
-            byteBuffer.put(bytesAttenuationRF2);
-            byteBuffer.put(b);
-            byteBuffer.putShort(shorts);
-            // 中频一衰减(最新)
-            StringBuilder cut1 = new StringBuilder();
-            String midCut1 = cut1.reverse().append(systemControlCMD.getMidCut1()).toString();
-            byte bytesAttenuationMF1 = (byte) BinaryToDecimal(Integer.parseInt(midCut1));
-            byteBuffer.put(bytesAttenuationMF1);
-            byteBuffer.put(b);
-            byteBuffer.putShort(shorts);
-            //byteBuffer.put(backups);
-            //中频二衰减(最新)
-            StringBuilder cut2 = new StringBuilder();
-            String midCut2 = cut2.reverse().append(systemControlCMD.getMidCut2()).toString();
-            byte bytesAttenuationMF2 = (byte) BinaryToDecimal(Integer.parseInt(midCut2));
-            byteBuffer.put(bytesAttenuationMF2);
-            byteBuffer.put(b);
-            //byteBuffer.put(Byte.parseByte(deviceWorkFlowCMD.getAttenuationControlWay()));
-            //byteBuffer.put(b);
-            //衰减吗控制方式
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getAttenuationCodeControlMode()));
-            //备份
-            byteBuffer.putShort(shorts);
-            //自检源衰减
-            //byteBuffer.put(backups);
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getSelfCheckingSourceAttenuation()));
-            //  脉内引导批次开关
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumberSwitch()));
-            //  脉内引导批次号
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumber()));
-            //  故障检测门限
-            //byteBuffer.put(backups);
-            byteBuffer.put(Byte.parseByte(systemControlCMD.getFaultDetectionThreshold()));
-            //  定时时间码
-            String time = systemControlCMD.getTimingTimeCode();
-            //  转换2进制
-            StringBuilder month = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(0, 2))));
-            StringBuilder day = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(2, 4))));
-            StringBuilder hour = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(4, 6))));
-            StringBuilder minute = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(6, 8))));
-            StringBuilder second = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(8, 10))));
-            //  拼接秒数
-            int seconds = second.length();
-            for (int i = 0; i < 11 - seconds; i++) {
-                second.insert(0, "0");
+            sendSystemControlCmdFormat(byteBuffer, 568, shorts, shorts, backups, backups, (short) 12297, 0, serialNumber1, 0, serialNumber1, 0, shorts, 0, shorts);
+            for (int j = 1; j <= radarSystemNum; j++) {
+                byteBuffer.putShort(SocketConfig.header);//包头1ACF
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkPattern()));//工作模式
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getWorkPeriod())); //工作周期
+                byteBuffer.putShort(Short.parseShort(systemControlCMD.getWorkPeriodNum()));//工作周期数
+                byteBuffer.putShort(Short.parseShort(systemControlCMD.getInitialFrequency())); //起始频率
+                byteBuffer.putShort(Short.parseShort(systemControlCMD.getTerminationFrequency())); //终止频率
+                byteBuffer.putShort(Short.parseShort(systemControlCMD.getSteppedFrequency()));// 频率步进
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getBandWidthSelection()));//宽带选择
+                byteBuffer.putShort(shorts);//备份
+                byteBuffer.put(backups);
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getAntennaSelection1()));//天线1选择
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getAntennaSelection2()));//天线2选择
+                byteBuffer.putShort(shorts);//备份
+                //  射频一衰减(最新)
+                StringBuilder stringBuilder = new StringBuilder();
+                String attenuationRF1 = stringBuilder.reverse().append(systemControlCMD.getRadioFrequencyAttenuation1()).toString();
+                byte bytess = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF1));
+                byteBuffer.put(bytess);
+                //  射频一长电缆均衡衰减控制
+                StringBuilder stringBuilders = new StringBuilder();
+                String balancedAttenuationRF1 = stringBuilders.reverse().append(systemControlCMD.getAttenuationControl1()).toString();
+                //byte bytesAttenuationRF1 = (byte) SocketConfig.BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
+                byte bytesAttenuationRF1 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF1));
+                byteBuffer.put(bytesAttenuationRF1);
+                byteBuffer.putShort(shorts); //备份
+                //  射频二衰减
+                StringBuilder stringBuilder2 = new StringBuilder();
+                String attenuationRF2 = stringBuilder2.reverse().append(systemControlCMD.getAttenuationControl2()).toString();
+                byte byteAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(attenuationRF2));
+                byteBuffer.put(byteAttenuationRF2);
+                //射频二长电缆均衡衰减控制(最新)
+                StringBuilder stringBuilderAttenuationRF2 = new StringBuilder();
+                String balancedAttenuationRF2 = stringBuilderAttenuationRF2.reverse().append(systemControlCMD.getAttenuationControl2()).toString();
+                byte bytesAttenuationRF2 = (byte) BinaryToDecimal(Integer.parseInt(balancedAttenuationRF2));
+                byteBuffer.put(bytesAttenuationRF2);
+                byteBuffer.putShort(shorts);
+                // 中频一衰减(最新)
+                StringBuilder cut1 = new StringBuilder();
+                String midCut1 = cut1.reverse().append(systemControlCMD.getMidCut1()).toString();
+                byte bytesAttenuationMF1 = (byte) BinaryToDecimal(Integer.parseInt(midCut1));
+                byteBuffer.put(bytesAttenuationMF1);
+                byteBuffer.putShort(shorts);
+                byteBuffer.put(backups);
+                //中频二衰减(最新)
+                StringBuilder cut2 = new StringBuilder();
+                String midCut2 = cut2.reverse().append(systemControlCMD.getMidCut2()).toString();
+                byte bytesAttenuationMF2 = (byte) BinaryToDecimal(Integer.parseInt(midCut2));
+                byteBuffer.put(bytesAttenuationMF2);
+                //衰减吗控制方式
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getAttenuationCodeControlMode()));
+                //备份
+                byteBuffer.putShort(shorts);
+                //自检源衰减
+                byteBuffer.put(backups);
+                //byteBuffer.put(Byte.parseByte(systemControlCMD.getSelfCheckingSourceAttenuation()));
+                //  脉内引导批次开关
+                byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumberSwitch()));
+                //  脉内引导批次号
+                byteBuffer.put(backups);
+                //byteBuffer.put(Byte.parseByte(systemControlCMD.getBatchNumber()));
+                //  故障检测门限
+                byteBuffer.put(backups);
+                //byteBuffer.put(Byte.parseByte(systemControlCMD.getFaultDetectionThreshold()));
+                //  定时时间码
+                String time = systemControlCMD.getTimingTimeCode();
+                //  转换2进制
+                StringBuilder month = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(0, 2))));
+                StringBuilder day = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(2, 4))));
+                StringBuilder hour = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(4, 6))));
+                StringBuilder minute = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(6, 8))));
+                StringBuilder second = new StringBuilder(Integer.toBinaryString(Integer.parseInt(time.substring(8, 10))));
+                //  拼接秒数
+                int seconds = second.length();
+                for (int ii = 0; ii < 11 - seconds; ii++) {
+                    second.insert(0, "0");
+                }
+                //  拼接分钟
+                int minutes = minute.length();
+                for (int ii = 0; ii < 6 - minutes; ii++) {
+                    minute.insert(0, "0");
+                }
+                //  拼接时钟
+                int hours = hour.length();
+                for (int ii = 0; ii < 5 - hours; ii++) {
+                    hour.insert(0, "0");
+                }
+                //  拼接天数
+                int days = day.length();
+                for (int ii = 0; ii < 5 - days; ii++) {
+                    day.insert(0, "0");
+                }
+                //  拼接月份
+                int months = month.length();
+                for (int ii = 0; ii < 4 - months; ii++) {
+                    month.insert(0, "0");
+                }
+                String thisTime = month.toString() + day.toString() + hour.toString() + minute.toString() + second.toString();
+                byte[] bytes1 = new byte[4];
+                bytes1[0] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(0, 8)));
+                bytes1[1] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(8, 16)));
+                bytes1[2] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(16, 24)));
+                bytes1[3] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(24)));
+                for (byte cc : bytes1) {
+                    byteBuffer.put(cc);
+                }
+                //  单次执行指令集所需时间
+                byteBuffer.putShort(shorts);
+                //byteBuffer.putShort(Short.parseShort(systemControlCMD.getTimeRequired()));
+                //小包尾
+                getPackageTheTail(byteBuffer);
             }
-            //  拼接分钟
-            int minutes = minute.length();
-            for (int i = 0; i < 6 - minutes; i++) {
-                minute.insert(0, "0");
-            }
-            //  拼接时钟
-            int hours = hour.length();
-            for (int i = 0; i < 5 - hours; i++) {
-                hour.insert(0, "0");
-            }
-            //  拼接天数
-            int days = day.length();
-            for (int i = 0; i < 5 - days; i++) {
-                day.insert(0, "0");
-            }
-            //  拼接月份
-            int months = month.length();
-            for (int i = 0; i < 4 - months; i++) {
-                month.insert(0, "0");
-            }
-            String thisTime = month.toString() + day.toString() + hour.toString() + minute.toString() + second.toString();
-            byte[] bytes1 = new byte[4];
-            bytes1[0] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(0, 8)));
-            bytes1[1] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(8, 16)));
-            bytes1[2] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(16, 24)));
-            bytes1[3] = (byte) BinaryToDecimal(Integer.parseInt(thisTime.substring(24)));
-            for (byte c : bytes1) {
-                byteBuffer.put(c);
-            }
-            int d = 0;
-            byteBuffer.putInt(d);
-            //  单次执行指令集所需时间
-            byteBuffer.putShort(Short.parseShort(systemControlCMD.getTimeRequired()));
-
             // 512字节 多余补0
             int c = 512;
             byte[] byte1 = new byte[c - radarSystemNum * 48];
             byteBuffer.put(byte1);
-           /* Map<Object,Object> map=new HashMap<>();
-            if (c-radarSystemNum*48>=0){
-                byte[] byte1=new byte[c-radarSystemNum*48];
-                Map<Object,Object> map1=new HashMap<>();
-                //map.put("sendCode", 0);
-                map1.put("sendCode",0);
-                simpMessagingTemplate.convertAndSend("/byteOver/send", map);
-                byteBuffer.put(byte1);
-                //message = "发送指令成功";
-            }else if (c-radarSystemNum*48 < 0){
-                map.put("sendCode",1);
-                simpMessagingTemplate.convertAndSend("/byteOver/send", map);
-                //message = "发送指令失败";
-            }*/
-            getPackageTheTail(byteBuffer);
-            byteBuffer.putInt(0); // 校验和 (暂时预留)
-            int a = getByteCount(byteBuffer);
-            byteBuffer.putInt(a);
+            byteBuffer.putInt(getByteCount(byteBuffer)); //校验和 (暂时预留)
             getBigPackageTheTail(byteBuffer); //  帧尾
             sendMessage(host, byteBuffer);
         }
@@ -802,7 +764,7 @@ public class WebSendToCService {
         stringBuilders.append(eccs);
         String ecc = stringBuilders.reverse().toString();  // 反转
         StringBuilder stringBuilder = new StringBuilder();
-        //  合路选择（0：合批开 1：合批关）bit11-bit12
+        //  合路选择（0：融合 1：全脉冲融合 2.辐射源融合）bit11-bit12
         String mergeToChoose = ecc.substring(0, 1);
         switch (mergeToChoose) {
             case "2":
@@ -873,13 +835,11 @@ public class WebSendToCService {
         byteBuffer.put(bytes[1]);
     }
 
-
     //  封装包尾信息
     private void getPackageTheTail(ByteBuffer byteBuffer) {
         byte[] bytes = SocketConfig.hexToByte(SocketConfig.end);
         byteBuffer.put(bytes);
     }
-
     //  封装大包尾信息
     private void getBigPackageTheTail(ByteBuffer byteBuffer) {
         byte[] bytes = new byte[4];
@@ -889,7 +849,6 @@ public class WebSendToCService {
         bytes[3] = (byte) 248;
         byteBuffer.put(bytes);
     }
-
     // 查询当前编号,并且+1
     private int addSerialNum() {
         List<CMDSerialNumber> list = cmdSerialNumberRepository.findAll();
@@ -904,7 +863,6 @@ public class WebSendToCService {
         }
         return a;
     }
-
     // 在校验和的所有字节数相加
     private int getByteCount(ByteBuffer byteBuffer) {
         // 从目的地址开始叠加
@@ -916,67 +874,36 @@ public class WebSendToCService {
         }
         return c;
     }
-
     // MAC地址信息解析
     private byte[] getMac(String macIP) {
         return SocketConfig.hexToByte(macIP);
     }
-
     // 敌我控制指令中的带宽选择解析
     private String bandwidthChoose(String bandwidthChooses) {
         StringBuilder stringBuilders = new StringBuilder();
         stringBuilders.append(bandwidthChooses);
         String bandwidthChoose = stringBuilders.reverse().toString();
         StringBuilder stringBuilder = new StringBuilder();
-        // 截取bit7
-        String bit7 = bandwidthChoose.substring(0, 1);
-        if (bit7.equals("1")) {
-            stringBuilder.append("01");
-        } else if (bit7.equals("3")) {
-            stringBuilder.append("11");
+        // bit7(固定0)
+        stringBuilder.append(bandwidthChoose, 0, 1);
+        //bit6（固定1）
+        stringBuilder.append(bandwidthChoose, 1, 2);
+        // 截取bit2-bit3(由于bit5，bit4没有值，用0补充)
+        String bit3 = bandwidthChoose.substring(2, 3);
+        if (bit3.equals("1")) {
+            stringBuilder.append("0000");
+        } else if (bit3.equals("3")) {
+            stringBuilder.append("0011");
         }
-        // 截取bit6
-        String bit6 = bandwidthChoose.substring(1, 2);
-        if (bit6.equals("1")) {
-            stringBuilder.append("01");
-        } else if (bit6.equals("3")) {
-            stringBuilder.append("11");
-        }
-        // 截取bit5
-        String bit5 = bandwidthChoose.substring(2, 3);
-        if (bit5.equals("0")) {
+        // 截取bit0-bit1
+        String bit1 = bandwidthChoose.substring(2, 3);
+        if (bit1.equals("1")) {
             stringBuilder.append("00");
-        } else if (bit5.equals("1")) {
-            stringBuilder.append("01");
-        }
-        // 截取bit4
-        String bit4 = bandwidthChoose.substring(3, 4);
-        if (bit4.equals("0")) {
-            stringBuilder.append("00");
-        } else if (bit4.equals("1")) {
-            stringBuilder.append("01");
-        }
-        // 截取bit0-3
-        for (int i = 4; i < 6; i++) {
-            String bit = bandwidthChoose.substring(i, i + 1);
-            switch (bit) {
-                case "0":
-                    stringBuilder.append("00");
-                    break;
-                case "1":
-                    stringBuilder.append("01");
-                    break;
-                case "2":
-                    stringBuilder.append("10");
-                    break;
-                case "3":
-                    stringBuilder.append("11");
-                    break;
-            }
+        } else if (bit1.equals("3")) {
+            stringBuilder.append("11");
         }
         return stringBuilder.toString();
     }
-
     // 敌我控制指令的分机控制
     private static String hierarchicalControl(String hierarchicalControl) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -986,11 +913,61 @@ public class WebSendToCService {
         /**
          * 因bit5-bit32 数据暂时未确定 所以先做补0处理 其实无需补0，int类型自然会补齐 但为了日后开发 留下接口以便提醒
          */
-        for (int i = 0; i < 27; i++) {
-            stringBuilder1.append("0");
+        //bit17-20
+        String bit20 = res.substring(0, 1);
+        switch (bit20) {
+            case "0":
+                stringBuilder1.append("0000");
+                break;
+            case "1":
+                stringBuilder1.append("0001");
+                break;
+            case "2":
+                stringBuilder1.append("0010");
+                break;
         }
-        String bit = res.substring(0, 1);
-        switch (bit) {
+        //bit13-16
+        String bit16 = res.substring(1, 2);
+        switch (bit16) {
+            case "0":
+                stringBuilder1.append("0000");
+                break;
+            case "1":
+                stringBuilder1.append("0001");
+                break;
+            case "2":
+                stringBuilder1.append("0010");
+                break;
+        }
+        //bit9-12
+        String bit12 = res.substring(2, 3);
+        switch (bit12) {
+            case "0":
+                stringBuilder1.append("0000");
+                break;
+            case "1":
+                stringBuilder1.append("0001");
+                break;
+            case "2":
+                stringBuilder1.append("0010");
+                break;
+        }
+        //bit5-8
+        String bit8 = res.substring(3, 4);
+        switch (bit8) {
+            case "0":
+                stringBuilder1.append("0000");
+                break;
+            case "1":
+                stringBuilder1.append("0001");
+                break;
+            case "2":
+                stringBuilder1.append("0010");
+                break;
+        }
+        //bit1-4
+        String bit4 = res.substring(3, 4);
+        switch (bit4) {
             case "0":
                 stringBuilder1.append("0000");
                 break;
@@ -1002,10 +979,9 @@ public class WebSendToCService {
                 break;
         }
         // bit0
-        stringBuilder1.append(res, 1, 2);
+        stringBuilder1.append(res, 4, 5);
         return stringBuilder1.toString();
     }
-
     // 获取时间偏移量
     public long getTimes() {
         // 获取1970-1-1 到现在的毫秒数 拼接成long类型
@@ -1022,7 +998,6 @@ public class WebSendToCService {
         }
         return Long.parseLong(stringBuilder.toString());
     }
-
     //网络ip地址String类型放入4byte
     private static String networkIP1(String networkIP1) {
         int[] ip1 = new int[4];
@@ -1038,23 +1013,4 @@ public class WebSendToCService {
         Integer ipArr = (ip1[0] << 24) + (ip1[1] << 16) + (ip1[2] << 8) + (ip1[3]);
         return ipArr.toString();
     }
-  /*  public static void main(String[]args)
-    {
-        String networkIP1="192.168.31.88";
-        long[]ip1=new long[4];
-        int position1 = networkIP1.indexOf(".");
-        int position2 = networkIP1.indexOf(".", position1 + 1);
-        int position3 = networkIP1.indexOf(".", position2 + 1);
-        //将每个.之间的字符串转换成整型
-        ip1[0] = Long.parseLong(networkIP1.substring(0, position1));
-        ip1[1] = Long.parseLong(networkIP1.substring(position1 + 1, position2));
-        ip1[2] = Long.parseLong(networkIP1.substring(position2 + 1, position3));
-        ip1[3] = Long.parseLong(networkIP1.substring(position3 + 1));
-        Long ipArr = (ip1[0] << 24) + (ip1[1] << 16) + (ip1[2] << 8) + (ip1[3]);
-        //Integer a=Integer.parseInt(Long.valueOf(ipArr).toString());
-        //Integer b=Integer.parseInt(String.valueOf(ipArr));
-        String a=String.valueOf(Long.parseLong(String.valueOf(ipArr)));
-        Integer b=Integer.valueOf(a);
-        System.out.println(b);
-    }*/
 }
