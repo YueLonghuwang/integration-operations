@@ -3,14 +3,17 @@ package com.rengu.project.integrationoperations.controller;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.repository.HostRepository;
+import com.rengu.project.integrationoperations.service.DynamicJobService;
 import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,13 +37,17 @@ import java.io.IOException;
 public class WebSendToCController {
     private final WebSendToCService webSendToCService;
     private final WebReceiveToCService receiveInformationService;
+
     // 设置同批数据为同一序号
     private final int serialNumber = 0;
+
+
 
     @Autowired
     public WebSendToCController(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService) {
         this.webSendToCService = webSendToCService;
         this.receiveInformationService = receiveInformationService;
+
     }
 
     // 发送系统校时
@@ -56,7 +63,7 @@ public class WebSendToCController {
 
     //添加定时发送
     @PostMapping("/addSystemTimingTask/communication")
-    public ResultEntity addSystemTimingTask(@NotNull String timeNow,@NotNull String timingPattern, @NonNull String time,@NotNull String sendTime, @NonNull String host, @NonNull String updateAll){
+    public ResultEntity addSystemTimingTask(@NotNull String timeNow,@NotNull String timingPattern, @NonNull String time,@NotNull String sendTime, @NonNull String host, @NonNull String updateAll) throws SchedulerException {
 
         ;
 

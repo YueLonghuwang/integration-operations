@@ -1,5 +1,6 @@
 package com.rengu.project.integrationoperations.service;
 
+import com.rengu.project.integrationoperations.controller.WebSendToCController;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;
@@ -11,9 +12,14 @@ import com.rengu.project.integrationoperations.util.CronDateUtils;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import com.rengu.project.integrationoperations.util.TopNTool;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -41,16 +47,18 @@ public class WebSendToCService {
     private short shorts = 0;
     private final HostRepository hostRepository;//当前连接的最大数·
     private final TimingTaskRepository timingTaskRepository;
+    private final SchedulerFactoryBean schedulerFactoryBean;
+    private final DynamicJobService jobService;
 
+    private static final Logger logger = LoggerFactory.getLogger(WebSendToCController.class);
+    private  SimpMessagingTemplate simpMessagingTemplate;
 
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository,TimingTaskRepository timingTaskRepository) {
+    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository,TimingTaskRepository timingTaskRepository,SchedulerFactoryBean schedulerFactoryBean, DynamicJobService jobService) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
         this.hostRepository = hostRepository;
         this.timingTaskRepository = timingTaskRepository;
+        this.jobService = jobService;
+        this.schedulerFactoryBean = schedulerFactoryBean;
 
     }
 
@@ -1055,7 +1063,7 @@ public class WebSendToCService {
      * @param updateAll   群发
      * @param serialNumber
      */
-    public List<TimingTasks> addTimeSendTask(String timeNow, String time, String sendTime,String timingPattern, String host, String updateAll, int serialNumber) {
+    public List<TimingTasks> addTimeSendTask(String timeNow, String time, String sendTime,String timingPattern, String host, String updateAll, int serialNumber) throws SchedulerException {
         List<TimingTasks> tks = new ArrayList<>();
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
@@ -1109,10 +1117,33 @@ public class WebSendToCService {
 
 
             TimingTasks ua = timingTaskRepository.save(tasks);
+            refresh(ua);
             tks.add(ua);
 
         }
         return tks;
+    }
+
+    public String refresh(TimingTasks  entity) throws SchedulerException {
+        String result;
+        if (entity == null) return "error: id is not exist ";
+        synchronized (logger) {
+            JobKey jobKey = jobService.getJobKey(entity);
+            Scheduler scheduler = schedulerFactoryBean.getScheduler();
+            scheduler.pauseJob(jobKey);
+            scheduler.unscheduleJob(TriggerKey.triggerKey(jobKey.getName(), jobKey.getGroup()));
+            scheduler.deleteJob(jobKey);
+            JobDataMap map = jobService.getJobDataMap(entity);
+            JobDetail jobDetail = jobService.geJobDetail(jobKey, entity.getDescription(), map);
+            if (entity.getState()==1) {
+                scheduler.scheduleJob(jobDetail, jobService.getTrigger(entity));
+                result = "Refresh Job : " + entity.getJobName() + " success !";
+            } else {
+                result = "Refresh Job : " + entity.getJobName() + " failed ! , " +
+                        "Because the Job status is " + entity.getState();
+            }
+        }
+        return result;
     }
 
 }

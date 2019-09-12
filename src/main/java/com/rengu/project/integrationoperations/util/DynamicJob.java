@@ -43,9 +43,7 @@ public class DynamicJob implements Job {
         logger.info("Running Job parameter : {} ", parameter);
         logger.info("Running Job vmParam : {} ", vmParam);
         long startTime = System.currentTimeMillis();
-
         sendMessage(host,TopNTool.getByteBuffer(parameter));
-
         long endTime = System.currentTimeMillis();
         logger.info(">>>>>>>>>>>>> Running Job has been completed , cost time :  " + (endTime - startTime) + "ms\n");
     }

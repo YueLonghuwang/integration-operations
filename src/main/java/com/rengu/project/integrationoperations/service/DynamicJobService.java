@@ -60,4 +60,8 @@ public class DynamicJobService {
     public JobKey getJobKey(TimingTasks job) {
         return JobKey.jobKey(job.getJobName(), job.getJobGroup());
     }
+
+    public void deleleTaskById(String id) {
+        repository.deleteById(id);
+    }
 }

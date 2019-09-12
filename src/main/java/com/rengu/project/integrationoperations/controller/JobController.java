@@ -3,6 +3,7 @@ package com.rengu.project.integrationoperations.controller;
 
 import com.rengu.project.integrationoperations.entity.TimingTasks;
 import com.rengu.project.integrationoperations.service.DynamicJobService;
+import com.rengu.project.integrationoperations.util.CronDateUtils;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -93,6 +95,12 @@ public class JobController {
                 scheduler.deleteJob(jobKey);
             }
             for (TimingTasks job : jobService.loadJobs()) {                               //从数据库中注册的所有JOB
+                Date setDate = CronDateUtils.getDate(job.getCron());
+                if(setDate.before(new Date())){
+                    jobService.deleleTaskById(job.getId());
+                    continue;
+                }
+
                 logger.info("Job register name : {} , group : {} , cron : {}", job.getJobName(), job.getJobGroup(), job.getCron());
                 JobDataMap map = jobService.getJobDataMap(job);
                 JobKey jobKey = jobService.getJobKey(job);
