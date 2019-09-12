@@ -3,6 +3,7 @@ package com.rengu.project.integrationoperations.entity;
 /**
  * author : yaojiahao
  * Date: 2019/7/9 16:45
+ * 设备自检
  **/
 
 
