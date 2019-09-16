@@ -16,8 +16,17 @@ import java.util.List;
  */
 @Service
 public class DynamicJobService {
+
+    private final TimingTaskRepository repository;
+
     @Autowired
-    private TimingTaskRepository repository;
+    public DynamicJobService (TimingTaskRepository repository){
+        this.repository = repository;
+
+    }
+
+
+
     //通过Id获取Job
     public TimingTasks getJobEntityById(String id) {
         return repository.findById(id).get();
