@@ -12,16 +12,20 @@ import com.rengu.project.integrationoperations.util.CronDateUtils;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import com.rengu.project.integrationoperations.util.TopNTool;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -51,9 +55,9 @@ public class WebSendToCService {
     private final DynamicJobService jobService;
 
     private static final Logger logger = LoggerFactory.getLogger(WebSendToCController.class);
-    private  SimpMessagingTemplate simpMessagingTemplate;
+    private SimpMessagingTemplate simpMessagingTemplate;
 
-    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository,TimingTaskRepository timingTaskRepository,SchedulerFactoryBean schedulerFactoryBean, DynamicJobService jobService) {
+    public WebSendToCService(CMDSerialNumberRepository cmdSerialNumberRepository, HostRepository hostRepository, TimingTaskRepository timingTaskRepository, SchedulerFactoryBean schedulerFactoryBean, DynamicJobService jobService) {
         this.cmdSerialNumberRepository = cmdSerialNumberRepository;
         this.hostRepository = hostRepository;
         this.timingTaskRepository = timingTaskRepository;
@@ -196,15 +200,19 @@ public class WebSendToCService {
     /**
      * 3.4.6.6 软件版本远程更新
      */
-    public void sendSoftwareUpdateCMD(String timeNow, String cmd, String softwareID, String host, String updateAll, int serialNumber) {
+    public void sendSoftwareUpdateCMD(InputStream fileStream, String timeNow, String softwareID, String host, String statePoint, String updateAll, int serialNumber) throws IOException {
+
+        byte[] in_b = IOUtils.toByteArray(fileStream);
+        int changeL = in_b.length;
+
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             int serialNumbers = addSerialNum();
             for (AllHost allHost : list) {
-                sendSoftwareUpdateCMD(timeNow, cmd, softwareID, allHost.getHost(), "0", serialNumbers);
+                sendSoftwareUpdateCMD(fileStream, timeNow, softwareID, allHost.getHost(), statePoint, "0", serialNumbers);
             }
         } else {
-            ByteBuffer byteBuffer = ByteBuffer.allocate(72);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(98+changeL);
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
             // 如果等于0 代表该数据并非是群发,因为同批数据序号无需自增，代表群发的消息序号共享同一个序号
             int serialNumber1;
@@ -218,9 +226,30 @@ public class WebSendToCService {
             // 报文内容
             byteBuffer.putInt(2); // 信息长度
             byteBuffer.putLong(Long.parseLong(timeNow)); // 任务流水号
-            byteBuffer.putShort(Short.parseShort(cmd));  // 指令操作码
-            byteBuffer.putShort(Short.parseShort(softwareID)); // 软件ID号
+            byteBuffer.put(Byte.parseByte("0"));//操作类型
+            byteBuffer.putShort(shorts);
+            byteBuffer.putShort(shorts);
+            byteBuffer.put(Byte.parseByte(statePoint));//状态指示
+            System.out.println("bb = "+byteBuffer);
+
+            //可变信息 软件版本信息 最长1024 不足1024传输实际字节数
+//            ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+//            byte[] buff = new byte[100]; //buff用于存放循环读取的临时数据
+//            int rc = 0;
+//            while ((rc = fileStream.read(buff, 0, 100)) > 0) {
+//                swapStream.write(buff, 0, rc);
+//            }
+
+           //in_b为转换之后的结果
+            byteBuffer.put(in_b);
+
+
             byteBuffer.putInt(getByteCount(byteBuffer)); // 校验和
+
+            System.out.println("bb = "+byteBuffer);
+
+
+
             getBigPackageTheTail(byteBuffer);
             // 发送信息
             sendMessage(host, byteBuffer);
@@ -1055,21 +1084,20 @@ public class WebSendToCService {
 
 
     /**
-     *
-     * @param timeNow  报文内容 校对时间
-     * @param time     定时发送时间
-     * @param timingPattern   报文内容
-     * @param host     发送ip
-     * @param updateAll   群发
+     * @param timeNow       报文内容 校对时间
+     * @param time          定时发送时间
+     * @param timingPattern 报文内容
+     * @param host          发送ip
+     * @param updateAll     群发
      * @param serialNumber
      */
-    public List<TimingTasks> addTimeSendTask(String timeNow, String time, String sendTime,String timingPattern, String host, String updateAll, int serialNumber) throws SchedulerException {
+    public List<TimingTasks> addTimeSendTask(String timeNow, String time, String sendTime, String timingPattern, String host, String updateAll, int serialNumber) throws SchedulerException {
         List<TimingTasks> tks = new ArrayList<>();
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             int serialNumbers = addSerialNum();
             for (AllHost allHost : list) {
-                addTimeSendTask(timeNow, time,sendTime, timingPattern, allHost.getHost(), "0", serialNumbers);
+                addTimeSendTask(timeNow, time, sendTime, timingPattern, allHost.getHost(), "0", serialNumbers);
 
 
             }
@@ -1099,9 +1127,9 @@ public class WebSendToCService {
             Date sendingDateStr = null;
             String cron = "";
             try {
-                 sendingDateStr =sdf.parse(sendTime);
+                sendingDateStr = sdf.parse(sendTime);
 
-                 cron = CronDateUtils.getCron(sendingDateStr);
+                cron = CronDateUtils.getCron(sendingDateStr);
             } catch (ParseException e) {
                 System.err.println("定时格式不对");
             }
@@ -1124,7 +1152,7 @@ public class WebSendToCService {
         return tks;
     }
 
-    public String refresh(TimingTasks  entity) throws SchedulerException {
+    public String refresh(TimingTasks entity) throws SchedulerException {
         String result;
         if (entity == null) return "error: id is not exist ";
         synchronized (logger) {
@@ -1135,7 +1163,7 @@ public class WebSendToCService {
             scheduler.deleteJob(jobKey);
             JobDataMap map = jobService.getJobDataMap(entity);
             JobDetail jobDetail = jobService.geJobDetail(jobKey, entity.getDescription(), map);
-            if (entity.getState()==1) {
+            if (entity.getState() == 1) {
                 scheduler.scheduleJob(jobDetail, jobService.getTrigger(entity));
                 result = "Refresh Job : " + entity.getJobName() + " success !";
 
@@ -1147,4 +1175,11 @@ public class WebSendToCService {
         return result;
     }
 
+
+    public boolean sendSoftwareFile2Host(String fileId, String host) {
+        int port = 5889;
+
+
+        return false;
+    }
 }

@@ -8,6 +8,7 @@ import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.swing.*;
 import javax.swing.text.html.ImageView;
 import javax.validation.constraints.NotNull;
 import javax.xml.transform.Result;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * web端发送到c++端
@@ -93,11 +97,15 @@ public class WebSendToCController {
 
     // 软件版本更新
     @PostMapping("/sendSoftwareUpdateCMD/communication")
-    public ResultEntity sendSoftwareUpdateCMD(String timeNow, String cmd, String softwareID, String host, @NonNull String updateAll) {
+    public ResultEntity sendSoftwareUpdateCMD(MultipartFile multipartFile, @RequestParam String timeNow, @RequestParam  String softwareID, @RequestParam String host, @RequestParam String statePoint, @NonNull String updateAll) {
+        InputStream is = null;
         try {
-            webSendToCService.sendSoftwareUpdateCMD(timeNow, cmd, softwareID, host, updateAll, serialNumber);
+           is = multipartFile.getInputStream();
+            webSendToCService.sendSoftwareUpdateCMD(is,timeNow,  softwareID, host,statePoint, updateAll, serialNumber);
         } catch (Exception e) {
             log.info("软件版本更新异常", e);
+        }finally {
+            IOUtils.closeQuietly(is);
         }
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, "发送指令成功");
     }
