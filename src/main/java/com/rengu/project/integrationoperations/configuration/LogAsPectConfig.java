@@ -1,5 +1,6 @@
 package com.rengu.project.integrationoperations.configuration;
 
+import com.rengu.project.integrationoperations.controller.ErrorController;
 import com.rengu.project.integrationoperations.entity.SysLogEntity;
 import com.rengu.project.integrationoperations.service.SysLogService;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,8 @@ public class LogAsPectConfig {
             // 注解上的描述
             sys_log.setUserAction(userAction.value());
         }
+
+
         // 请求的类名
         String className = point.getTarget().getClass().getName();
         // 请求的方法名
