@@ -3,7 +3,6 @@ package com.rengu.project.integrationoperations.service;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.repository.HostRepository;
-import com.rengu.project.integrationoperations.repository.SysErrorLogRepository;
 import com.rengu.project.integrationoperations.util.SocketConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -27,12 +26,10 @@ import java.util.*;
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final SysErrorLogRepository sysErrorLogRepository;
 
-    public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate, SysErrorLogRepository sysErrorLogRepository) {
+    public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.hostRepository = hostRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.sysErrorLogRepository = sysErrorLogRepository;
     }
 
     // 储存或更新当前连接服务端的IP地址
@@ -114,7 +111,7 @@ public class WebReceiveToCService {
                 uploadVersionNumberMessage(byteBuffer, host);
                 break;*/
             default:
-                saveSystemErrorLog(byteBuffer, host);
+//                test(byteBuffer, host);
                 break;
         }
     }
@@ -146,7 +143,7 @@ public class WebReceiveToCService {
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
             default:
-                saveSystemErrorLog(byteBuffer, host);
+//                test(byteBuffer, host);
                 break;
         }
     }
@@ -158,31 +155,27 @@ public class WebReceiveToCService {
     public void receiveSocketHandler3(ByteBuffer byteBuffer, String host) {
         short messageCategorys = byteBuffer.getShort(14);
         int messageCategory = Integer.parseInt(Integer.toHexString(messageCategorys));
-
-        String errorCode = messageCategory + "";
-
         switch (messageCategory) {
-            case 3001://心跳指令
-                String errorMsg = "";
+            case 3001:
                 receiveHeartbeatCMD(byteBuffer, host);
                 break;
-            case 3101://心跳信息
+            case 3101:
                 uploadHeartBeatMessage(byteBuffer, host);
                 break;
-            case 3102://自检结果
+            case 3102:
                 uploadSelfInspectionResult(byteBuffer, host);
                 break;
-            case 3105://软件版本信息
+            case 3105:
                 uploadSoftwareVersionMessage(byteBuffer, host);
                 break;
-            case 3106://设备网络参数信息
+            case 3106:
                 uploadDeviceNetWorkParamMessage(byteBuffer, host);
                 break;
-            case 3107://雷达子系统工作状态信息包 雷达子系统状态信息
+            case 3107:
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
             default:
-                saveSystemErrorLog(byteBuffer, host);
+//                test(byteBuffer, host);
                 break;
         }
     }
@@ -401,7 +394,7 @@ public class WebReceiveToCService {
      * 3.4.6.2 心跳指令
      */
     private void receiveHeartbeatCMD(ByteBuffer byteBuffer, String host) {
-        //Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
         Map<String, Object> map1 = new HashMap<>();
 //        map.put("messageLength",byteBuffer.getInt(48));// 信息长度
 //        map1.put("taskFlowNo", byteBuffer.getLong(52));// 任务流水号
@@ -409,7 +402,6 @@ public class WebReceiveToCService {
 //        map.put("verify", byteBuffer.getInt(61));// 校验和
 //        map.put("messageEnd", byteBuffer.getInt(65));// 结尾
         map1.put("host", host);
-
         simpMessagingTemplate.convertAndSend("/receiveHeartbeatCMD/sendToHeartBeat", new ResultEntity(SystemStatusCodeEnum.SUCCESS, map1));
     }
 
@@ -437,8 +429,6 @@ public class WebReceiveToCService {
      * 3.4.6.10 上报自检结果
      */
     private void uploadSelfInspectionResult(ByteBuffer byteBuffer, String host) {
-
-
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         int messageLength = byteBuffer.getInt(48);
         long taskFlowNo = byteBuffer.getLong(52);
@@ -687,8 +677,10 @@ public class WebReceiveToCService {
     }*/
 
     /**
-     * 软件版本更新
+     *软件版本更新
      */
+
+
 
 
     // 解析工作状态  3.4.6.10 上报自检结果   3.4.6.9 上传心跳信息 引用
@@ -895,54 +887,6 @@ public class WebReceiveToCService {
 //        String a = Integer.toBinaryString((s & 0xFF) + 0x100).substring(1);
 //        String a = String.valueOf(s);
 //        System.out.println(Integer.parseInt(s));
-    }
-
-
-    public SysErrorLogEntity saveSystemErrorLog(ByteBuffer byteBuffer, String host) {
-
-        int errorCode = byteBuffer!=null?byteBuffer.getInt(0):42;
-        String errorMsg = "";
-        switch (errorCode) {
-            case 3001: {
-                errorMsg = "心跳指令发送故障";
-                break;
-            }
-            case 3101: {
-                errorMsg = "心跳信息发送故障";
-                break;
-            }
-            case 3102: {
-                errorMsg = "自检结果发送故障";
-                break;
-            }
-            case 3105: {
-                errorMsg = "版本信息发送故障";
-                break;
-            }
-            case 3106: {
-                errorMsg = "设备网络参数信息发送故障";
-                break;
-            }
-            case 3107: {
-                errorMsg = "雷达子系统工作状态信息包 雷达子系统状态信息发送故障";
-                break;
-            }
-            case 42:{
-                errorMsg = "设备断开连接";
-                break;
-            }
-
-        }
-
-        SysErrorLogEntity sysErrorLogEntity = new SysErrorLogEntity();
-        sysErrorLogEntity.setCreateTime(new Date());
-        sysErrorLogEntity.setErrorType("设备故障");
-        sysErrorLogEntity.setErrorMsg(errorMsg);
-        sysErrorLogEntity.setHost(host);
-
-        return sysErrorLogRepository.save(sysErrorLogEntity);
-
-
     }
 
 

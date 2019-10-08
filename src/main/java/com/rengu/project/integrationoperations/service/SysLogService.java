@@ -8,9 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
 @Service
 public class SysLogService {
     private final SysLogRepository sysLogRepository;
@@ -26,15 +23,8 @@ public class SysLogService {
     public Page<SysLogEntity>getAllSysLog(Pageable pageable){
         return sysLogRepository.findAll(pageable);
     }
-    public String deleteByCreateTime(String start,String end){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        try {
-            sysLogRepository.deleteByCreateTimeBetween(sdf.parse(start),sdf.parse(end));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return "系统日志删除成功";
+    public SysLogEntity deleteByCreateTime(String start,String end){
+        return sysLogRepository.deleteByCreateTime(start,end);
     }
 
 }
