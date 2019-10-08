@@ -107,9 +107,9 @@ public class WebReceiveToCService {
             case 3107:
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
                 break;
-            case 3178:
+           /* case 3178:
                 uploadVersionNumberMessage(byteBuffer, host);
-                break;
+                break;*/
             default:
 //                test(byteBuffer, host);
                 break;
@@ -641,7 +641,7 @@ public class WebReceiveToCService {
     /**
      * 软件版本信息表
      */
-    private void uploadVersionNumberMessage(ByteBuffer byteBuffer, String host) {
+   /* private void uploadVersionNumberMessage(ByteBuffer byteBuffer, String host) {
         Map<String, Number> map = receiveFixedInformation(byteBuffer);
         SoftwareVersion softwareVersion = new SoftwareVersion();
         int messageLength = byteBuffer.getInt(48);
@@ -674,7 +674,7 @@ public class WebReceiveToCService {
         list.add(host);
         list.add(softwareVersion);
         simpMessagingTemplate.convertAndSend("/uploadVersionNumberMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, list));
-    }
+    }*/
 
     /**
      *软件版本更新

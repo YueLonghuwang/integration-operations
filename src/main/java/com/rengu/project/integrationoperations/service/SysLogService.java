@@ -23,4 +23,8 @@ public class SysLogService {
     public Page<SysLogEntity>getAllSysLog(Pageable pageable){
         return sysLogRepository.findAll(pageable);
     }
+    public SysLogEntity deleteByCreateTime(String start,String end){
+        return sysLogRepository.deleteByCreateTime(start,end);
+    }
+
 }

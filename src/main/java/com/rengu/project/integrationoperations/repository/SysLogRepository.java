@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SysLogRepository extends JpaRepository<SysLogEntity,String> {
     Page<SysLogEntity> findAll(Pageable pageable);
+
+    SysLogEntity deleteByCreateTime(String start,String end);
 }
