@@ -1,0 +1,494 @@
+2019-10-08 13:38:37.513  INFO 7380 --- [main] c.r.p.i.IntegrationOperationsApplication : No active profile set, falling back to default profiles: default
+2019-10-08 13:38:40.552  INFO 7380 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2019-10-08 13:38:40.713  INFO 7380 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 130ms. Found 8 repository interfaces.
+2019-10-08 13:38:41.070  INFO 7380 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=4e95f1da-e012-3754-a313-1a3cdeb786c3
+2019-10-08 13:38:41.121  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'asyncConfiguration' of type [com.rengu.project.integrationoperations.configuration.AsyncConfiguration$$EnhancerBySpringCGLIB$$b816e006] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.328  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$85b574da] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.534  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$1e633d14] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.550  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.559  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@3f1ef9d6' of type [org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.561  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$4337dfc6] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.568  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:41.602  INFO 7380 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$a1cf77d7] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:38:42.280  INFO 7380 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8090 (http)
+2019-10-08 13:38:42.318  INFO 7380 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2019-10-08 13:38:42.319  INFO 7380 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.17]
+2019-10-08 13:38:42.520  INFO 7380 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2019-10-08 13:38:42.520  INFO 7380 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 4950 ms
+2019-10-08 13:38:43.094  INFO 7380 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2019-10-08 13:38:43.418  INFO 7380 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2019-10-08 13:38:43.519  INFO 7380 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2019-10-08 13:38:43.740  INFO 7380 --- [main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.3.9.Final}
+2019-10-08 13:38:43.746  INFO 7380 --- [main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2019-10-08 13:38:44.038  INFO 7380 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.4.Final}
+2019-10-08 13:38:44.245  INFO 7380 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2019-10-08 13:38:49.671  INFO 7380 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 13:38:51.090  WARN 7380 --- [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'logAsPectConfig': Unsatisfied dependency expressed through field 'sysLogService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sysLogService' defined in file [E:\IDEAProject\integration-operations\target\classes\com\rengu\project\integrationoperations\service\SysLogService.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+2019-10-08 13:38:51.092  INFO 7380 --- [main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 13:38:51.095  INFO 7380 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2019-10-08 13:38:51.103  INFO 7380 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2019-10-08 13:38:51.104  INFO 7380 --- [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2019-10-08 13:38:51.123  INFO 7380 --- [main] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2019-10-08 13:38:51.176 ERROR 7380 --- [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'logAsPectConfig': Unsatisfied dependency expressed through field 'sysLogService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sysLogService' defined in file [E:\IDEAProject\integration-operations\target\classes\com\rengu\project\integrationoperations\service\SysLogService.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:596) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:849) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at com.rengu.project.integrationoperations.IntegrationOperationsApplication.main(IntegrationOperationsApplication.java:12) [classes/:na]
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sysLogService' defined in file [E:\IDEAProject\integration-operations\target\classes\com\rengu\project\integrationoperations\service\SysLogService.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:769) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:218) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1247) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1167) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	... 19 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1778) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:593) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1247) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1167) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:857) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:760) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	... 32 common frames omitted
+Caused by: java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:84) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:106) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateIfNotFoundQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:211) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$AbstractQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:79) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.lookupQuery(RepositoryFactorySupport.java:566) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.lambda$mapMethodsToQuery$1(RepositoryFactorySupport.java:559) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193) ~[na:1.8.0_161]
+	at java.util.Iterator.forEachRemaining(Iterator.java:116) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection$1.forEachRemaining(Collections.java:1049) ~[na:1.8.0_161]
+	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) ~[na:1.8.0_161]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:708) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:499) ~[na:1.8.0_161]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.mapMethodsToQuery(RepositoryFactorySupport.java:561) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.lambda$new$0(RepositoryFactorySupport.java:551) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.Optional.map(Optional.java:215) ~[na:1.8.0_161]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.<init>(RepositoryFactorySupport.java:551) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport.getRepository(RepositoryFactorySupport.java:324) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.lambda$afterPropertiesSet$5(RepositoryFactoryBeanSupport.java:297) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.util.Lazy.getNullable(Lazy.java:211) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.util.Lazy.get(Lazy.java:94) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.afterPropertiesSet(RepositoryFactoryBeanSupport.java:300) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean.afterPropertiesSet(JpaRepositoryFactoryBean.java:121) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1837) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1774) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	... 43 common frames omitted
+Caused by: java.lang.IllegalArgumentException: At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.util.Assert.isTrue(Assert.java:136) ~[spring-core-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.QueryParameterSetterFactory$CriteriaQueryParameterSetterFactory.create(QueryParameterSetterFactory.java:291) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.lambda$createQueryParameterSetter$1(ParameterBinderFactory.java:139) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193) ~[na:1.8.0_161]
+	at java.util.Spliterators$ArraySpliterator.tryAdvance(Spliterators.java:958) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.forEachWithCancel(ReferencePipeline.java:126) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyIntoWithCancel(AbstractPipeline.java:498) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:485) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) ~[na:1.8.0_161]
+	at java.util.stream.FindOps$FindOp.evaluateSequential(FindOps.java:152) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.findFirst(ReferencePipeline.java:464) ~[na:1.8.0_161]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createQueryParameterSetter(ParameterBinderFactory.java:141) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.lambda$createSetters$0(ParameterBinderFactory.java:131) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193) ~[na:1.8.0_161]
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1382) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) ~[na:1.8.0_161]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:708) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:499) ~[na:1.8.0_161]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createSetters(ParameterBinderFactory.java:132) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createSetters(ParameterBinderFactory.java:124) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createCriteriaBinder(ParameterBinderFactory.java:75) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery$QueryPreparer.getBinder(PartTreeJpaQuery.java:250) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery$QueryPreparer.<init>(PartTreeJpaQuery.java:149) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery$CountQueryPreparer.<init>(PartTreeJpaQuery.java:270) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:79) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	... 69 common frames omitted
+
+2019-10-08 13:39:41.602  INFO 11812 --- [main] c.r.p.i.IntegrationOperationsApplication : No active profile set, falling back to default profiles: default
+2019-10-08 13:39:42.572  INFO 11812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2019-10-08 13:39:42.667  INFO 11812 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 86ms. Found 8 repository interfaces.
+2019-10-08 13:39:42.963  INFO 11812 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=4e95f1da-e012-3754-a313-1a3cdeb786c3
+2019-10-08 13:39:43.001  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'asyncConfiguration' of type [com.rengu.project.integrationoperations.configuration.AsyncConfiguration$$EnhancerBySpringCGLIB$$304a1e2d] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.111  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$fde8b301] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.250  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$96967b3b] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.256  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.262  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@4c7e978c' of type [org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.267  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$bb6b1ded] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.273  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.296  INFO 11812 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$1a02b5fe] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:39:43.795  INFO 11812 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8090 (http)
+2019-10-08 13:39:43.819  INFO 11812 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2019-10-08 13:39:43.820  INFO 11812 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.17]
+2019-10-08 13:39:43.966  INFO 11812 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2019-10-08 13:39:43.966  INFO 11812 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2351 ms
+2019-10-08 13:39:44.330  INFO 11812 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2019-10-08 13:39:44.448  INFO 11812 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2019-10-08 13:39:44.501  INFO 11812 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2019-10-08 13:39:44.615  INFO 11812 --- [main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.3.9.Final}
+2019-10-08 13:39:44.618  INFO 11812 --- [main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2019-10-08 13:39:44.771  INFO 11812 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.4.Final}
+2019-10-08 13:39:44.939  INFO 11812 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2019-10-08 13:39:46.054  INFO 11812 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 13:39:47.180  WARN 11812 --- [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'logAsPectConfig': Unsatisfied dependency expressed through field 'sysLogService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sysLogService' defined in file [E:\IDEAProject\integration-operations\target\classes\com\rengu\project\integrationoperations\service\SysLogService.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+2019-10-08 13:39:47.182  INFO 11812 --- [main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 13:39:47.184  INFO 11812 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2019-10-08 13:39:47.193  INFO 11812 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2019-10-08 13:39:47.194  INFO 11812 --- [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2019-10-08 13:39:47.213  INFO 11812 --- [main] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2019-10-08 13:39:47.226 ERROR 11812 --- [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'logAsPectConfig': Unsatisfied dependency expressed through field 'sysLogService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sysLogService' defined in file [E:\IDEAProject\integration-operations\target\classes\com\rengu\project\integrationoperations\service\SysLogService.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:596) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1411) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:849) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) [spring-boot-2.1.4.RELEASE.jar:2.1.4.RELEASE]
+	at com.rengu.project.integrationoperations.IntegrationOperationsApplication.main(IntegrationOperationsApplication.java:12) [classes/:na]
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sysLogService' defined in file [E:\IDEAProject\integration-operations\target\classes\com\rengu\project\integrationoperations\service\SysLogService.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:769) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:218) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1341) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1187) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:555) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1247) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1167) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:593) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	... 19 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysLogRepository': Invocation of init method failed; nested exception is java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1778) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:593) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:277) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1247) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1167) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:857) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:760) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	... 32 common frames omitted
+Caused by: java.lang.IllegalArgumentException: Failed to create query for method public abstract com.rengu.project.integrationoperations.entity.SysLogEntity com.rengu.project.integrationoperations.repository.SysLogRepository.deleteByCreateTime(java.lang.String,java.lang.String)! At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:84) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:106) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateIfNotFoundQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:211) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$AbstractQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:79) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.lookupQuery(RepositoryFactorySupport.java:566) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.lambda$mapMethodsToQuery$1(RepositoryFactorySupport.java:559) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193) ~[na:1.8.0_161]
+	at java.util.Iterator.forEachRemaining(Iterator.java:116) ~[na:1.8.0_161]
+	at java.util.Collections$UnmodifiableCollection$1.forEachRemaining(Collections.java:1049) ~[na:1.8.0_161]
+	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) ~[na:1.8.0_161]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:708) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:499) ~[na:1.8.0_161]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.mapMethodsToQuery(RepositoryFactorySupport.java:561) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.lambda$new$0(RepositoryFactorySupport.java:551) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.Optional.map(Optional.java:215) ~[na:1.8.0_161]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.<init>(RepositoryFactorySupport.java:551) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport.getRepository(RepositoryFactorySupport.java:324) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.lambda$afterPropertiesSet$5(RepositoryFactoryBeanSupport.java:297) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.util.Lazy.getNullable(Lazy.java:211) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.util.Lazy.get(Lazy.java:94) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.afterPropertiesSet(RepositoryFactoryBeanSupport.java:300) ~[spring-data-commons-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean.afterPropertiesSet(JpaRepositoryFactoryBean.java:121) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1837) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1774) ~[spring-beans-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	... 43 common frames omitted
+Caused by: java.lang.IllegalArgumentException: At least 2 parameter(s) provided but only 1 parameter(s) present in query.
+	at org.springframework.util.Assert.isTrue(Assert.java:136) ~[spring-core-5.1.6.RELEASE.jar:5.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.QueryParameterSetterFactory$CriteriaQueryParameterSetterFactory.create(QueryParameterSetterFactory.java:291) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.lambda$createQueryParameterSetter$1(ParameterBinderFactory.java:139) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193) ~[na:1.8.0_161]
+	at java.util.Spliterators$ArraySpliterator.tryAdvance(Spliterators.java:958) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.forEachWithCancel(ReferencePipeline.java:126) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyIntoWithCancel(AbstractPipeline.java:498) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:485) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) ~[na:1.8.0_161]
+	at java.util.stream.FindOps$FindOp.evaluateSequential(FindOps.java:152) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.findFirst(ReferencePipeline.java:464) ~[na:1.8.0_161]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createQueryParameterSetter(ParameterBinderFactory.java:141) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.lambda$createSetters$0(ParameterBinderFactory.java:131) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193) ~[na:1.8.0_161]
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1382) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471) ~[na:1.8.0_161]
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:708) ~[na:1.8.0_161]
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:1.8.0_161]
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:499) ~[na:1.8.0_161]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createSetters(ParameterBinderFactory.java:132) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createSetters(ParameterBinderFactory.java:124) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.ParameterBinderFactory.createCriteriaBinder(ParameterBinderFactory.java:75) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery$QueryPreparer.getBinder(PartTreeJpaQuery.java:250) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery$QueryPreparer.<init>(PartTreeJpaQuery.java:149) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery$CountQueryPreparer.<init>(PartTreeJpaQuery.java:270) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:79) ~[spring-data-jpa-2.1.6.RELEASE.jar:2.1.6.RELEASE]
+	... 69 common frames omitted
+
+2019-10-08 13:46:32.888  INFO 9228 --- [main] c.r.p.i.IntegrationOperationsApplication : No active profile set, falling back to default profiles: default
+2019-10-08 13:46:33.927  INFO 9228 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2019-10-08 13:46:34.028  INFO 9228 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 93ms. Found 8 repository interfaces.
+2019-10-08 13:46:34.334  INFO 9228 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=4e95f1da-e012-3754-a313-1a3cdeb786c3
+2019-10-08 13:46:34.371  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'asyncConfiguration' of type [com.rengu.project.integrationoperations.configuration.AsyncConfiguration$$EnhancerBySpringCGLIB$$a1bbbcfc] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.478  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$6f5a51d0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.619  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$8081a0a] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.626  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.631  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@257e0827' of type [org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.636  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$2cdcbcbc] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.643  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:34.681  INFO 9228 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$8b7454cd] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 13:46:35.175  INFO 9228 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8090 (http)
+2019-10-08 13:46:35.203  INFO 9228 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2019-10-08 13:46:35.204  INFO 9228 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.17]
+2019-10-08 13:46:35.356  INFO 9228 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2019-10-08 13:46:35.356  INFO 9228 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2455 ms
+2019-10-08 13:46:35.751  INFO 9228 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2019-10-08 13:46:35.870  INFO 9228 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2019-10-08 13:46:35.922  INFO 9228 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2019-10-08 13:46:36.021  INFO 9228 --- [main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.3.9.Final}
+2019-10-08 13:46:36.023  INFO 9228 --- [main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2019-10-08 13:46:36.191  INFO 9228 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.4.Final}
+2019-10-08 13:46:36.374  INFO 9228 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2019-10-08 13:46:37.310  INFO 9228 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 13:46:38.625  INFO 9228 --- [main] org.quartz.impl.StdSchedulerFactory      : Using default implementation for ThreadExecutor
+2019-10-08 13:46:38.641  INFO 9228 --- [main] org.quartz.core.SchedulerSignalerImpl    : Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2019-10-08 13:46:38.641  INFO 9228 --- [main] org.quartz.core.QuartzScheduler          : Quartz Scheduler v.2.2.3 created.
+2019-10-08 13:46:38.893  INFO 9228 --- [main] org.quartz.simpl.RAMJobStore             : RAMJobStore initialized.
+2019-10-08 13:46:38.895  INFO 9228 --- [main] org.quartz.core.QuartzScheduler          : Scheduler meta-data: Quartz Scheduler (v2.2.3) 'quartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 10 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2019-10-08 13:46:38.896  INFO 9228 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler 'quartzScheduler' initialized from an externally provided properties instance.
+2019-10-08 13:46:38.896  INFO 9228 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler version: 2.2.3
+2019-10-08 13:46:38.896  INFO 9228 --- [main] org.quartz.core.QuartzScheduler          : JobFactory set to: org.springframework.scheduling.quartz.SpringBeanJobFactory@43e7f104
+2019-10-08 13:46:39.050  INFO 9228 --- [main] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+2019-10-08 13:46:39.260  INFO 9228 --- [main] c.r.p.i.controller.JobController         : INIT SUCCESS
+2019-10-08 13:46:39.472  INFO 9228 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientInboundChannelExecutor'
+2019-10-08 13:46:39.495  INFO 9228 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientOutboundChannelExecutor'
+2019-10-08 13:46:40.172  INFO 9228 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@acd115d, org.springframework.security.web.context.SecurityContextPersistenceFilter@8c3b634, org.springframework.security.web.header.HeaderWriterFilter@5740ad76, org.springframework.web.filter.CorsFilter@2d7aa291, org.springframework.security.web.authentication.logout.LogoutFilter@526fc044, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@789d8fd6, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@17fb5184, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@45cf0c15, org.springframework.security.web.session.ConcurrentSessionFilter@11ca8f71, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@3ae87e38, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1e27bb89, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4219a4cc, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2f2dc407, org.springframework.security.web.session.SessionManagementFilter@79c849c7, org.springframework.security.web.access.ExceptionTranslationFilter@48b9773b, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@726d8fa0]
+2019-10-08 13:46:40.199  INFO 9228 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@355b53cc, org.springframework.security.web.context.SecurityContextPersistenceFilter@2c846d55, org.springframework.security.web.header.HeaderWriterFilter@6e6f5842, org.springframework.security.web.authentication.logout.LogoutFilter@21a0795f, org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter@35cf91df, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@735167e1, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@67689c81, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2568611c, org.springframework.security.web.session.SessionManagementFilter@60b4c754, org.springframework.security.web.access.ExceptionTranslationFilter@67671db1, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@28888124]
+2019-10-08 13:46:40.235  INFO 9228 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'messageBrokerTaskScheduler'
+2019-10-08 13:46:40.319  INFO 9228 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'brokerChannelExecutor'
+2019-10-08 13:46:40.689  WARN 9228 --- [main] aWebConfiguration$JpaWebMvcConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2019-10-08 13:46:41.211  INFO 9228 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2019-10-08 13:46:42.326  INFO 9228 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2019-10-08 13:46:42.327  INFO 9228 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [DefaultSubscriptionRegistry[cache[0 destination(s)], registry[0 sessions]]]]
+2019-10-08 13:46:42.328  INFO 9228 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2019-10-08 13:46:42.329  INFO 9228 --- [main] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now
+2019-10-08 13:46:42.329  INFO 9228 --- [main] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED started.
+2019-10-08 13:46:42.384  INFO 9228 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8090 (http) with context path ''
+2019-10-08 13:46:42.388  INFO 9228 --- [main] c.r.p.i.IntegrationOperationsApplication : Started IntegrationOperationsApplication in 13.377 seconds (JVM running for 15.317)
+2019-10-08 13:46:42.763  INFO 9228 --- [main] .r.p.i.u.BackEndFrameworkApplicationInit : 系统成功初始化2个角色
+2019-10-08 13:46:43.963  INFO 9228 --- [main] .r.p.i.u.BackEndFrameworkApplicationInit : 系统成功初始化8个用户
+2019-10-08 13:46:44.030  INFO 9228 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService
+2019-10-08 13:46:44.034  INFO 9228 --- [OMS-Thread1] c.r.p.i.thread.TCPThread                 : 监听TCP端口: 5889
+2019-10-08 13:46:44.654  INFO 9228 --- [RMI TCP Connection(2)-127.0.0.1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2019-10-08 13:46:44.654  INFO 9228 --- [RMI TCP Connection(2)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2019-10-08 13:46:44.675  INFO 9228 --- [RMI TCP Connection(2)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 21 ms
+2019-10-08 13:47:40.318  INFO 9228 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2019-10-08 14:15:19.462  INFO 1896 --- [main] c.r.p.i.IntegrationOperationsApplication : No active profile set, falling back to default profiles: default
+2019-10-08 14:15:20.477  INFO 1896 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2019-10-08 14:15:20.589  INFO 1896 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 103ms. Found 8 repository interfaces.
+2019-10-08 14:15:20.896  INFO 1896 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=d856c62c-6b42-3412-9c11-875099226e03
+2019-10-08 14:15:20.933  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'asyncConfiguration' of type [com.rengu.project.integrationoperations.configuration.AsyncConfiguration$$EnhancerBySpringCGLIB$$5383f802] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.041  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$21228cd6] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.175  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$b9d05510] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.184  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.191  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@a96d56c' of type [org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.193  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$dea4f7c2] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.200  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.241  INFO 1896 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$3d3c8fd3] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 14:15:21.766  INFO 1896 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8090 (http)
+2019-10-08 14:15:21.790  INFO 1896 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2019-10-08 14:15:21.790  INFO 1896 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.17]
+2019-10-08 14:15:21.940  INFO 1896 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2019-10-08 14:15:21.940  INFO 1896 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2465 ms
+2019-10-08 14:15:22.302  INFO 1896 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2019-10-08 14:15:22.418  INFO 1896 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2019-10-08 14:15:22.471  INFO 1896 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2019-10-08 14:15:22.573  INFO 1896 --- [main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.3.9.Final}
+2019-10-08 14:15:22.576  INFO 1896 --- [main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2019-10-08 14:15:22.736  INFO 1896 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.4.Final}
+2019-10-08 14:15:22.956  INFO 1896 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2019-10-08 14:15:23.904  INFO 1896 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 14:15:25.148  INFO 1896 --- [main] org.quartz.impl.StdSchedulerFactory      : Using default implementation for ThreadExecutor
+2019-10-08 14:15:25.159  INFO 1896 --- [main] org.quartz.core.SchedulerSignalerImpl    : Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2019-10-08 14:15:25.159  INFO 1896 --- [main] org.quartz.core.QuartzScheduler          : Quartz Scheduler v.2.2.3 created.
+2019-10-08 14:15:25.160  INFO 1896 --- [main] org.quartz.simpl.RAMJobStore             : RAMJobStore initialized.
+2019-10-08 14:15:25.419  INFO 1896 --- [main] org.quartz.core.QuartzScheduler          : Scheduler meta-data: Quartz Scheduler (v2.2.3) 'quartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 10 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2019-10-08 14:15:25.420  INFO 1896 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler 'quartzScheduler' initialized from an externally provided properties instance.
+2019-10-08 14:15:25.421  INFO 1896 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler version: 2.2.3
+2019-10-08 14:15:25.422  INFO 1896 --- [main] org.quartz.core.QuartzScheduler          : JobFactory set to: org.springframework.scheduling.quartz.SpringBeanJobFactory@3a13f663
+2019-10-08 14:15:25.512  INFO 1896 --- [main] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+2019-10-08 14:15:25.613  INFO 1896 --- [main] c.r.p.i.controller.JobController         : INIT SUCCESS
+2019-10-08 14:15:25.797  INFO 1896 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientInboundChannelExecutor'
+2019-10-08 14:15:25.808  INFO 1896 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientOutboundChannelExecutor'
+2019-10-08 14:15:26.234  INFO 1896 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2b06681c, org.springframework.security.web.context.SecurityContextPersistenceFilter@becb93a, org.springframework.security.web.header.HeaderWriterFilter@2ae4c424, org.springframework.web.filter.CorsFilter@7bb25046, org.springframework.security.web.authentication.logout.LogoutFilter@1e54e900, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@438a2d3, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@67fd2e17, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@20f6b6e0, org.springframework.security.web.session.ConcurrentSessionFilter@54c3e686, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@54d46c8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1d1fd2aa, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@40a84ea8, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@67cd84f9, org.springframework.security.web.session.SessionManagementFilter@237aba92, org.springframework.security.web.access.ExceptionTranslationFilter@c3d4bd7, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@7b9fea11]
+2019-10-08 14:15:26.249  INFO 1896 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@67689c81, org.springframework.security.web.context.SecurityContextPersistenceFilter@296bfddb, org.springframework.security.web.header.HeaderWriterFilter@44e4cf8a, org.springframework.security.web.authentication.logout.LogoutFilter@7af56b26, org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter@320770d7, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@508b4f70, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@32f14274, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@21a0795f, org.springframework.security.web.session.SessionManagementFilter@50930bff, org.springframework.security.web.access.ExceptionTranslationFilter@3ae87e38, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@735167e1]
+2019-10-08 14:15:26.272  INFO 1896 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'messageBrokerTaskScheduler'
+2019-10-08 14:15:26.318  INFO 1896 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'brokerChannelExecutor'
+2019-10-08 14:15:26.599  WARN 1896 --- [main] aWebConfiguration$JpaWebMvcConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2019-10-08 14:15:27.010  INFO 1896 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2019-10-08 14:15:28.088  INFO 1896 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2019-10-08 14:15:28.088  INFO 1896 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [DefaultSubscriptionRegistry[cache[0 destination(s)], registry[0 sessions]]]]
+2019-10-08 14:15:28.089  INFO 1896 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2019-10-08 14:15:28.089  INFO 1896 --- [main] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now
+2019-10-08 14:15:28.090  INFO 1896 --- [main] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED started.
+2019-10-08 14:15:28.131  INFO 1896 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8090 (http) with context path ''
+2019-10-08 14:15:28.133  INFO 1896 --- [main] c.r.p.i.IntegrationOperationsApplication : Started IntegrationOperationsApplication in 12.385 seconds (JVM running for 14.184)
+2019-10-08 14:15:28.230  INFO 1896 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService
+2019-10-08 14:15:28.233  INFO 1896 --- [OMS-Thread1] c.r.p.i.thread.TCPThread                 : 监听TCP端口: 5889
+2019-10-08 14:15:28.530  INFO 1896 --- [RMI TCP Connection(2)-127.0.0.1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2019-10-08 14:15:28.531  INFO 1896 --- [RMI TCP Connection(2)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2019-10-08 14:15:28.551  INFO 1896 --- [RMI TCP Connection(2)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 20 ms
+2019-10-08 14:16:26.316  INFO 1896 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2019-10-08 14:19:15.171  INFO 1896 --- [OMS-Thread1] c.r.p.i.thread.TCPThread                 : 当前连接数: 1
+2019-10-08 14:19:28.410  INFO 1896 --- [OMS-Thread1] c.r.p.i.thread.TCPThread                 : 当前设备已断开连接
+2019-10-08 15:43:25.081  INFO 552 --- [main] c.r.p.i.IntegrationOperationsApplication : No active profile set, falling back to default profiles: default
+2019-10-08 15:43:26.142  INFO 552 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2019-10-08 15:43:26.242  INFO 552 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 90ms. Found 8 repository interfaces.
+2019-10-08 15:43:26.568  INFO 552 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=d856c62c-6b42-3412-9c11-875099226e03
+2019-10-08 15:43:26.613  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'asyncConfiguration' of type [com.rengu.project.integrationoperations.configuration.AsyncConfiguration$$EnhancerBySpringCGLIB$$2a598fd9] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.746  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$f7f824ad] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.917  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$90a5ece7] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.924  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.929  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@58d6b7b9' of type [org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.934  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$b57a8f99] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.940  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:26.957  INFO 552 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$141227aa] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-08 15:43:27.519  INFO 552 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8090 (http)
+2019-10-08 15:43:27.544  INFO 552 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2019-10-08 15:43:27.544  INFO 552 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.17]
+2019-10-08 15:43:27.695  INFO 552 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2019-10-08 15:43:27.695  INFO 552 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2595 ms
+2019-10-08 15:43:28.104  INFO 552 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2019-10-08 15:43:28.228  INFO 552 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2019-10-08 15:43:28.289  INFO 552 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2019-10-08 15:43:28.397  INFO 552 --- [main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.3.9.Final}
+2019-10-08 15:43:28.400  INFO 552 --- [main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2019-10-08 15:43:28.547  INFO 552 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.4.Final}
+2019-10-08 15:43:28.726  INFO 552 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2019-10-08 15:43:30.255  INFO 552 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2019-10-08 15:43:32.023  INFO 552 --- [main] org.quartz.impl.StdSchedulerFactory      : Using default implementation for ThreadExecutor
+2019-10-08 15:43:32.037  INFO 552 --- [main] org.quartz.core.SchedulerSignalerImpl    : Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2019-10-08 15:43:32.038  INFO 552 --- [main] org.quartz.core.QuartzScheduler          : Quartz Scheduler v.2.2.3 created.
+2019-10-08 15:43:32.039  INFO 552 --- [main] org.quartz.simpl.RAMJobStore             : RAMJobStore initialized.
+2019-10-08 15:43:32.039  INFO 552 --- [main] org.quartz.core.QuartzScheduler          : Scheduler meta-data: Quartz Scheduler (v2.2.3) 'quartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 10 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2019-10-08 15:43:32.040  INFO 552 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler 'quartzScheduler' initialized from an externally provided properties instance.
+2019-10-08 15:43:32.040  INFO 552 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler version: 2.2.3
+2019-10-08 15:43:32.040  INFO 552 --- [main] org.quartz.core.QuartzScheduler          : JobFactory set to: org.springframework.scheduling.quartz.SpringBeanJobFactory@7294a684
+2019-10-08 15:43:32.112  INFO 552 --- [main] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+2019-10-08 15:43:32.208  INFO 552 --- [main] c.r.p.i.controller.JobController         : INIT SUCCESS
+2019-10-08 15:43:32.398  INFO 552 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientInboundChannelExecutor'
+2019-10-08 15:43:32.410  INFO 552 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientOutboundChannelExecutor'
+2019-10-08 15:43:32.837  INFO 552 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1d6a22dd, org.springframework.security.web.context.SecurityContextPersistenceFilter@49338f3, org.springframework.security.web.header.HeaderWriterFilter@4219a4cc, org.springframework.web.filter.CorsFilter@2e4b5da1, org.springframework.security.web.authentication.logout.LogoutFilter@5f32ab17, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@52bc6fcf, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@12eaa2cd, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@67671db1, org.springframework.security.web.session.ConcurrentSessionFilter@526fc044, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@24668b5b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4abdd5e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1ddba7a0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6e6f5842, org.springframework.security.web.session.SessionManagementFilter@3130ca39, org.springframework.security.web.access.ExceptionTranslationFilter@38a52072, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@5dfec221]
+2019-10-08 15:43:32.852  INFO 552 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5e3d84a, org.springframework.security.web.context.SecurityContextPersistenceFilter@393bcd6b, org.springframework.security.web.header.HeaderWriterFilter@723c5f86, org.springframework.security.web.authentication.logout.LogoutFilter@36cdcae0, org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter@18e76101, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@64a8d575, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@74787609, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2728add3, org.springframework.security.web.session.SessionManagementFilter@301e5d23, org.springframework.security.web.access.ExceptionTranslationFilter@71458178, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@690e4b00]
+2019-10-08 15:43:32.875  INFO 552 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'messageBrokerTaskScheduler'
+2019-10-08 15:43:32.922  INFO 552 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'brokerChannelExecutor'
+2019-10-08 15:43:33.185  WARN 552 --- [main] aWebConfiguration$JpaWebMvcConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2019-10-08 15:43:33.604  INFO 552 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2019-10-08 15:43:34.681  INFO 552 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2019-10-08 15:43:34.682  INFO 552 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [DefaultSubscriptionRegistry[cache[0 destination(s)], registry[0 sessions]]]]
+2019-10-08 15:43:34.683  INFO 552 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2019-10-08 15:43:34.683  INFO 552 --- [main] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now
+2019-10-08 15:43:34.683  INFO 552 --- [main] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED started.
+2019-10-08 15:43:34.723  INFO 552 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8090 (http) with context path ''
+2019-10-08 15:43:34.725  INFO 552 --- [main] c.r.p.i.IntegrationOperationsApplication : Started IntegrationOperationsApplication in 13.813 seconds (JVM running for 15.589)
+2019-10-08 15:43:34.825  INFO 552 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService
+2019-10-08 15:43:34.828  INFO 552 --- [OMS-Thread1] c.r.p.i.thread.TCPThread                 : 监听TCP端口: 5889
+2019-10-08 15:43:35.155  INFO 552 --- [RMI TCP Connection(2)-127.0.0.1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2019-10-08 15:43:35.155  INFO 552 --- [RMI TCP Connection(2)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2019-10-08 15:43:35.171  INFO 552 --- [RMI TCP Connection(2)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 16 ms

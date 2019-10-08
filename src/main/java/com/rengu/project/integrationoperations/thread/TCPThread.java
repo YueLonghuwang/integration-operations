@@ -100,6 +100,10 @@ public class TCPThread {
                 map1.put("data",map);
                 simpMessagingTemplate.convertAndSend("/deviceUnConnect/send", map1);
                 log.info("当前设备已断开连接");
+
+                receiveInformationService.saveSystemErrorLog(null,host);
+
+
                 key.cancel();
                 channel.socket().close();
                 channel.close();

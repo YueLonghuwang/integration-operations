@@ -3,6 +3,7 @@ package com.rengu.project.integrationoperations.controller;
 import com.rengu.project.integrationoperations.configuration.LogConfig;
 import com.rengu.project.integrationoperations.entity.*;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
+import com.rengu.project.integrationoperations.service.SysErrorLogService;
 import com.rengu.project.integrationoperations.service.SysLogService;
 import com.rengu.project.integrationoperations.service.WebSendToCService;
 import com.rengu.project.integrationoperations.service.WebReceiveToCService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * web端发送到c++端
@@ -27,15 +29,16 @@ import java.io.IOException;
 public class WebSendToCController {
     private final WebSendToCService webSendToCService;
     private final WebReceiveToCService receiveInformationService;
-    private final SysLogService sysLogService;
+    private final SysErrorLogService sysErrorLogService;
+
     // 设置同批数据为同一序号
     private final int serialNumber = 0;
 
     @Autowired
-    public WebSendToCController(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, SysLogService sysLogService) {
+    public WebSendToCController(WebSendToCService webSendToCService, WebReceiveToCService receiveInformationService, SysErrorLogService sysErrorLogService) {
         this.webSendToCService = webSendToCService;
         this.receiveInformationService = receiveInformationService;
-        this.sysLogService = sysLogService;
+        this.sysErrorLogService = sysErrorLogService;
     }
 
     // 发送系统校时
@@ -46,6 +49,12 @@ public class WebSendToCController {
             webSendToCService.sendSystemTiming(timeNow, time, timingPattern, host, updateAll, serialNumber);
         } catch (Exception e) {
             log.info("发送系统校时异常");
+            SysErrorLogEntity sysErrorLogEntity = new SysErrorLogEntity();
+            sysErrorLogEntity.setHost(host);
+            sysErrorLogEntity.setErrorMsg("发送系统校时异常");
+            sysErrorLogEntity.setErrorType("系统异常");
+            sysErrorLogEntity.setCreateTime(new Date());
+            sysErrorLogService.saveError(sysErrorLogEntity);
         }
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, null);
     }
