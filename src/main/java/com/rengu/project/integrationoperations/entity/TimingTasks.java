@@ -15,11 +15,7 @@ import java.util.UUID;
 public class TimingTasks implements Serializable {
     @Id
     private String id= UUID.randomUUID().toString();
-    private String jobName;
-    private String jobGroup;
-    private String description;
-    private String  host;
-    private String params;
-    private String cron;   //定时时间
+    private String date;
+    private String time;   //定时时间
     private int state;    //状态
 }
