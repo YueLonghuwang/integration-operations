@@ -4,46 +4,28 @@ package com.rengu.project.integrationoperations.entity;
 /**
  * @Author: yaojiahao
  * @Date: 2019/4/16 12:54
+ * 雷达系统指令
  */
 public class SystemControlCMD {
     private String workPattern;  //  工作模式 0:自检 1:频域搜索 2:驻留 3:空域搜索 4:中频采集 5:敌我1030 6:敌我1090 其他:无效
-    //private String workCycle; //  工作周期 单位50ms
     private String workPeriod;
-    //private String workCycleAmount; //  工作周期数,默认为1
     private String workPeriodNum;
-    //private String beginFrequency; //  起始频率 1MHz
     private String initialFrequency;
-    //private String chooseBandwidth;  // 带宽选择
     private String bandWidthSelection;
-    //private String chooseAntenna1;  //  天线一选择
     private String antennaSelection1;
-    //private String chooseAntenna2;  //  天线二选择
     private String antennaSelection2;
-    //private String attenuationRF1;  // 射频一衰减GuidanceSwitch
     private String radioFrequencyAttenuation1;
-    //private String attenuationRF2;  // 射频二衰减
     private String radioFrequencyAttenuation2;
-    //private String balancedAttenuationRF1;  // 射频一长电缆均衡衰减控制
     private String attenuationControl1;
-    //private String balancedAttenuationRF2;  // 射频二长电缆均衡衰减控制
     private String attenuationControl2;
-    //private String attenuationMF1;  // 中频一衰减
     private String midCut1;
-    //private String attenuationMF2;  //  中频二衰减
     private String midCut2;
-    //private String attenuationControlWay;  // 衰减码控制方式
     private String attenuationCodeControlMode;
-    //private String selfInspectionAttenuation;  // 自检源衰减
     private String selfCheckingSourceAttenuation;
-    //private String guidanceSwitch;  // 脉内引导批次号开关
     private String batchNumberSwitch;
-    //private String guidance;  //  脉内引导批次
     private String batchNumber;
-    //private String faultDetect; //  故障检测门限
     private String faultDetectionThreshold;
-    //private String endFrequency;  //  终止频率 1MHz
     private String terminationFrequency;
-    //private String steppedFrequency; // 频率步进 单位MHZ
     private String steppedFrequency;
     private String timingTimeCode;  // 定时时间码
     private String timeRequired;  // 单次执行指令集所需时间

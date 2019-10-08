@@ -1,7 +1,5 @@
 package com.rengu.project.integrationoperations.entity;
 
-
-
 /**
  * author : yaojiahao
  * Date: 2019/7/15 16:03
@@ -35,10 +33,9 @@ public class DeviceWorkFlowCMD{
     private String timeCode; // 时间码（同步时间）
     private String workPattern; // 工作模式(工作模式)
     private String bandwidthChoose; // 带宽选择
-    private String PulseChoice; // 脉冲选择
+    private String PulseChoice; // 秒脉冲选择
     private String selfChoose;  //自检模式选择
     private String pointSelection; //自检频点选择
-    //private String synchronizationTime; //同步时间
     private String hierarchicalControl; // 分机控制字
     private String PDW740; // PDW740个数
     private String PDW837; // 837.5PWD个数
@@ -82,7 +79,6 @@ public class DeviceWorkFlowCMD{
     public String getMessageNumber() {
         return messageNumber;
     }
-
 
     public void setMessageNumber(String messageNumber) {
         this.messageNumber = messageNumber;

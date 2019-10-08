@@ -26,6 +26,7 @@ import java.util.*;
 public class WebReceiveToCService {
     private final HostRepository hostRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+
     public WebReceiveToCService(HostRepository hostRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.hostRepository = hostRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -34,16 +35,16 @@ public class WebReceiveToCService {
     // 储存或更新当前连接服务端的IP地址
     public void allHost(String hosts) {
         List<AllHost> allHostList = hostRepository.findAll();
-        int size= hostRepository.findByHostNotLike("无").size();
-        for(AllHost allHost:allHostList){
-            if(allHost.getHost().equals("无")){
+        int size = hostRepository.findByHostNotLike("无").size();
+        for (AllHost allHost : allHostList) {
+            if (allHost.getHost().equals("无")) {
                 if (!hasHostIP(hosts)) {
                     allHost.setHost(hosts);
                     Map<Object, Object> map = new HashMap<>();
-                    map.put("device",size+1);
-                    map.put("message","一台新的设备已入库");
+                    map.put("device", size + 1);
+                    map.put("message", "一台新的设备已入库");
                     hostRepository.save(allHost);
-                    simpMessagingTemplate.convertAndSend("/deviceConnect/send",map);
+                    simpMessagingTemplate.convertAndSend("/deviceConnect/send", map);
                     return;
                 }
             }
@@ -56,6 +57,7 @@ public class WebReceiveToCService {
             hostRepository.save(allHosts);
         }
     }
+
     // 解析报文固定信息
     @Async
     public Map<String, Number> receiveFixedInformation(ByteBuffer byteBuffer) {
@@ -85,6 +87,7 @@ public class WebReceiveToCService {
     public void receiveSocketHandler1(ByteBuffer byteBuffer, String host) {
         short messageCategorys = byteBuffer.getShort(14);
         int messageCategory = Integer.parseInt(Integer.toHexString(messageCategorys));
+        String messageCategoryss = String.valueOf(Integer.parseInt(Integer.toHexString(messageCategorys)));
         switch (messageCategory) {
             case 3001:
                 receiveHeartbeatCMD(byteBuffer, host);
@@ -103,6 +106,12 @@ public class WebReceiveToCService {
                 break;
             case 3107:
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
+                break;
+           /* case 3178:
+                uploadVersionNumberMessage(byteBuffer, host);
+                break;*/
+            default:
+//                test(byteBuffer, host);
                 break;
         }
     }
@@ -164,6 +173,9 @@ public class WebReceiveToCService {
                 break;
             case 3107:
                 uploadRadarSubSystemWorkStatusMessage(byteBuffer, host);
+                break;
+            default:
+//                test(byteBuffer, host);
                 break;
         }
     }
@@ -514,7 +526,6 @@ public class WebReceiveToCService {
         byte[] networkIP6s = new byte[4];
         byteBuffer.get(networkIP6s);
         sendDeviceNetWorkParam.setNetworkIP6(getIP(networkIP6s)); // 网络IP地址6
-
         String mac6 = getMac(byteBuffer.getShort(138), byteBuffer.getInt(140)); // 网络MAC地址6
         sendDeviceNetWorkParam.setNetworkMacIP6(mac6);
         int networkMessage6 = byteBuffer.getInt(144); // 网络端口信息6
@@ -626,6 +637,51 @@ public class WebReceiveToCService {
         map1.put("host", host);
         simpMessagingTemplate.convertAndSend("/uploadRadarSubSystemWorkStatusMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, map1));
     }
+
+    /**
+     * 软件版本信息表
+     */
+   /* private void uploadVersionNumberMessage(ByteBuffer byteBuffer, String host) {
+        Map<String, Number> map = receiveFixedInformation(byteBuffer);
+        SoftwareVersion softwareVersion = new SoftwareVersion();
+        int messageLength = byteBuffer.getInt(48);
+        long tasklowNo = byteBuffer.getLong(52);
+        //雷达加载版本号
+        //int lateralFPGA=byteBuffer.getInt(60); //侧向FPGA_A版本号
+        softwareVersion.setLateralFPGA(String.valueOf(byteBuffer.getInt(60)));
+        softwareVersion.setLateralZ7PS(String.valueOf(byteBuffer.getInt(64)));
+        softwareVersion.setCrimesFPGA(String.valueOf(byteBuffer.getInt(68)));
+        softwareVersion.setCrimesZ7PS(String.valueOf(byteBuffer.getInt(72)));
+        softwareVersion.setSignalFPGA(String.valueOf(byteBuffer.getInt(76)));
+        softwareVersion.setSystemFPGA(String.valueOf(byteBuffer.getInt(80)));
+        softwareVersion.setLateralFPGB(String.valueOf(byteBuffer.getInt(84)));
+        softwareVersion.setLateralZ7PL(String.valueOf(byteBuffer.getInt(88)));
+        softwareVersion.setCrimesFPGB(String.valueOf(byteBuffer.getInt(92)));
+        softwareVersion.setCrimesZ7PL(String.valueOf(byteBuffer.getInt(96)));
+        softwareVersion.setSignalDSP(String.valueOf(byteBuffer.getInt(100)));
+        softwareVersion.setSystemDSP(String.valueOf(byteBuffer.getInt(104)));
+        //敌我加载版本号
+        softwareVersion.setMasterControlFPGA1(String.valueOf(byteBuffer.getInt(108)));
+        softwareVersion.setMasterControlDSP(String.valueOf(byteBuffer.getInt(112)));
+        softwareVersion.setInspectFPGA2(String.valueOf(byteBuffer.getInt(116)));
+        softwareVersion.setMasterControlFPGA2(String.valueOf(byteBuffer.getInt(120)));
+        softwareVersion.setInspectFPGA1(String.valueOf(byteBuffer.getInt(124)));
+        softwareVersion.setInspectFPGA(String.valueOf(byteBuffer.getInt(128)));
+        //结尾
+        int verify = byteBuffer.getInt(132); // 校验和
+        int messageEnd = byteBuffer.getInt(136); // 报文尾
+        List<Object> list = new ArrayList<>();
+        list.add(host);
+        list.add(softwareVersion);
+        simpMessagingTemplate.convertAndSend("/uploadVersionNumberMessage/send", new ResultEntity(SystemStatusCodeEnum.SUCCESS, list));
+    }*/
+
+    /**
+     *软件版本更新
+     */
+
+
+
 
     // 解析工作状态  3.4.6.10 上报自检结果   3.4.6.9 上传心跳信息 引用
     private Map<String, String> workStatus(byte systemWorkStatus) {
