@@ -582,6 +582,9 @@ public class WebSendToCService {
 
     //设备工作流程控制指令(雷达分机指令)
     public void sendExtensionInstructionsCMD(DeviceWorkFlowCMD deviceWorkFlowCMD, int count, String host, String updateAll, int serialNumber, int radarExtensionNum) {
+
+
+
         if (updateAll.equals("1")) {
             List<AllHost> list = hostRepository.findAll();
             int serialNumbers = addSerialNum();
@@ -606,7 +609,8 @@ public class WebSendToCService {
             //大包头
             sendSystemControlCmdFormat(byteBuffer, 2048, shorts, shorts, backups, backups, (short) 12296, 0, serialNumber1, 0, serialNumber1, 0, shorts, 0, shorts);
             // 分机控制指令
-            byteBuffer.putShort(SocketConfig.header); //小包头
+            byteBuffer.putShort(SocketConfig.header);
+            //小包头
             byte pulse = Byte.parseByte(deviceWorkFlowCMD.getPulse());
             byteBuffer.put(pulse);
             byteBuffer.put(backups);
@@ -633,6 +637,8 @@ public class WebSendToCService {
             byteBuffer.putShort(shorts);
             byteBuffer.put(backups);
             byteBuffer.putShort(shorts);
+
+
             //  包尾
             getPackageTheTail(byteBuffer);
             // 512字节 多余补0

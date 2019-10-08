@@ -1,6 +1,6 @@
 package com.rengu.project.integrationoperations.entity;
 
-import com.sun.xml.internal.ws.api.message.Packet;
+
 
 /**
  * author : yaojiahao

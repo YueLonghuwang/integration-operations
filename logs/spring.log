@@ -2195,3 +2195,78 @@ java.lang.NullPointerException: null
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) [tomcat-embed-core-9.0.17.jar:9.0.17]
 	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_161]
 
+2019-09-16 16:00:51.013  INFO 16404 --- [main] .i.IntegrationOperationsApplicationTests : No active profile set, falling back to default profiles: default
+2019-09-16 16:00:56.619  INFO 16404 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2019-09-16 16:00:56.885  INFO 16404 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 230ms. Found 6 repository interfaces.
+2019-09-16 16:00:57.575  INFO 16404 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=ef98f9ba-6e3f-382b-9dbb-e42facc163bf
+2019-09-16 16:00:57.986  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'asyncConfiguration' of type [com.rengu.project.integrationoperations.configuration.AsyncConfiguration$$EnhancerBySpringCGLIB$$9f302cc5] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.246  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$6ccec199] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.381  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$57c89d3] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.407  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.424  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@31db34da' of type [org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.443  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$2a512c85] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.459  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:58.552  INFO 16404 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$88e8c496] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-09-16 16:00:59.288  INFO 16404 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2019-09-16 16:00:59.788  INFO 16404 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2019-09-16 16:01:00.088  INFO 16404 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2019-09-16 16:01:00.489  INFO 16404 --- [main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.3.9.Final}
+2019-09-16 16:01:00.492  INFO 16404 --- [main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2019-09-16 16:01:01.027  INFO 16404 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.4.Final}
+2019-09-16 16:01:01.912  INFO 16404 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2019-09-16 16:01:03.899  INFO 16404 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2019-09-16 16:01:11.769  INFO 16404 --- [main] org.quartz.impl.StdSchedulerFactory      : Using default implementation for ThreadExecutor
+2019-09-16 16:01:11.805  INFO 16404 --- [main] org.quartz.core.SchedulerSignalerImpl    : Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2019-09-16 16:01:11.805  INFO 16404 --- [main] org.quartz.core.QuartzScheduler          : Quartz Scheduler v.2.2.3 created.
+2019-09-16 16:01:11.807  INFO 16404 --- [main] org.quartz.simpl.RAMJobStore             : RAMJobStore initialized.
+2019-09-16 16:01:11.808  INFO 16404 --- [main] org.quartz.core.QuartzScheduler          : Scheduler meta-data: Quartz Scheduler (v2.2.3) 'quartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 10 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2019-09-16 16:01:11.809  INFO 16404 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler 'quartzScheduler' initialized from an externally provided properties instance.
+2019-09-16 16:01:11.809  INFO 16404 --- [main] org.quartz.impl.StdSchedulerFactory      : Quartz scheduler version: 2.2.3
+2019-09-16 16:01:11.810  INFO 16404 --- [main] org.quartz.core.QuartzScheduler          : JobFactory set to: org.springframework.scheduling.quartz.SpringBeanJobFactory@5f5923ef
+2019-09-16 16:01:12.094  INFO 16404 --- [main] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+2019-09-16 16:01:13.151  INFO 16404 --- [main] c.r.p.i.controller.JobController         : Job register name : 0bb85a6a-3859-41d3-9c91-2f9ba02beaca , group : bwjs , cron : 04 00 00 19 09 ? 2019
+2019-09-16 16:01:13.154  INFO 16404 --- [main] c.r.p.i.controller.JobController         : Job jump name : bwjs , Because 0bb85a6a-3859-41d3-9c91-2f9ba02beaca status is 0
+2019-09-16 16:01:13.156  INFO 16404 --- [main] c.r.p.i.controller.JobController         : Job register name : 94c345f1-4079-41a8-a6c1-fe0c57bee961 , group : bwjs , cron : 11 20 23 22 09 ? 2019
+2019-09-16 16:01:13.156  INFO 16404 --- [main] c.r.p.i.controller.JobController         : Job jump name : bwjs , Because 94c345f1-4079-41a8-a6c1-fe0c57bee961 status is 0
+2019-09-16 16:01:13.156  INFO 16404 --- [main] c.r.p.i.controller.JobController         : Job register name : ff09746d-c1ad-483d-9620-801a9c0069b6 , group : bwjs , cron : 00 00 12 01 10 ? 2019
+2019-09-16 16:01:13.186  INFO 16404 --- [main] c.r.p.i.controller.JobController         : INIT SUCCESS
+2019-09-16 16:01:13.708  INFO 16404 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientInboundChannelExecutor'
+2019-09-16 16:01:13.722  INFO 16404 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'clientOutboundChannelExecutor'
+2019-09-16 16:01:14.895  INFO 16404 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5a3be84, org.springframework.security.web.context.SecurityContextPersistenceFilter@353422fd, org.springframework.security.web.header.HeaderWriterFilter@79bf39e5, org.springframework.web.filter.CorsFilter@59cde35, org.springframework.security.web.authentication.logout.LogoutFilter@1e5e3147, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@b1fa523, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@6cd6698b, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@4850d66b, org.springframework.security.web.session.ConcurrentSessionFilter@4b20aa21, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@68543a35, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5cc669d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@dd77e0d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@21f479cd, org.springframework.security.web.session.SessionManagementFilter@364c93e6, org.springframework.security.web.access.ExceptionTranslationFilter@2a19c36b, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@7d0df326]
+2019-09-16 16:01:14.967  INFO 16404 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1b79df53, org.springframework.security.web.context.SecurityContextPersistenceFilter@121dac1a, org.springframework.security.web.header.HeaderWriterFilter@3cae4518, org.springframework.security.web.authentication.logout.LogoutFilter@53b907d9, org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter@33a8f553, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6d946eee, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@23dc70c1, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@8ee1404, org.springframework.security.web.session.SessionManagementFilter@5a654e05, org.springframework.security.web.access.ExceptionTranslationFilter@4a86be01, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@4f65af91]
+2019-09-16 16:01:15.121  INFO 16404 --- [main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'messageBrokerTaskScheduler'
+2019-09-16 16:01:15.458  INFO 16404 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'brokerChannelExecutor'
+2019-09-16 16:01:17.005  WARN 16404 --- [main] aWebConfiguration$JpaWebMvcConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2019-09-16 16:01:18.787  INFO 16404 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2019-09-16 16:01:19.944  INFO 16404 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2019-09-16 16:01:19.945  INFO 16404 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [DefaultSubscriptionRegistry[cache[0 destination(s)], registry[0 sessions]]]]
+2019-09-16 16:01:19.946  INFO 16404 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2019-09-16 16:01:19.948  INFO 16404 --- [main] o.s.s.quartz.SchedulerFactoryBean        : Starting Quartz Scheduler now
+2019-09-16 16:01:19.949  INFO 16404 --- [main] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED started.
+2019-09-16 16:01:19.971  INFO 16404 --- [main] .i.IntegrationOperationsApplicationTests : Started IntegrationOperationsApplicationTests in 35.77 seconds (JVM running for 40.088)
+2019-09-16 16:01:20.098  INFO 16404 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService
+2019-09-16 16:01:20.104  INFO 16404 --- [OMS-Thread1] c.r.p.i.thread.TCPThread                 : ¼àÌýTCP¶Ë¿Ú: 5889
+2019-09-16 16:01:20.531  INFO 16404 --- [Thread-5] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2019-09-16 16:01:20.531  INFO 16404 --- [Thread-5] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [DefaultSubscriptionRegistry[cache[0 destination(s)], registry[0 sessions]]]]
+2019-09-16 16:01:20.532  INFO 16404 --- [Thread-5] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2019-09-16 16:01:20.533  INFO 16404 --- [Thread-5] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED paused.
+2019-09-16 16:01:20.539  INFO 16404 --- [Thread-5] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'brokerChannelExecutor'
+2019-09-16 16:01:20.540  INFO 16404 --- [Thread-5] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'messageBrokerTaskScheduler'
+2019-09-16 16:01:20.542  INFO 16404 --- [Thread-5] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'clientOutboundChannelExecutor'
+2019-09-16 16:01:20.542  INFO 16404 --- [Thread-5] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'clientInboundChannelExecutor'
+2019-09-16 16:01:20.543  INFO 16404 --- [Thread-5] o.s.s.quartz.SchedulerFactoryBean        : Shutting down Quartz Scheduler
+2019-09-16 16:01:20.543  INFO 16404 --- [Thread-5] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED shutting down.
+2019-09-16 16:01:20.543  INFO 16404 --- [Thread-5] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED paused.
+2019-09-16 16:01:20.545  INFO 16404 --- [Thread-5] org.quartz.core.QuartzScheduler          : Scheduler quartzScheduler_$_NON_CLUSTERED shutdown complete.
+2019-09-16 16:01:20.554  INFO 16404 --- [Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2019-09-16 16:01:20.561  INFO 16404 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2019-09-16 16:01:20.586  INFO 16404 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.transform.Result;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * web端发送到c++端
@@ -135,6 +136,7 @@ public class WebSendToCController {
     //设备工作流程控制指令(雷达分机指令)
     @PostMapping("/sendExtensionInstructionsCMD/communication")
     public ResultEntity sendExtensionInstructions(DeviceWorkFlowCMD deviceWorkFlowCMD, int count, String host, String updateAll,int radarExtensionNum) {
+
         webSendToCService.sendExtensionInstructionsCMD(deviceWorkFlowCMD, count, host, updateAll, serialNumber,radarExtensionNum);
         return new ResultEntity(SystemStatusCodeEnum.SUCCESS, "发送雷达分机指令成功");
     }
