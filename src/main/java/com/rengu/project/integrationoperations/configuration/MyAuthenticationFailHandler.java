@@ -30,9 +30,9 @@ public class MyAuthenticationFailHandler implements AuthenticationFailureHandler
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        log.info("登录失败:" + exception.getMessage());
-        log.info("username=>" + request.getParameter("username"));
-        log.info("password=>" + request.getParameter("password"));
+        //log.info("登录失败:" + exception.getMessage());
+        //log.info("username=>" + request.getParameter("username"));
+        //log.info("password=>" + request.getParameter("password"));
         Map<String, Object> map = new HashMap<>();
         if (exception.getMessage().equals("Bad credentials")) {
             map.put("code", "1001");

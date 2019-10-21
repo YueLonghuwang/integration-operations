@@ -14,6 +14,8 @@ public enum SystemStatusCodeEnum {
     UNKNOWN_ERROR(0, "未知错误"),
     // 成功
     SUCCESS(1, "请求成功"),
+    
+    ERROR(2,"指令条数已超出"),
     // 角色名已存在
     FAIL(2,"请求失败"),
     ROLE_NAME_EXISTED(101, BackEndFrameworkApplicationMessage.ROLE_NAME_EXISTED),

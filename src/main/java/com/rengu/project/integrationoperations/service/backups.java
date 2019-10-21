@@ -5,7 +5,6 @@ package com.rengu.project.integrationoperations.service;
  * Date: 2019/7/19 9:23
  **/
 
-import com.rengu.project.integrationoperations.entity.AllHost;
 import com.rengu.project.integrationoperations.entity.DeviceWorkFlowCMD;
 import com.rengu.project.integrationoperations.enums.SystemStatusCodeEnum;
 import com.rengu.project.integrationoperations.exception.SystemException;

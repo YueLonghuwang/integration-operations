@@ -1,8 +1,6 @@
 package com.rengu.project.integrationoperations.entity;
 
-/**
- *  雷达子系统工作标签包
- */
+
 public class LabelPackageInfo {
     private byte[] GPSData; // GPS数据
     private byte sendNodeNum;  //  发方节点号

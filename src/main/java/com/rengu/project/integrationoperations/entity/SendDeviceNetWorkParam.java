@@ -3,8 +3,7 @@ package com.rengu.project.integrationoperations.entity;
 /**
  * author : yaojiahao
  * Date: 2019/7/14 19:42
- * 设备网络参数更新表
- */
+ **/
 
 public class SendDeviceNetWorkParam {
     private String messageLength; // 信息长度

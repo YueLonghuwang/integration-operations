@@ -18,4 +18,9 @@ public class SystemException extends RuntimeException {
         super(systemStatusCodeEnum.getMessage());
         this.systemStatusCodeEnum = systemStatusCodeEnum;
     }
+
+    public SystemStatusCodeEnum getSystemStatusCodeEnum() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

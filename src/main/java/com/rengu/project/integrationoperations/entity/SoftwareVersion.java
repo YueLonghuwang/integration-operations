@@ -6,6 +6,7 @@ package com.rengu.project.integrationoperations.entity;
  * 软件版本信息表
  */
 public class SoftwareVersion {
+    //雷达
     private String  lateralFPGA;
     private String lateralZ7PS;
     private String crimesFPGA;
@@ -18,6 +19,7 @@ public class SoftwareVersion {
     private String crimesZ7PL;
     private String signalDSP;
     private String systemDSP;
+    //敌我
     private String masterControlFPGA1;
     private String masterControlDSP;
     private String inspectFPGA2;

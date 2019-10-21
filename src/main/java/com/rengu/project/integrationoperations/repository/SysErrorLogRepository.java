@@ -1,8 +1,8 @@
 package com.rengu.project.integrationoperations.repository;
 
-import com.rengu.project.integrationoperations.entity.SysLogEntity;
-
 import java.util.Date;
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -10,10 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface SysLogRepository extends JpaRepository<SysLogEntity, String> {
-	@Transactional
-	int deleteByCreateTimeBetween(Date createTime, Date createTime2);
+import com.rengu.project.integrationoperations.entity.SysErrorLogEntity;
 
-	Page<SysLogEntity>findAllByCreateTimeBetween(Pageable pageable,Date createTime, Date createTime2);
+@Repository
+public interface SysErrorLogRepository extends JpaRepository<SysErrorLogEntity, String> {
+
+	Page<SysErrorLogEntity> findAllByCreateTimeBetween(Pageable pageable, Date st, Date ed);
+
+	@Transactional
+	int deleteByCreateTimeBetween(Date st, Date ed);
+
+
 }

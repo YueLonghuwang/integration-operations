@@ -20,9 +20,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/stomp").setAllowedOrigins("*").withSockJS();
     }
 
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         //服务端广播消息的路径前缀，客户端需要相应订阅/topic/yyy这个地址的消息
-        registry.enableSimpleBroker("/deviceConnect","/uploadHeartBeatMessage","/receiveHeartbeatCMD","/uploadSelfInspectionResult","/uploadSoftwareVersionMessage","/uploadDeviceNetWorkParamMessage","/uploadRadarSubSystemWorkStatusMessage","/uploadVersionNumberMessage/send","/deviceUnConnect","/byteOver","/deviceConnectSuccess");
+        registry.enableSimpleBroker("/deviceConnect","/uploadHeartBeatMessage","/receiveHeartbeatCMD","/uploadSelfInspectionResult","/uploadSoftwareVersionMessage","/uploadDeviceNetWorkParamMessage","/uploadRadarSubSystemWorkStatusMessage","/uploadVersionNumberMessage/send","/uploadEnemyAndUsPackageMessage/send","/deviceUnConnect","/byteOver","/deviceConnectSuccess","/deviceConnectSuccess/send");
     }
 }

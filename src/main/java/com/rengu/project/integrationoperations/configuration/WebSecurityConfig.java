@@ -88,7 +88,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailHandler)
                 .and().csrf().disable();
-        http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry);
+        // 限制异地登录
+//        http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry);
         http.httpBasic();
     }
 

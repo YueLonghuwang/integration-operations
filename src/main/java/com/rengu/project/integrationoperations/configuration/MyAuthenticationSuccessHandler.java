@@ -39,8 +39,9 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         UserEntity userEntity = userService.getUserByUsername(request.getParameter("username"));
-        log.info("登录成功");
-        log.info("username=>" + request.getParameter("username"));
+        //log.info("登录成功");
+        System.out.println("登录成功");
+        //log.info("username=>" + request.getParameter("username"));
         Map<String, Object> map = new HashMap<>();
         map.put("code", "0");
         map.put("msg", "登录成功");

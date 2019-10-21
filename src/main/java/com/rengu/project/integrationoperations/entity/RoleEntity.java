@@ -3,6 +3,8 @@ package com.rengu.project.integrationoperations.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rengu.project.integrationoperations.enums.SystemRoleEnum;
 import com.rengu.project.integrationoperations.util.BackEndFrameworkApplicationMessage;
+
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -18,8 +20,8 @@ import java.util.UUID;
  * @date 2019-03-19
  */
 
-@NoArgsConstructor
 @Entity
+@Data
 public class RoleEntity implements Serializable {
 
     @Id
@@ -76,5 +78,8 @@ public class RoleEntity implements Serializable {
         this.name = systemRoleEnum.getName();
         this.description = systemRoleEnum.getDescription();
         this.defaultRole = true;
+    }
+    public RoleEntity () {
+    	
     }
 }
